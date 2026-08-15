@@ -54,7 +54,6 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
   // Theme-tailored stroke & glow colors
   const primaryStroke = isDark ? 'rgba(245, 245, 238, 0.85)' : 'rgba(43, 43, 42, 0.85)';
   const ambientGlowColor = isDark ? 'rgba(245, 245, 238, 0.15)' : 'rgba(43, 43, 42, 0.12)';
-  const pulseColor = isDark ? '#F5F5EE' : '#2B2B2A';
 
   return (
     <div className={`w-full rounded-3xl frosted-glass p-6 sm:p-8 border border-charcoal/[0.12] dark:border-cream/[0.12] overflow-hidden relative ${className}`}>
@@ -124,7 +123,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           {/* CURVY CONDUITS CONVERGING SMOOTHLY TO APEX POINT */}
           {/* ============================================================ */}
           {sources.map((src) => {
-            const sourceBottomY = src.y + 26;
+            const sourceBottomY = src.y + 24;
 
             // Soft S-curve Bézier converging into single point (brainCx, convergencePointY)
             const ctrlY1 = sourceBottomY + 55;
@@ -154,15 +153,6 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
                   opacity="0.65"
                   filter="url(#themeGlow)"
                 />
-
-                {/* Flowing Data Energy Packet */}
-                <circle r="3.5" fill={pulseColor} filter="url(#themeGlow)">
-                  <animateMotion
-                    path={pathD}
-                    dur={`${2.2 + src.id * 0.3}s`}
-                    repeatCount="indefinite"
-                  />
-                </circle>
               </g>
             );
           })}
@@ -213,9 +203,6 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
                 >
                   0{src.id + 1}
                 </text>
-
-                {/* 5. BOTTOM OUTPUT PORT */}
-                <circle cx={src.x} cy={src.y + 24} r="3" fill="currentColor" className="text-charcoal dark:text-cream" />
               </g>
             );
           })}
@@ -281,15 +268,6 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
             >
               Continuously Acquiring & Synthesizing Context
             </text>
-
-            {/* Single Apex Inflow Port on the Circular Perimeter */}
-            <circle
-              cx={brainCx}
-              cy={convergencePointY}
-              r="4"
-              fill={pulseColor}
-              filter="url(#themeGlow)"
-            />
           </g>
 
         </svg>
