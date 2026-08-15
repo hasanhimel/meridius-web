@@ -267,19 +267,19 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
             <circle
               cx={brainCx}
               cy={brainCy}
-              r="25"
+              r="28"
               fill="currentColor"
               className="text-charcoal dark:text-cream"
               filter="url(#themeGlow)"
             />
 
-            {/* CLEAN COMPACT MERIDIUS VECTOR LOGO MARK */}
+            {/* PROMINENT MERIDIUS VECTOR LOGO MARK (BIGGER INSIDE CIRCLE) */}
             <image
               href={isDark ? "/assets/logo/meridius-mark-black.svg" : "/assets/logo/meridius-mark-white.svg"}
-              x={brainCx - 16}
-              y={brainCy - 16}
-              width="32"
-              height="32"
+              x={brainCx - 22}
+              y={brainCy - 22}
+              width="44"
+              height="44"
               className="select-none pointer-events-none"
             />
 
