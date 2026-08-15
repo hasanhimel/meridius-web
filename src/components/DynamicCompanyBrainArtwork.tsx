@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowDown, Shield } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ className = '' }) => {
@@ -64,14 +64,6 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
         <div className="flex items-center gap-2 text-charcoal dark:text-cream font-semibold">
           <span className="w-2 h-2 rounded-full bg-charcoal dark:bg-cream animate-ping" />
           <span>CONTINUOUS CONTEXT ACQUISITION MESH</span>
-        </div>
-        <div className="flex items-center gap-3 text-charcoal-muted dark:text-cream-dim text-[11px]">
-          <span className="flex items-center gap-1 text-charcoal dark:text-cream font-semibold">
-            <ArrowDown className="w-3.5 h-3.5" />
-            4 Distributed Channels Active
-          </span>
-          <span>·</span>
-          <span>Local Mac Keychain Auth</span>
         </div>
       </div>
 

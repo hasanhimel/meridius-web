@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { AnimatedLogoMark } from './AnimatedLogoMark';
 import { ArrowRight, Check } from 'lucide-react';
-import Dither from './Dither';
-import { useTheme } from '../context/ThemeContext';
 
 interface HeroSectionProps {
   onOpenWaitlist?: () => void;
@@ -11,8 +9,6 @@ interface HeroSectionProps {
 export const HeroSection: React.FC<HeroSectionProps> = () => {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
 
   const handleInlineSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,21 +19,6 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
 
   return (
     <section className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:py-16 md:py-20 lg:py-24 bg-cream dark:bg-void transition-colors duration-200 overflow-hidden">
-      
-      {/* Interactive Dither Wave Background Canvas (100% Transparent Background, No Black Box) */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-auto select-none opacity-50 dark:opacity-50 z-0">
-        <Dither
-          waveColor={isDark ? [0.88, 0.88, 0.85] : [0.4, 0.4, 0.4]}
-          disableAnimation={false}
-          enableMouseInteraction
-          mouseRadius={0.3}
-          colorNum={3}
-          waveAmplitude={0.05}
-          waveFrequency={2.1}
-          waveSpeed={0.01}
-        />
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 pointer-events-none">
         
         {/* Two-Column Responsive Grid */}
