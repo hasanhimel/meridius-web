@@ -29,14 +29,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlist }) => {
 
         {/* Minimal Nav Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-sans text-charcoal-muted dark:text-cream-muted">
-          <a href="#capabilities" className="hover:text-charcoal dark:hover:text-cream transition-colors">
-            Outcomes
+          <a href="#how-it-works" className="hover:text-charcoal dark:hover:text-cream transition-colors">
+            How it works
           </a>
           <a href="#comparison" className="hover:text-charcoal dark:hover:text-cream transition-colors">
             Comparison
           </a>
           <a href="#sync" className="hover:text-charcoal dark:hover:text-cream transition-colors">
-            Meridius Sync
+            Sync
           </a>
           <a href="#founder" className="hover:text-charcoal dark:hover:text-cream transition-colors">
             Founder

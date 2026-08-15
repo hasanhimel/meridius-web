@@ -75,11 +75,11 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
               </form>
             </div>
 
-            {/* 3 Outcome Metrics */}
+            {/* 3 Core Highlights */}
             <div className="grid grid-cols-3 gap-3 sm:gap-6 pt-6 sm:pt-8 border-t border-charcoal/[0.08] dark:border-cream/[0.08] w-full max-w-lg transition-colors">
               <div>
                 <div className="font-mono text-sm sm:text-base md:text-lg font-semibold text-charcoal dark:text-cream">0px</div>
-                <div className="text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">Cursor Takeover</div>
+                <div className="text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">Cursor Hijacking</div>
               </div>
 
               <div>
@@ -89,7 +89,7 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
 
               <div>
                 <div className="font-mono text-sm sm:text-base md:text-lg font-semibold text-charcoal dark:text-cream">100%</div>
-                <div className="text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">Local Logins & Privacy</div>
+                <div className="text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">Native & Private</div>
               </div>
             </div>
 

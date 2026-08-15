@@ -68,7 +68,7 @@ export const ComparisonSection: React.FC = () => {
             <thead>
               <tr className="border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-white/40 dark:bg-white/[0.02]">
                 <th className="py-4 px-6 text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider w-[36%]">
-                  Capability / Outcome
+                  Feature & Experience
                 </th>
                 <th className="py-4 px-6 text-xs font-mono font-semibold text-charcoal dark:text-cream tracking-wider w-[22%] bg-charcoal/[0.03] dark:bg-cream/[0.03]">
                   Meridius
