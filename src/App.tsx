@@ -20,16 +20,24 @@ export function App() {
   useEffect(() => {
     const checkRoute = () => {
       const path = window.location.pathname.toLowerCase();
-      const hash = window.location.hash.toLowerCase();
-      setIsAdminRoute(path.startsWith('/admin') || hash === '#admin');
+      if (path.startsWith('/admin')) {
+        setIsAdminRoute(true);
+      } else {
+        setIsAdminRoute(false);
+        if (path === '/product') {
+          setTimeout(() => document.getElementById('product')?.scrollIntoView({ behavior: 'smooth' }), 150);
+        } else if (path === '/comparison') {
+          setTimeout(() => document.getElementById('comparison')?.scrollIntoView({ behavior: 'smooth' }), 150);
+        } else if (path === '/sync') {
+          setTimeout(() => document.getElementById('sync')?.scrollIntoView({ behavior: 'smooth' }), 150);
+        }
+      }
     };
 
     checkRoute();
     window.addEventListener('popstate', checkRoute);
-    window.addEventListener('hashchange', checkRoute);
     return () => {
       window.removeEventListener('popstate', checkRoute);
-      window.removeEventListener('hashchange', checkRoute);
     };
   }, []);
 

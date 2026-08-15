@@ -11,12 +11,26 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlist }) => {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
 
+  const navigateTo = (e: React.MouseEvent, path: string, elementId?: string) => {
+    e.preventDefault();
+    window.history.pushState(null, '', path);
+    if (elementId) {
+      document.getElementById(elementId)?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-cream/80 dark:bg-void/80 backdrop-blur-xl transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         {/* Brand Logo & Name */}
-        <a href="#" className="flex items-center gap-2.5 sm:gap-3 group">
+        <a 
+          href="/" 
+          onClick={(e) => navigateTo(e, '/')}
+          className="flex items-center gap-2.5 sm:gap-3 group"
+        >
           <img 
             src={isDark ? "/assets/logo/meridius-mark-white.svg" : "/assets/logo/meridius-mark-black.svg"} 
             alt="Meridius" 
@@ -27,15 +41,27 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlist }) => {
           </span>
         </a>
 
-        {/* Minimal Nav Links */}
+        {/* Clean Nav Links (No '#' symbols) */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-sans text-charcoal-muted dark:text-cream-muted">
-          <a href="#product" className="hover:text-charcoal dark:hover:text-cream transition-colors">
+          <a 
+            href="/product" 
+            onClick={(e) => navigateTo(e, '/product', 'product')}
+            className="hover:text-charcoal dark:hover:text-cream transition-colors"
+          >
             Product
           </a>
-          <a href="#comparison" className="hover:text-charcoal dark:hover:text-cream transition-colors">
+          <a 
+            href="/comparison" 
+            onClick={(e) => navigateTo(e, '/comparison', 'comparison')}
+            className="hover:text-charcoal dark:hover:text-cream transition-colors"
+          >
             Comparison
           </a>
-          <a href="#sync" className="hover:text-charcoal dark:hover:text-cream transition-colors">
+          <a 
+            href="/sync" 
+            onClick={(e) => navigateTo(e, '/sync', 'sync')}
+            className="hover:text-charcoal dark:hover:text-cream transition-colors"
+          >
             Sync
           </a>
         </nav>
