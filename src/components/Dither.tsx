@@ -1,20 +1,18 @@
 import { useRef, useEffect } from 'react';
-import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
 const waveVertexShader = `
-precision highp float;
+precision mediump float;
 varying vec2 vUv;
 void main() {
   vUv = uv;
-  vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-  vec4 viewPosition = viewMatrix * modelPosition;
-  gl_Position = projectionMatrix * viewPosition;
+  gl_Position = vec4(position, 1.0);
 }
 `;
 
 const waveFragmentShader = `
-precision highp float;
+precision mediump float;
 uniform vec2 resolution;
 uniform float time;
 uniform float waveSpeed;
@@ -37,55 +35,17 @@ const float bayerMatrix8x8[64] = float[64](
   42.0/64.0,26.0/64.0, 38.0/64.0, 22.0/64.0, 41.0/64.0,25.0/64.0, 37.0/64.0, 21.0/64.0
 );
 
-vec4 mod289(vec4 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
-vec4 permute(vec4 x) { return mod289(((x * 34.0) + 1.0) * x); }
-vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
-vec2 fade(vec2 t) { return t*t*t*(t*(t*6.0-15.0)+10.0); }
-
-float cnoise(vec2 P) {
-  vec4 Pi = floor(P.xyxy) + vec4(0.0,0.0,1.0,1.0);
-  vec4 Pf = fract(P.xyxy) - vec4(0.0,0.0,1.0,1.0);
-  Pi = mod289(Pi);
-  vec4 ix = Pi.xzxz;
-  vec4 iy = Pi.yyww;
-  vec4 fx = Pf.xzxz;
-  vec4 fy = Pf.yyww;
-  vec4 i = permute(permute(ix) + iy);
-  vec4 gx = fract(i * (1.0/41.0)) * 2.0 - 1.0;
-  vec4 gy = abs(gx) - 0.5;
-  vec4 tx = floor(gx + 0.5);
-  gx = gx - tx;
-  vec2 g00 = vec2(gx.x, gy.x);
-  vec2 g10 = vec2(gx.y, gy.y);
-  vec2 g01 = vec2(gx.z, gy.z);
-  vec2 g11 = vec2(gx.w, gy.w);
-  vec4 norm = taylorInvSqrt(vec4(dot(g00,g00), dot(g01,g01), dot(g10,g10), dot(g11,g11)));
-  g00 *= norm.x; g01 *= norm.y; g10 *= norm.z; g11 *= norm.w;
-  float n00 = dot(g00, vec2(fx.x, fy.x));
-  float n10 = dot(g10, vec2(fx.y, fy.y));
-  float n01 = dot(g01, vec2(fx.z, fy.z));
-  float n11 = dot(g11, vec2(fx.w, fy.w));
-  vec2 fade_xy = fade(Pf.xy);
-  vec2 n_x = mix(vec2(n00, n01), vec2(n10, n11), fade_xy.x);
-  return 2.3 * mix(n_x.x, n_x.y, fade_xy.y);
-}
-
-const int OCTAVES = 3;
-float fbm(vec2 p) {
-  float value = 0.0;
-  float amp = 0.8;
-  float freq = waveFrequency;
-  for (int i = 0; i < OCTAVES; i++) {
-    value += amp * abs(cnoise(p));
-    p *= freq;
-    amp *= waveAmplitude;
-  }
-  return value;
-}
-
-float pattern(vec2 p) {
-  vec2 p2 = p - time * waveSpeed;
-  return fbm(p + fbm(p2)); 
+// High-Performance Smooth Liquid Wave Synthesis (Ultra-Fast 60+ FPS)
+float smoothWaves(vec2 p, float t) {
+  float freq = waveFrequency * 0.45;
+  vec2 p2 = p * freq;
+  
+  float v1 = sin(p2.x * 1.8 + t * 0.75 + sin(p2.y * 1.4 + t * 0.4));
+  float v2 = cos(p2.y * 2.0 - t * 0.65 + cos(p2.x * 1.5 - t * 0.35));
+  float v3 = sin(length(p2 * 1.2) * 1.6 - t * 0.9);
+  
+  float wave = (v1 + v2 + v3 + 3.0) / 6.0;
+  return wave;
 }
 
 void main() {
@@ -93,32 +53,33 @@ void main() {
   vec2 p = uv - 0.5;
   p.x *= resolution.x / resolution.y;
 
-  float f = pattern(p);
+  float t = time * (waveSpeed * 18.0);
+  float f = smoothWaves(p, t);
 
   if (enableMouseInteraction == 1) {
     vec2 mouseNDC = (mousePos / resolution - 0.5) * vec2(1.0, -1.0);
     mouseNDC.x *= resolution.x / resolution.y;
     float dist = length(p - mouseNDC);
-    float effect = 1.0 - smoothstep(0.0, mouseRadius, dist);
-    f += 0.4 * effect;
+    float effect = 1.0 - smoothstep(0.0, mouseRadius * 1.2, dist);
+    f += 0.35 * effect;
   }
 
-  // Calculate 8x8 Bayer Dither Matrix Value
+  // 8x8 Bayer Dither calculation
   vec2 scaledCoord = floor(gl_FragCoord.xy / pixelSize);
   int x = int(mod(scaledCoord.x, 8.0));
   int y = int(mod(scaledCoord.y, 8.0));
   float threshold = bayerMatrix8x8[y * 8 + x];
 
-  // Sparse wave crest mapping: only gentle wave peaks produce dither dots
-  float waveIntensity = smoothstep(0.45, 0.95, f);
+  // Sparse wave crest mapping
+  float waveIntensity = smoothstep(0.48, 0.92, f * (1.0 + waveAmplitude * 0.3));
 
-  // If below dither threshold, discard completely (100% transparent, ZERO dark background)
+  // Discard 100% of non-dither pixels (no black, no background)
   if (waveIntensity < threshold || waveIntensity <= 0.02) {
     discard;
   }
 
-  // Soft low opacity on visible dither dots
-  gl_FragColor = vec4(waveColor, 0.28);
+  // Pure clean, soft visible dither particles
+  gl_FragColor = vec4(waveColor, 0.26);
 }
 `;
 
@@ -158,31 +119,26 @@ function DitheredWaves({
   mouseRadius
 }: DitheredWavesProps) {
   const mesh = useRef<THREE.Mesh>(null);
-  const mouseRef = useRef(new THREE.Vector2());
-  const { viewport, size, gl } = useThree();
+  const mouseRef = useRef(new THREE.Vector2(-1000, -1000));
+  const { size, gl } = useThree();
 
   const waveUniformsRef = useRef<WaveUniforms>({
     time: new THREE.Uniform(0),
-    resolution: new THREE.Uniform(new THREE.Vector2(0, 0)),
+    resolution: new THREE.Uniform(new THREE.Vector2(size.width, size.height)),
     waveSpeed: new THREE.Uniform(waveSpeed),
     waveFrequency: new THREE.Uniform(waveFrequency),
     waveAmplitude: new THREE.Uniform(waveAmplitude),
     waveColor: new THREE.Uniform(new THREE.Color(...waveColor)),
-    mousePos: new THREE.Uniform(new THREE.Vector2(0, 0)),
+    mousePos: new THREE.Uniform(new THREE.Vector2(-1000, -1000)),
     enableMouseInteraction: new THREE.Uniform(enableMouseInteraction ? 1 : 0),
     mouseRadius: new THREE.Uniform(mouseRadius),
     pixelSize: new THREE.Uniform(pixelSize)
   });
 
   useEffect(() => {
-    const dpr = gl.getPixelRatio();
-    const newWidth = Math.floor(size.width * dpr);
-    const newHeight = Math.floor(size.height * dpr);
     const currentRes = waveUniformsRef.current.resolution.value;
-    if (currentRes.x !== newWidth || currentRes.y !== newHeight) {
-      currentRes.set(newWidth, newHeight);
-    }
-  }, [size, gl]);
+    currentRes.set(size.width, size.height);
+  }, [size]);
 
   const prevColor = useRef([...waveColor]);
   useFrame(({ clock }) => {
@@ -206,41 +162,34 @@ function DitheredWaves({
     u.mouseRadius.value = mouseRadius;
 
     if (enableMouseInteraction) {
-      u.mousePos.value.copy(mouseRef.current);
+      u.mousePos.value.lerp(mouseRef.current, 0.1);
     }
   });
 
-  const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
+  useEffect(() => {
     if (!enableMouseInteraction) return;
-    const rect = gl.domElement.getBoundingClientRect();
-    const dpr = gl.getPixelRatio();
-    mouseRef.current.set((e.clientX - rect.left) * dpr, (e.clientY - rect.top) * dpr);
-  };
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const rect = gl.domElement.getBoundingClientRect();
+      mouseRef.current.set(e.clientX - rect.left, e.clientY - rect.top);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    return () => window.removeEventListener('pointermove', handlePointerMove);
+  }, [enableMouseInteraction, gl]);
 
   return (
-    <>
-      <mesh ref={mesh} scale={[viewport.width, viewport.height, 1]}>
-        <planeGeometry args={[1, 1]} />
-        <shaderMaterial
-          vertexShader={waveVertexShader}
-          fragmentShader={waveFragmentShader}
-          uniforms={waveUniformsRef.current}
-          transparent={true}
-          depthWrite={false}
-          depthTest={false}
-        />
-      </mesh>
-
-      <mesh
-        onPointerMove={handlePointerMove}
-        position={[0, 0, 0.01]}
-        scale={[viewport.width, viewport.height, 1]}
-        visible={false}
-      >
-        <planeGeometry args={[1, 1]} />
-        <meshBasicMaterial transparent opacity={0} />
-      </mesh>
-    </>
+    <mesh ref={mesh}>
+      <planeGeometry args={[2, 2]} />
+      <shaderMaterial
+        vertexShader={waveVertexShader}
+        fragmentShader={waveFragmentShader}
+        uniforms={waveUniformsRef.current}
+        transparent={true}
+        depthWrite={false}
+        depthTest={false}
+      />
+    </mesh>
   );
 }
 
@@ -256,22 +205,29 @@ export interface DitherProps {
 }
 
 export default function Dither({
-  waveSpeed = 0.035,
-  waveFrequency = 4.2,
-  waveAmplitude = 0.32,
+  waveSpeed = 0.04,
+  waveFrequency = 5.8,
+  waveAmplitude = 0.37,
   waveColor = [0.3137254901960784, 0.3137254901960784, 0.3137254901960784],
   pixelSize = 3.0,
   disableAnimation = false,
   enableMouseInteraction = true,
-  mouseRadius = 0.35
+  mouseRadius = 0.3
 }: DitherProps) {
   return (
     <Canvas
-      className="w-full h-full relative"
-      style={{ background: 'transparent' }}
-      camera={{ position: [0, 0, 6] }}
-      dpr={1}
-      gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true, premultipliedAlpha: false }}
+      className="w-full h-full relative pointer-events-none select-none"
+      style={{ background: 'transparent', pointerEvents: 'none' }}
+      camera={{ position: [0, 0, 1] }}
+      dpr={[1, 1.25]}
+      gl={{
+        antialias: false,
+        alpha: true,
+        powerPreference: 'high-performance',
+        stencil: false,
+        depth: false,
+        preserveDrawingBuffer: false
+      }}
     >
       <DitheredWaves
         waveSpeed={waveSpeed}
