@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { GitBranch, CheckCircle2 } from 'lucide-react';
 
 export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ className = '' }) => {
-  const [activeNode, setActiveNode] = useState<number>(0);
+  const [activeBranch, setActiveBranch] = useState<number>(0);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
@@ -11,156 +12,151 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
     return () => clearInterval(timer);
   }, []);
 
-  const nodes = [
+  const branches = [
     {
       id: 0,
-      title: 'Engineering Node',
-      subtitle: 'Local Terminal & IDE',
-      role: 'Codebase & CI/CD',
-      cx: 140,
-      cy: 90,
-      packet: 'Syncing PR #142 context...',
+      title: 'Engineering',
+      app: 'VS Code & Terminal',
+      x: 110,
+      subTask: 'CI/CD & Git Sync',
+      detail: 'Syncing local repo commits & test logs without cloud repo write access.',
+      status: 'Active · 4 files synced',
     },
     {
       id: 1,
-      title: 'Product & Design Node',
-      subtitle: 'Figma & Linear',
-      role: 'Spec & Roadmap',
-      cx: 560,
-      cy: 90,
-      packet: 'Merging user feedback loops...',
+      title: 'Product & Design',
+      app: 'Figma & Linear',
+      x: 300,
+      subTask: 'Roadmap Synthesis',
+      detail: 'Synthesizing feature specs with live Figma canvas components.',
+      status: 'Active · 12 specs mapped',
     },
     {
       id: 2,
-      title: 'Growth & Ops Node',
-      subtitle: 'Stripe & HubSpot',
-      role: 'CRM & Pipeline',
-      cx: 140,
-      cy: 310,
-      packet: 'Reconciling billing anomalies...',
+      title: 'Growth & Sales',
+      app: 'HubSpot & Analytics',
+      x: 500,
+      subTask: 'Pipeline Enrichment',
+      detail: 'Autonomous lead qualification & CRM updates in local browser sessions.',
+      status: 'Active · 28 leads updated',
     },
     {
       id: 3,
-      title: 'Leadership Node',
-      subtitle: 'Notes & Strategy',
-      role: 'Company Directives',
-      cx: 560,
-      cy: 310,
-      packet: 'Distributing quarterly goals...',
+      title: 'Operations & Finance',
+      app: 'Stripe & QuickBooks',
+      x: 690,
+      subTask: 'Invoice Reconciliation',
+      detail: 'Matching bank deposits with pending invoices via local desktop sessions.',
+      status: 'Active · 100% balanced',
     },
   ];
-
-  // Center Coordinates
-  const brainCx = 350;
-  const brainCy = 200;
 
   return (
     <div className={`w-full rounded-3xl frosted-glass p-6 sm:p-8 border border-charcoal/[0.12] dark:border-cream/[0.12] overflow-hidden relative ${className}`}>
       
-      {/* Top Telemetry Header */}
+      {/* Header Telemetry */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-4 border-b border-charcoal/[0.08] dark:border-cream/[0.08] text-xs font-mono gap-2">
         <div className="flex items-center gap-2 text-charcoal dark:text-cream font-semibold">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-          <span>MERIDIUS SYNC MESH · LIVE TOPOLOGY</span>
+          <GitBranch className="w-4 h-4 text-emerald-500" />
+          <span>STRUCTURED SYNC TOPOLOGY · HIERARCHICAL TREE</span>
         </div>
-        <div className="flex items-center gap-4 text-charcoal-muted dark:text-cream-dim text-[11px]">
-          <span>4 Connected Nodes</span>
+        <div className="flex items-center gap-3 text-charcoal-muted dark:text-cream-dim text-[11px]">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            4 Federated Branches
+          </span>
           <span>·</span>
-          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">0 Cloud Credentials Exposed</span>
+          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Zero Centralized Secrets</span>
         </div>
       </div>
 
-      {/* SVG Interactive Canvas */}
-      <div className="relative w-full aspect-[700/400] max-w-3xl mx-auto flex items-center justify-center my-2">
+      {/* SVG Structured Tree Architecture Diagram */}
+      <div className="relative w-full aspect-[800/440] max-w-4xl mx-auto flex items-center justify-center my-2">
         <svg
-          viewBox="0 0 700 400"
+          viewBox="0 0 800 440"
           className="w-full h-full overflow-visible select-none"
         >
           <defs>
-            {/* Gradients */}
-            <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
-              <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#10b981" stopOpacity="0.8" />
-            </linearGradient>
-
-            <radialGradient id="brainGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-            </radialGradient>
-
             {/* Glowing filter */}
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <filter id="treeGlow" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="3" result="blur" />
               <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
           </defs>
 
-          {/* Central Glow Field */}
-          <circle cx={brainCx} cy={brainCy} r="140" fill="url(#brainGlow)" />
-
-          {/* Concentric Rotating Orbital Rings */}
-          <circle
-            cx={brainCx}
-            cy={brainCy}
-            r="80"
-            fill="none"
+          {/* ============================================================ */}
+          {/* TREE CONDUIT PATHS (ORTHOGONAL BUS ARCHITECTURE) */}
+          {/* ============================================================ */}
+          
+          {/* Central Trunk Drop from Root */}
+          <line
+            x1="400"
+            y1="75"
+            x2="400"
+            y2="135"
             stroke="currentColor"
-            className="text-charcoal/[0.08] dark:text-cream/[0.08]"
-            strokeWidth="1"
-            strokeDasharray="4 6"
-          />
-          <circle
-            cx={brainCx}
-            cy={brainCy}
-            r="115"
-            fill="none"
-            stroke="currentColor"
-            className="text-charcoal/[0.05] dark:text-cream/[0.05]"
-            strokeWidth="1"
-            strokeDasharray="8 8"
+            className="text-charcoal/[0.15] dark:text-cream/[0.15]"
+            strokeWidth="2"
           />
 
-          {/* Dynamic Animated Connecting Conduits */}
-          {nodes.map((node) => {
-            // Cubic bezier control points
-            const isLeft = node.cx < brainCx;
-            const ctrlX1 = isLeft ? node.cx + 90 : node.cx - 90;
-            const ctrlY1 = node.cy;
-            const ctrlX2 = isLeft ? brainCx - 70 : brainCx + 70;
-            const ctrlY2 = brainCy;
-            const pathD = `M ${node.cx} ${node.cy} C ${ctrlX1} ${ctrlY1}, ${ctrlX2} ${ctrlY2}, ${brainCx} ${brainCy}`;
+          {/* Horizontal Distribution Bus */}
+          <line
+            x1="110"
+            y1="135"
+            x2="690"
+            y2="135"
+            stroke="currentColor"
+            className="text-charcoal/[0.15] dark:text-cream/[0.15]"
+            strokeWidth="2"
+          />
 
-            const isCurrent = activeNode === node.id;
+          {/* Vertical Branch Drops & Sub-Drops */}
+          {branches.map((b) => {
+            const isCurrent = activeBranch === b.id;
+            const fullPathD = `M 400 75 L 400 135 L ${b.x} 135 L ${b.x} 190 L ${b.x} 265 L ${b.x} 320`;
 
             return (
-              <g key={node.id}>
-                {/* Background Track Line */}
-                <path
-                  d={pathD}
-                  fill="none"
+              <g key={b.id}>
+                {/* Branch vertical drop to middle node */}
+                <line
+                  x1={b.x}
+                  y1="135"
+                  x2={b.x}
+                  y2="190"
                   stroke="currentColor"
-                  className={isCurrent ? "text-emerald-500/40 dark:text-emerald-400/40" : "text-charcoal/[0.12] dark:text-cream/[0.12]"}
-                  strokeWidth={isCurrent ? "2.5" : "1.5"}
+                  className={isCurrent ? "text-emerald-500/50" : "text-charcoal/[0.15] dark:text-cream/[0.15]"}
+                  strokeWidth="2"
                 />
 
-                {/* Animated Light Pulse Stream */}
+                {/* Branch vertical drop to sub-node */}
+                <line
+                  x1={b.x}
+                  y1="245"
+                  x2={b.x}
+                  y2="320"
+                  stroke="currentColor"
+                  className={isCurrent ? "text-emerald-500/50" : "text-charcoal/[0.15] dark:text-cream/[0.15]"}
+                  strokeWidth="2"
+                  strokeDasharray="4 4"
+                />
+
+                {/* Animated Light Pulse along this branch's path */}
                 <path
-                  d={pathD}
+                  d={fullPathD}
                   fill="none"
                   stroke="#10b981"
-                  strokeWidth="2.5"
-                  strokeDasharray="10 30"
+                  strokeWidth={isCurrent ? "2.5" : "1.5"}
+                  strokeDasharray="8 24"
                   strokeDashoffset={-tick * 2}
-                  opacity={isCurrent ? "0.9" : "0.4"}
-                  filter="url(#glow)"
+                  opacity={isCurrent ? "0.9" : "0.35"}
+                  filter="url(#treeGlow)"
                 />
 
-                {/* Animated Energy Particle Traveling On Path */}
-                <circle r="4" fill="#10b981" filter="url(#glow)">
+                {/* Flowing Energy Packet */}
+                <circle r="3.5" fill="#10b981" filter="url(#treeGlow)">
                   <animateMotion
-                    path={pathD}
-                    dur={`${2.4 + node.id * 0.4}s`}
+                    path={fullPathD}
+                    dur={`${2.2 + b.id * 0.3}s`}
                     repeatCount="indefinite"
                   />
                 </circle>
@@ -169,115 +165,144 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           })}
 
           {/* ============================================================ */}
-          {/* CENTRAL COMPANY BRAIN NUCLEUS */}
+          {/* LEVEL 1: ROOT NODE (SHARED COMPANY BRAIN) */}
           {/* ============================================================ */}
           <g className="cursor-pointer">
-            {/* Outer Pulsing Ring */}
-            <circle
-              cx={brainCx}
-              cy={brainCy}
-              r="48"
+            {/* Root Outer Pill */}
+            <rect
+              x="270"
+              y="20"
+              width="260"
+              height="55"
+              rx="16"
               fill="currentColor"
-              className="text-emerald-500/10"
-            >
-              <animate
-                attributeName="r"
-                values="46;52;46"
-                dur="3s"
-                repeatCount="indefinite"
-              />
-            </circle>
-
-            {/* Core Brain Hexagon / Circle */}
-            <circle
-              cx={brainCx}
-              cy={brainCy}
-              r="38"
-              fill="currentColor"
-              className="text-charcoal dark:text-cream"
-              filter="url(#glow)"
+              className="text-white dark:text-void"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
+            <rect
+              x="270"
+              y="20"
+              width="260"
+              height="55"
+              rx="16"
+              fill="none"
+              stroke="#10b981"
+              strokeWidth="1.5"
+              strokeDasharray="6 6"
+              opacity="0.6"
             />
 
-            {/* Core Logo Mark / Brain Icon */}
-            <text
-              x={brainCx}
-              y={brainCy - 4}
-              textAnchor="middle"
-              className="fill-cream dark:fill-charcoal font-brand font-extrabold text-[15px] select-none"
-            >
+            {/* Root Icon */}
+            <circle cx="305" cy="47.5" r="16" fill="currentColor" className="text-charcoal dark:text-cream" />
+            <text x="305" y="52" textAnchor="middle" className="fill-cream dark:fill-charcoal font-brand font-extrabold text-[12px]">
               M
             </text>
-            <text
-              x={brainCx}
-              y={brainCy + 12}
-              textAnchor="middle"
-              className="fill-cream/80 dark:fill-charcoal/80 font-mono text-[8px] font-semibold tracking-wider select-none"
-            >
-              BRAIN
+
+            {/* Root Title */}
+            <text x="335" y="42" className="fill-charcoal dark:fill-cream font-display font-semibold text-[13px]">
+              Shared Company Brain
             </text>
+            <text x="335" y="58" className="fill-charcoal-muted dark:fill-cream-dim font-mono text-[9.5px]">
+              Central Autonomous Context Mesh
+            </text>
+
+            {/* Port indicator */}
+            <circle cx="400" cy="75" r="4" fill="#10b981" />
           </g>
 
           {/* ============================================================ */}
-          {/* 4 PERIPHERAL TEAM AGENT NODES */}
+          {/* LEVEL 2: DEPARTMENT BRANCHES */}
           {/* ============================================================ */}
-          {nodes.map((node) => {
-            const isCurrent = activeNode === node.id;
+          {branches.map((b) => {
+            const isCurrent = activeBranch === b.id;
             return (
               <g
-                key={node.id}
-                className="cursor-pointer transition-transform hover:scale-105"
-                onMouseEnter={() => setActiveNode(node.id)}
+                key={`tier2-${b.id}`}
+                className="cursor-pointer transition-all duration-200"
+                onClick={() => setActiveBranch(b.id)}
+                onMouseEnter={() => setActiveBranch(b.id)}
               >
-                {/* Node Outer Halo on active */}
-                {isCurrent && (
-                  <circle
-                    cx={node.cx}
-                    cy={node.cy}
-                    r="34"
-                    fill="none"
-                    stroke="#10b981"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 4"
-                    opacity="0.8"
-                  />
-                )}
-
-                {/* Node Outer Circle */}
-                <circle
-                  cx={node.cx}
-                  cy={node.cy}
-                  r="26"
+                {/* Node Box */}
+                <rect
+                  x={b.x - 80}
+                  y="190"
+                  width="160"
+                  height="55"
+                  rx="14"
                   fill="currentColor"
-                  className={isCurrent ? "text-emerald-500/20" : "text-white dark:text-void"}
-                  stroke="currentColor"
-                  strokeWidth="2"
+                  className={isCurrent ? "text-emerald-500/10" : "text-white dark:text-void"}
+                  stroke={isCurrent ? "#10b981" : "currentColor"}
+                  strokeWidth={isCurrent ? "2" : "1.5"}
                 />
 
-                {/* Node Center Dot */}
-                <circle
-                  cx={node.cx}
-                  cy={node.cy}
-                  r="10"
-                  fill="currentColor"
-                  className={isCurrent ? "text-emerald-500" : "text-charcoal dark:text-cream"}
-                />
-
-                {/* Node Labels */}
+                {/* Node Text */}
                 <text
-                  x={node.cx}
-                  y={node.cy > brainCy ? node.cy + 42 : node.cy - 34}
+                  x={b.x}
+                  y="213"
                   textAnchor="middle"
-                  className="fill-charcoal dark:fill-cream font-display font-semibold text-[11px]"
+                  className="fill-charcoal dark:fill-cream font-display font-semibold text-[11.5px]"
                 >
-                  {node.title}
+                  {b.title}
                 </text>
                 <text
-                  x={node.cx}
-                  y={node.cy > brainCy ? node.cy + 55 : node.cy - 21}
+                  x={b.x}
+                  y="230"
                   textAnchor="middle"
                   className="fill-charcoal-muted dark:fill-cream-dim font-mono text-[9px]"
                 >
-                  {node.subtitle}
+                  {b.app}
+                </text>
+
+                {/* Top and Bottom Ports */}
+                <circle cx={b.x} cy="190" r="3.5" fill={isCurrent ? "#10b981" : "currentColor"} className="text-charcoal-dim dark:text-cream-dim" />
+                <circle cx={b.x} cy="245" r="3.5" fill={isCurrent ? "#10b981" : "currentColor"} className="text-charcoal-dim dark:text-cream-dim" />
+              </g>
+            );
+          })}
+
+          {/* ============================================================ */}
+          {/* LEVEL 3: LOCAL SUB-AGENT TASKS */}
+          {/* ============================================================ */}
+          {branches.map((b) => {
+            const isCurrent = activeBranch === b.id;
+            return (
+              <g
+                key={`tier3-${b.id}`}
+                className="cursor-pointer"
+                onClick={() => setActiveBranch(b.id)}
+                onMouseEnter={() => setActiveBranch(b.id)}
+              >
+                {/* Sub-node Box */}
+                <rect
+                  x={b.x - 75}
+                  y="320"
+                  width="150"
+                  height="48"
+                  rx="10"
+                  fill="currentColor"
+                  className={isCurrent ? "text-charcoal/[0.05] dark:text-cream/[0.08]" : "text-white/60 dark:text-white/[0.02]"}
+                  stroke={isCurrent ? "#10b981" : "currentColor"}
+                  strokeWidth="1"
+                  strokeDasharray={isCurrent ? "none" : "3 3"}
+                />
+
+                {/* Sub-node Text */}
+                <text
+                  x={b.x}
+                  y="341"
+                  textAnchor="middle"
+                  className="fill-charcoal dark:fill-cream font-mono font-medium text-[10px]"
+                >
+                  {b.subTask}
+                </text>
+                <text
+                  x={b.x}
+                  y="355"
+                  textAnchor="middle"
+                  className="fill-emerald-600 dark:fill-emerald-400 font-mono text-[8.5px]"
+                >
+                  ● Local Native Agent
                 </text>
               </g>
             );
@@ -285,25 +310,25 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
         </svg>
       </div>
 
-      {/* Live Node Context Card */}
-      <div className="mt-4 p-4 rounded-2xl bg-white/60 dark:bg-white/[0.03] border border-charcoal/[0.08] dark:border-cream/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors">
+      {/* Selected Branch Inspection Footer */}
+      <div className="mt-4 p-4 rounded-2xl bg-white/70 dark:bg-white/[0.03] border border-charcoal/[0.08] dark:border-cream/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
-            0{nodes[activeNode].id + 1}
+          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
+            0{branches[activeBranch].id + 1}
           </div>
           <div>
             <div className="font-display font-semibold text-xs sm:text-sm text-charcoal dark:text-cream">
-              {nodes[activeNode].title} · <span className="text-emerald-600 dark:text-emerald-400 font-mono text-xs">{nodes[activeNode].role}</span>
+              {branches[activeBranch].title} Branch · <span className="font-mono text-xs text-charcoal-muted dark:text-cream-dim">{branches[activeBranch].app}</span>
             </div>
-            <div className="text-xs text-charcoal-muted dark:text-cream-dim font-mono mt-0.5">
-              Live Activity: <span className="text-charcoal dark:text-cream">{nodes[activeNode].packet}</span>
+            <div className="text-xs text-charcoal-muted dark:text-cream-muted font-sans mt-0.5 max-w-xl">
+              {branches[activeBranch].detail}
             </div>
           </div>
         </div>
 
-        <div className="text-[11px] font-mono text-charcoal-muted dark:text-cream-dim flex items-center gap-1.5 self-start sm:self-auto shrink-0">
-          <span className="w-2 h-2 rounded-full bg-emerald-500" />
-          <span>Local Mac Keychain Auth</span>
+        <div className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 shrink-0 self-start sm:self-auto px-3 py-1.5 rounded-full bg-emerald-500/10">
+          <CheckCircle2 className="w-3.5 h-3.5" />
+          <span>{branches[activeBranch].status}</span>
         </div>
       </div>
 
