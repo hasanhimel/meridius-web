@@ -20,7 +20,7 @@ export const ComparisonSection: React.FC = () => {
       codex: 'check',
       claude: 'cross',
       coasty: 'check',
-      openwork: 'cross',
+      openwork: 'partial',
       hermes: 'check',
       voiceos: 'na',
       clicky: 'na',
@@ -53,7 +53,7 @@ export const ComparisonSection: React.FC = () => {
       codex: 'cross',
       claude: 'cross',
       coasty: 'cross',
-      openwork: 'cross',
+      openwork: 'check',
       hermes: 'cross',
       voiceos: 'na',
       clicky: 'na',
@@ -61,7 +61,7 @@ export const ComparisonSection: React.FC = () => {
     {
       feature: 'Voice + memory',
       meridius: 'check',
-      codex: 'cross',
+      codex: 'check_annotated',
       claude: 'cross',
       coasty: 'cross',
       openwork: 'cross',
@@ -75,7 +75,7 @@ export const ComparisonSection: React.FC = () => {
       codex: 'cross',
       claude: 'cross',
       coasty: 'cross',
-      openwork: 'cross',
+      openwork: 'partial',
       hermes: 'cross',
       voiceos: 'cross',
       clicky: 'cross',
@@ -101,16 +101,16 @@ export const ComparisonSection: React.FC = () => {
 
         {/* Minimalist Symbol-Based Comparison Table */}
         <div className="overflow-x-auto rounded-2xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] shadow-sm mb-5">
-          <table className="w-full text-left border-collapse min-w-[860px] text-xs">
+          <table className="w-full text-left border-collapse min-w-[880px] text-xs">
             <thead>
               <tr className="border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-white/50 dark:bg-white/[0.03]">
-                <th className="py-4 px-5 font-mono font-semibold text-charcoal-muted dark:text-cream-dim uppercase tracking-wider w-[24%] sticky left-0 bg-cream/95 dark:bg-void/95 backdrop-blur-md z-10">
+                <th className="py-4 px-5 font-mono font-semibold text-charcoal-muted dark:text-cream-dim uppercase tracking-wider w-[22%] sticky left-0 bg-cream/95 dark:bg-void/95 backdrop-blur-md z-10">
                   Feature
                 </th>
                 <th className="py-4 px-3.5 font-mono font-bold text-charcoal dark:text-cream tracking-wider text-center w-[12%] bg-charcoal/[0.04] dark:bg-cream/[0.05]">
                   Meridius
                 </th>
-                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[10%]">
+                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[12%]">
                   Codex CU
                 </th>
                 <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[11%]">
@@ -214,7 +214,7 @@ export const ComparisonSection: React.FC = () => {
           </div>
           <div className="flex items-center gap-1.5">
             <span className="font-bold text-amber-500 text-sm">⚠</span>
-            <span>partial, breaks sometimes</span>
+            <span>partial, breaks sometimes, or comes with a real tradeoff</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="font-bold text-charcoal-muted/50 dark:text-cream-dim/50 text-sm">—</span>
@@ -234,7 +234,7 @@ export const ComparisonSection: React.FC = () => {
                 Codex & Hermes
               </span>
               <p>
-                Try to stay backgrounded but slip occasionally — Codex because macOS forces the app forward sometimes, Hermes because it leans on undocumented Apple APIs. Meridius can't slip, the app is never on your real display.
+                Try to stay backgrounded but slip occasionally, Codex because macOS forces the app forward sometimes, Hermes because it leans on undocumented Apple APIs. Meridius can't slip, the app is never on your real display.
               </p>
             </div>
 
@@ -243,7 +243,7 @@ export const ComparisonSection: React.FC = () => {
                 Coasty & OpenWork
               </span>
               <p>
-                Solve isolation by leaving your machine (cloud VM or a separate browser), so they lose access to your real, already-logged-in native apps.
+                <strong className="text-charcoal dark:text-cream font-medium">Coasty</strong> solves isolation by leaving your machine entirely, a cloud VM, so it loses your real, logged-in apps. <strong className="text-charcoal dark:text-cream font-medium">OpenWork</strong> does the same for browser tasks specifically, a separate signed-in browser, not your real one, so it avoids cursor hijacking there at the cost of your actual session. Its team plan also shares configs and skills, not live shared-project coordination like Meridius Sync.
               </p>
             </div>
 
@@ -252,7 +252,7 @@ export const ComparisonSection: React.FC = () => {
                 VoiceOS & Clicky
               </span>
               <p>
-                Aren't computer-use agents at all — they trigger actions through app connectors (MCPs, APIs), not dynamic screen control.
+                Aren't computer-use agents at all, they trigger actions through app connectors, not screen control.
               </p>
             </div>
           </div>
@@ -270,6 +270,17 @@ function renderBadge(type: string) {
         <span className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-xs">
           <Check className="w-3.5 h-3.5" />
         </span>
+      );
+    case 'check_annotated':
+      return (
+        <div className="flex flex-col items-center justify-center gap-0.5">
+          <span className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-xs">
+            <Check className="w-3.5 h-3.5" />
+          </span>
+          <span className="text-[9px] font-mono text-charcoal-muted dark:text-cream-dim whitespace-nowrap">
+            new, Jul 2026
+          </span>
+        </div>
       );
     case 'cross':
       return (
