@@ -24,8 +24,8 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
   return (
     <section className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:py-16 md:py-20 lg:py-24 bg-cream dark:bg-void transition-colors duration-200 overflow-hidden">
       
-      {/* Faulty Terminal Shader Ambient Background Canvas with Soft Opacity */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-auto select-none opacity-[0.25] dark:opacity-[0.3] mix-blend-multiply dark:mix-blend-screen z-0">
+      {/* Faulty Terminal Shader Ambient Background Canvas with 100% Transparent Background */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none select-none opacity-[0.35] dark:opacity-[0.4] z-0">
         <FaultyTerminal
           scale={2.1}
           gridMul={[2, 1]}

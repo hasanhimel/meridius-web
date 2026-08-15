@@ -226,7 +226,12 @@ void main() {
       col += (rnd - 0.5) * (uDither * 0.003922);
     }
 
-    gl_FragColor = vec4(col, 1.0);
+    float alpha = max(col.r, max(col.g, col.b));
+    if (alpha <= 0.02) {
+      discard;
+    }
+
+    gl_FragColor = vec4(col, alpha);
 }
 `;
 
@@ -291,10 +296,10 @@ export default function FaultyTerminal({
     const ctn = containerRef.current;
     if (!ctn) return;
 
-    const renderer = new Renderer({ dpr, alpha: true });
+    const renderer = new Renderer({ dpr, alpha: true, premultipliedAlpha: false });
     rendererRef.current = renderer;
     const gl = renderer.gl;
-
+    gl.clearColor(0, 0, 0, 0);
     const geometry = new Triangle(gl);
 
     const program = new Program(gl, {
@@ -384,12 +389,12 @@ export default function FaultyTerminal({
     rafRef.current = requestAnimationFrame(update);
     ctn.appendChild(gl.canvas);
 
-    if (mouseReact) ctn.addEventListener('mousemove', handleMouseMove);
+    if (mouseReact) window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
     return () => {
       cancelAnimationFrame(rafRef.current);
       resizeObserver.disconnect();
-      if (mouseReact) ctn.removeEventListener('mousemove', handleMouseMove);
+      if (mouseReact) window.removeEventListener('mousemove', handleMouseMove);
       if (gl.canvas.parentElement === ctn) ctn.removeChild(gl.canvas);
       gl.getExtension('WEBGL_lose_context')?.loseContext();
       loadAnimationStartRef.current = 0;
