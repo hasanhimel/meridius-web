@@ -45,7 +45,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
     },
   ];
 
-  // Meridius Brain Circular Center (Sleek Compact Size)
+  // Meridius Brain Circular Center
   const brainCx = 450;
   const brainCy = 290;
   const brainRadius = 34;
@@ -54,6 +54,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
   // Theme-tailored stroke & glow colors
   const primaryStroke = isDark ? 'rgba(245, 245, 238, 0.85)' : 'rgba(43, 43, 42, 0.85)';
   const ambientGlowColor = isDark ? 'rgba(245, 245, 238, 0.15)' : 'rgba(43, 43, 42, 0.12)';
+  const pulseColor = isDark ? '#F5F5EE' : '#2B2B2A';
 
   return (
     <div className={`w-full rounded-3xl frosted-glass p-6 sm:p-8 border border-charcoal/[0.12] dark:border-cream/[0.12] overflow-hidden relative ${className}`}>
@@ -74,7 +75,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
         </div>
       </div>
 
-      {/* SVG Canvas with Refined Compact Scale */}
+      {/* SVG Canvas with Moving Dynamic Data Particles Along Lines */}
       <div className="relative w-full aspect-[900/380] max-w-4xl mx-auto flex items-center justify-center my-2">
         <svg
           viewBox="0 0 900 380"
@@ -120,7 +121,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           />
 
           {/* ============================================================ */}
-          {/* CURVY CONDUITS CONVERGING SMOOTHLY TO APEX POINT */}
+          {/* CURVY CONDUITS WITH TRAVELING MOVING DATA PACKETS */}
           {/* ============================================================ */}
           {sources.map((src) => {
             const sourceBottomY = src.y + 24;
@@ -153,6 +154,15 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
                   opacity="0.65"
                   filter="url(#themeGlow)"
                 />
+
+                {/* DYNAMIC MOVING DATA PACKET TRAVELING THROUGH THE LINE */}
+                <circle r="3.5" fill={pulseColor} filter="url(#themeGlow)">
+                  <animateMotion
+                    path={pathD}
+                    dur={`${2.2 + src.id * 0.35}s`}
+                    repeatCount="indefinite"
+                  />
+                </circle>
               </g>
             );
           })}
