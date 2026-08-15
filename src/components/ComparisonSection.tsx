@@ -122,13 +122,13 @@ export const ComparisonSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Minimalist Icon-Only Comparison Table */}
-        <div className="overflow-visible rounded-2xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] shadow-sm mb-5">
-          <div className="overflow-x-auto overflow-y-visible">
+        {/* Minimalist Comparison Table Container with Perfect Rounded Corners */}
+        <div className="rounded-2xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] shadow-sm mb-10 overflow-hidden">
+          <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[880px] text-xs">
               <thead>
                 <tr className="border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-white/50 dark:bg-white/[0.03]">
-                  <th className="py-4 px-5 font-mono font-semibold text-charcoal-muted dark:text-cream-dim uppercase tracking-wider w-[22%] sticky left-0 bg-cream/95 dark:bg-void/95 backdrop-blur-md z-10">
+                  <th className="py-4 px-5 font-mono font-semibold text-charcoal-muted dark:text-cream-dim uppercase tracking-wider w-[22%] sticky left-0 bg-cream dark:bg-void z-10 rounded-tl-2xl">
                     Feature
                   </th>
                   <th className="py-4 px-3.5 font-mono font-bold text-charcoal dark:text-cream tracking-wider text-center w-[12%] bg-charcoal/[0.04] dark:bg-cream/[0.05]">
@@ -152,76 +152,79 @@ export const ComparisonSection: React.FC = () => {
                   <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[8%]">
                     VoiceOS
                   </th>
-                  <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[8%]">
+                  <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[8%] rounded-tr-2xl">
                     Clicky
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-charcoal/[0.06] dark:divide-cream/[0.06] font-sans">
-                {rows.map((row, idx) => (
-                  <tr key={idx} className="hover:bg-white/30 dark:hover:bg-white/[0.01] transition-colors">
-                    {/* Feature Label */}
-                    <td className="py-3.5 px-5 font-semibold text-charcoal dark:text-cream font-display sticky left-0 bg-cream/95 dark:bg-void/95 backdrop-blur-md z-10 border-r border-charcoal/[0.04] dark:border-cream/[0.04]">
-                      {row.feature}
-                    </td>
+                {rows.map((row, idx) => {
+                  const isLastRow = idx === rows.length - 1;
+                  return (
+                    <tr key={idx} className="hover:bg-white/30 dark:hover:bg-white/[0.01] transition-colors">
+                      {/* Feature Label */}
+                      <td className={`py-3.5 px-5 font-semibold text-charcoal dark:text-cream font-display sticky left-0 bg-cream dark:bg-void z-10 border-r border-charcoal/[0.04] dark:border-cream/[0.04] ${isLastRow ? 'rounded-bl-2xl' : ''}`}>
+                        {row.feature}
+                      </td>
 
-                    {/* Meridius Column */}
-                    <td className="py-3.5 px-3.5 text-center bg-charcoal/[0.04] dark:bg-cream/[0.05]">
-                      <div className="flex justify-center items-center">
-                        {renderBadge(row.meridius as CellData)}
-                      </div>
-                    </td>
+                      {/* Meridius Column */}
+                      <td className="py-3.5 px-3.5 text-center bg-charcoal/[0.04] dark:bg-cream/[0.05]">
+                        <div className="flex justify-center items-center">
+                          {renderBadge(row.meridius as CellData, idx)}
+                        </div>
+                      </td>
 
-                    {/* Codex */}
-                    <td className="py-3.5 px-3 text-center">
-                      <div className="flex justify-center items-center">
-                        {renderBadge(row.codex as CellData)}
-                      </div>
-                    </td>
+                      {/* Codex */}
+                      <td className="py-3.5 px-3 text-center">
+                        <div className="flex justify-center items-center">
+                          {renderBadge(row.codex as CellData, idx)}
+                        </div>
+                      </td>
 
-                    {/* Claude */}
-                    <td className="py-3.5 px-3 text-center">
-                      <div className="flex justify-center items-center">
-                        {renderBadge(row.claude as CellData)}
-                      </div>
-                    </td>
+                      {/* Claude */}
+                      <td className="py-3.5 px-3 text-center">
+                        <div className="flex justify-center items-center">
+                          {renderBadge(row.claude as CellData, idx)}
+                        </div>
+                      </td>
 
-                    {/* Coasty */}
-                    <td className="py-3.5 px-3 text-center">
-                      <div className="flex justify-center items-center">
-                        {renderBadge(row.coasty as CellData)}
-                      </div>
-                    </td>
+                      {/* Coasty */}
+                      <td className="py-3.5 px-3 text-center">
+                        <div className="flex justify-center items-center">
+                          {renderBadge(row.coasty as CellData, idx)}
+                        </div>
+                      </td>
 
-                    {/* OpenWork */}
-                    <td className="py-3.5 px-3 text-center">
-                      <div className="flex justify-center items-center">
-                        {renderBadge(row.openwork as CellData)}
-                      </div>
-                    </td>
+                      {/* OpenWork */}
+                      <td className="py-3.5 px-3 text-center">
+                        <div className="flex justify-center items-center">
+                          {renderBadge(row.openwork as CellData, idx)}
+                        </div>
+                      </td>
 
-                    {/* Hermes */}
-                    <td className="py-3.5 px-3 text-center">
-                      <div className="flex justify-center items-center">
-                        {renderBadge(row.hermes as CellData)}
-                      </div>
-                    </td>
+                      {/* Hermes */}
+                      <td className="py-3.5 px-3 text-center">
+                        <div className="flex justify-center items-center">
+                          {renderBadge(row.hermes as CellData, idx)}
+                        </div>
+                      </td>
 
-                    {/* VoiceOS */}
-                    <td className="py-3.5 px-3 text-center">
-                      <div className="flex justify-center items-center">
-                        {renderBadge(row.voiceos as CellData)}
-                      </div>
-                    </td>
+                      {/* VoiceOS */}
+                      <td className="py-3.5 px-3 text-center">
+                        <div className="flex justify-center items-center">
+                          {renderBadge(row.voiceos as CellData, idx)}
+                        </div>
+                      </td>
 
-                    {/* Clicky */}
-                    <td className="py-3.5 px-3 text-center">
-                      <div className="flex justify-center items-center">
-                        {renderBadge(row.clicky as CellData)}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      {/* Clicky */}
+                      <td className={`py-3.5 px-3 text-center ${isLastRow ? 'rounded-br-2xl' : ''}`}>
+                        <div className="flex justify-center items-center">
+                          {renderBadge(row.clicky as CellData, idx)}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -268,13 +271,15 @@ export const ComparisonSection: React.FC = () => {
   );
 };
 
-function renderBadge(cell: CellData) {
+function renderBadge(cell: CellData, rowIndex: number = 0) {
   switch (cell.type) {
     case 'check':
       return <Check className="w-4 h-4 text-emerald-600/80 dark:text-emerald-400/80 stroke-[2.25]" />;
     case 'cross':
       return <X className="w-3.5 h-3.5 text-charcoal-muted/45 dark:text-cream-dim/45 stroke-[2.25]" />;
-    case 'partial':
+    case 'partial': {
+      // Place tooltip below on upper rows, and above on lower rows to avoid any clipping
+      const isTopHalf = rowIndex < 3;
       return (
         <div className="relative group/tip flex items-center justify-center cursor-help">
           <abbr
@@ -284,17 +289,23 @@ function renderBadge(cell: CellData) {
             <AlertTriangle className="w-3.5 h-3.5 text-amber-500/90 dark:text-amber-400/90 stroke-[2.25]" />
           </abbr>
 
-          {/* Sleek Custom Floating Tooltip */}
+          {/* Sleek Adaptive Floating Tooltip */}
           {cell.tooltip && (
-            <div className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 hidden group-hover/tip:flex flex-col items-center z-50 pointer-events-none w-64">
-              <div className="bg-charcoal dark:bg-cream text-cream dark:text-charcoal text-[11px] font-sans font-normal leading-snug p-3 rounded-xl shadow-xl border border-white/10 dark:border-black/10 text-center">
+            <div
+              className={`absolute left-1/2 -translate-x-1/2 hidden group-hover/tip:flex flex-col items-center z-50 pointer-events-none w-64 ${
+                isTopHalf ? 'top-full mt-2' : 'bottom-full mb-2'
+              }`}
+            >
+              {isTopHalf && <div className="w-2 h-2 bg-charcoal dark:bg-cream rotate-45 -mb-1 z-10" />}
+              <div className="bg-charcoal dark:bg-cream text-cream dark:text-charcoal text-[11px] font-sans font-normal leading-snug p-3 rounded-xl shadow-2xl border border-white/10 dark:border-black/10 text-center">
                 {cell.tooltip}
               </div>
-              <div className="w-2 h-2 bg-charcoal dark:bg-cream rotate-45 -mt-1" />
+              {!isTopHalf && <div className="w-2 h-2 bg-charcoal dark:bg-cream rotate-45 -mt-1 z-10" />}
             </div>
           )}
         </div>
       );
+    }
     case 'planned':
       return (
         <span className="text-[11px] font-mono font-medium text-charcoal-muted dark:text-cream-dim">
