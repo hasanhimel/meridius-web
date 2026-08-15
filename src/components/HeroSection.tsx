@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AnimatedLogoMark } from './AnimatedLogoMark';
 import { ArrowRight, Check } from 'lucide-react';
-import FaultyTerminal from './FaultyTerminal';
+import Dither from './Dither';
 import { useTheme } from '../context/ThemeContext';
 
 interface HeroSectionProps {
@@ -24,26 +24,17 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
   return (
     <section className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:py-16 md:py-20 lg:py-24 bg-cream dark:bg-void transition-colors duration-200 overflow-hidden">
       
-      {/* Faulty Terminal Shader Ambient Background Canvas with 100% Transparent Background */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none select-none opacity-[0.35] dark:opacity-[0.4] z-0">
-        <FaultyTerminal
-          scale={2.1}
-          gridMul={[2, 1]}
-          digitSize={1.1}
-          timeScale={0.5}
-          pause={false}
-          scanlineIntensity={0}
-          glitchAmount={1}
-          flickerAmount={1}
-          noiseAmp={0.5}
-          chromaticAberration={0}
-          dither={0}
-          curvature={0}
-          tint={isDark ? "#e5e5dc" : "#3f413f"}
-          mouseReact
-          mouseStrength={0.5}
-          pageLoadAnimation
-          brightness={0.6}
+      {/* Interactive Dither Wave Ambient Background Canvas with 100% Transparent Background & Soft Low Opacity */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none select-none opacity-[0.16] dark:opacity-[0.22] z-0">
+        <Dither
+          waveColor={isDark ? "#e5e5dc" : "#3f413f"}
+          disableAnimation={false}
+          enableMouseInteraction
+          mouseRadius={0.3}
+          waveAmplitude={0.37}
+          waveFrequency={5.8}
+          waveSpeed={0.04}
+          pixelSize={2.5}
         />
       </div>
 
