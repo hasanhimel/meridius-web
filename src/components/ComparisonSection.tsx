@@ -123,7 +123,7 @@ export const ComparisonSection: React.FC = () => {
                   OpenWork
                 </th>
                 <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[12%]">
-                  Hermes (cua-driver)
+                  Hermes Agent
                 </th>
                 <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[8%]">
                   VoiceOS
