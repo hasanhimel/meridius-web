@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AnimatedLogoMark } from './AnimatedLogoMark';
 import { ArrowRight, Check } from 'lucide-react';
 import Dither from './Dither';
+import { useTheme } from '../context/ThemeContext';
 
 interface HeroSectionProps {
   onOpenWaitlist?: () => void;
@@ -10,6 +11,8 @@ interface HeroSectionProps {
 export const HeroSection: React.FC<HeroSectionProps> = () => {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   const handleInlineSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,24 +21,30 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
     setTimeout(() => setSubmitted(false), 3000);
   };
 
+  // Theme-adaptive wave color: Charcoal in light mode, Warm Cream in dark mode
+  const ditherWaveColor: [number, number, number] = isDark
+    ? [0.9607843137, 0.9607843137, 0.9333333333] // #F5F5EE cream
+    : [0.168627451, 0.168627451, 0.1647058824]; // #2B2B2A charcoal
+
   return (
     <section className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:py-16 md:py-20 lg:py-24 bg-cream dark:bg-void transition-colors duration-200 overflow-hidden">
       
-      {/* Soft Low-Opacity Dither Background Canvas */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none opacity-[0.18] dark:opacity-[0.25] select-none z-0">
+      {/* Dynamic Animated Dither Background Wave (Transparent Background, Theme-Matched Color) */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-auto select-none z-0">
         <Dither
-          waveColor={[0.3137254901960784, 0.3137254901960784, 0.3137254901960784]}
+          waveColor={ditherWaveColor}
           disableAnimation={false}
-          enableMouseInteraction
-          mouseRadius={0.3}
+          enableMouseInteraction={true}
+          mouseRadius={0.35}
           colorNum={4}
           waveAmplitude={0.37}
           waveFrequency={5.8}
           waveSpeed={0.04}
+          pixelSize={2.5}
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 pointer-events-none">
         
         {/* Two-Column Responsive Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
@@ -43,7 +52,7 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
           {/* ============================================================ */}
           {/* LEFT: OPENWORK-INSPIRED HEADLINE & VALUE PROP */}
           {/* ============================================================ */}
-          <div className="lg:col-span-6 xl:col-span-6 flex flex-col items-start text-left w-full">
+          <div className="lg:col-span-6 xl:col-span-6 flex flex-col items-start text-left w-full pointer-events-auto">
             
             {/* Status Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full frosted-glass-pill text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-muted mb-6 transition-colors max-w-full truncate">
@@ -114,7 +123,7 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
           {/* ============================================================ */}
           {/* RIGHT: FLUID ANIMATED MERIDIUS LOGO MARK */}
           {/* ============================================================ */}
-          <div className="lg:col-span-6 xl:col-span-6 flex items-center justify-center w-full py-4 lg:py-0">
+          <div className="lg:col-span-6 xl:col-span-6 flex items-center justify-center w-full py-4 lg:py-0 pointer-events-auto">
             <div className="relative w-full max-w-[280px] sm:max-w-[380px] md:max-w-[440px] lg:max-w-[500px] xl:max-w-[540px] aspect-square flex items-center justify-center mx-auto">
               <AnimatedLogoMark size={540} />
             </div>
