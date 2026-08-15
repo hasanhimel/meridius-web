@@ -75,7 +75,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
         </div>
       </div>
 
-      {/* SVG Canvas with Generous Spacing and Zero Text Overlap */}
+      {/* SVG Canvas with Generous Spacing */}
       <div className="relative w-full aspect-[900/400] max-w-4xl mx-auto flex items-center justify-center my-2">
         <svg
           viewBox="0 0 900 400"
@@ -151,7 +151,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
                   strokeWidth="1.75"
                   strokeDasharray="10 24"
                   strokeDashoffset={tick * 2}
-                  opacity="0.65"
+                  opacity={isCurrentOrBase(0.65)}
                   filter="url(#themeGlow)"
                 />
 
@@ -193,7 +193,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
                   {src.tools}
                 </text>
 
-                {/* 3. CIRCULAR NODE BASE (at y = 110, completely clear of text) */}
+                {/* 3. CIRCULAR NODE BASE */}
                 <circle
                   cx={src.x}
                   cy={src.y}
@@ -230,7 +230,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           })}
 
           {/* ============================================================ */}
-          {/* BOTTOM TIER: CIRCULAR MERIDIUS COMPANY BRAIN HUB */}
+          {/* BOTTOM TIER: CIRCULAR MERIDIUS NODE WITH ONLY THE MERIDIUS LOGO */}
           {/* ============================================================ */}
           <g>
             {/* Outer Pulsing Circular Aura */}
@@ -267,29 +267,21 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
             <circle
               cx={brainCx}
               cy={brainCy}
-              r="32"
+              r="34"
               fill="currentColor"
               className="text-charcoal dark:text-cream"
               filter="url(#themeGlow)"
             />
 
-            {/* Brain Central M Mark */}
-            <text
-              x={brainCx}
-              y={brainCy - 2}
-              textAnchor="middle"
-              className="fill-cream dark:fill-charcoal font-brand font-extrabold text-[17px] select-none"
-            >
-              M
-            </text>
-            <text
-              x={brainCx}
-              y={brainCy + 13}
-              textAnchor="middle"
-              className="fill-cream/80 dark:fill-charcoal/80 font-mono text-[7.5px] font-semibold tracking-wider select-none"
-            >
-              BRAIN
-            </text>
+            {/* ONLY THE MERIDIUS VECTOR LOGO MARK INSIDE THE NODE */}
+            <image
+              href={isDark ? "/assets/logo/meridius-mark-black.svg" : "/assets/logo/meridius-mark-white.svg"}
+              x={brainCx - 19}
+              y={brainCy - 19}
+              width="38"
+              height="38"
+              className="select-none pointer-events-none"
+            />
 
             {/* Brain Title Below Circle */}
             <text
@@ -339,3 +331,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
     </div>
   );
 };
+
+function isCurrentOrBase(val: number) {
+  return val;
+}
