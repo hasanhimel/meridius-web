@@ -45,15 +45,15 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
     },
   ];
 
-  // Meridius Brain Circular Center (Refined Balanced Size)
+  // Meridius Brain Circular Center (Sleek Compact Size)
   const brainCx = 450;
   const brainCy = 290;
-  const brainRadius = 42;
-  const convergencePointY = brainCy - brainRadius; // 248
+  const brainRadius = 34;
+  const convergencePointY = brainCy - brainRadius; // 256
 
   // Theme-tailored stroke & glow colors
   const primaryStroke = isDark ? 'rgba(245, 245, 238, 0.85)' : 'rgba(43, 43, 42, 0.85)';
-  const ambientGlowColor = isDark ? 'rgba(245, 245, 238, 0.16)' : 'rgba(43, 43, 42, 0.12)';
+  const ambientGlowColor = isDark ? 'rgba(245, 245, 238, 0.15)' : 'rgba(43, 43, 42, 0.12)';
   const pulseColor = isDark ? '#F5F5EE' : '#2B2B2A';
 
   return (
@@ -75,10 +75,10 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
         </div>
       </div>
 
-      {/* SVG Canvas with Balanced Node Proportions */}
-      <div className="relative w-full aspect-[900/390] max-w-4xl mx-auto flex items-center justify-center my-2">
+      {/* SVG Canvas with Refined Compact Scale */}
+      <div className="relative w-full aspect-[900/380] max-w-4xl mx-auto flex items-center justify-center my-2">
         <svg
-          viewBox="0 0 900 390"
+          viewBox="0 0 900 380"
           className="w-full h-full overflow-visible select-none"
         >
           <defs>
@@ -96,13 +96,13 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           </defs>
 
           {/* Ambient Brain Glow Field at Bottom */}
-          <circle cx={brainCx} cy={brainCy} r="130" fill="url(#themeBrainField)" />
+          <circle cx={brainCx} cy={brainCy} r="110" fill="url(#themeBrainField)" />
 
           {/* Concentric Synthesis Rings around Circular Meridius Brain */}
           <circle
             cx={brainCx}
             cy={brainCy}
-            r="65"
+            r="55"
             fill="none"
             stroke="currentColor"
             className="text-charcoal/[0.08] dark:text-cream/[0.08]"
@@ -112,7 +112,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           <circle
             cx={brainCx}
             cy={brainCy}
-            r="95"
+            r="80"
             fill="none"
             stroke="currentColor"
             className="text-charcoal/[0.05] dark:text-cream/[0.05]"
@@ -230,14 +230,14 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           })}
 
           {/* ============================================================ */}
-          {/* BOTTOM TIER: BALANCED CIRCULAR MERIDIUS NODE */}
+          {/* BOTTOM TIER: COMPACT CIRCULAR MERIDIUS NODE */}
           {/* ============================================================ */}
           <g>
             {/* Outer Pulsing Circular Aura */}
             <circle
               cx={brainCx}
               cy={brainCy}
-              r={brainRadius + 10}
+              r={brainRadius + 8}
               fill="none"
               stroke="currentColor"
               className="text-charcoal/30 dark:text-cream/30"
@@ -246,7 +246,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
             >
               <animate
                 attributeName="r"
-                values={`${brainRadius + 8};${brainRadius + 14};${brainRadius + 8}`}
+                values={`${brainRadius + 6};${brainRadius + 11};${brainRadius + 6}`}
                 dur="3s"
                 repeatCount="indefinite"
               />
@@ -267,36 +267,36 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
             <circle
               cx={brainCx}
               cy={brainCy}
-              r="32"
+              r="25"
               fill="currentColor"
               className="text-charcoal dark:text-cream"
               filter="url(#themeGlow)"
             />
 
-            {/* CLEAN BALANCED MERIDIUS VECTOR LOGO MARK */}
+            {/* CLEAN COMPACT MERIDIUS VECTOR LOGO MARK */}
             <image
               href={isDark ? "/assets/logo/meridius-mark-black.svg" : "/assets/logo/meridius-mark-white.svg"}
-              x={brainCx - 20}
-              y={brainCy - 20}
-              width="40"
-              height="40"
+              x={brainCx - 16}
+              y={brainCy - 16}
+              width="32"
+              height="32"
               className="select-none pointer-events-none"
             />
 
             {/* Brain Title Below Circle */}
             <text
               x={brainCx}
-              y={brainCy + 60}
+              y={brainCy + 48}
               textAnchor="middle"
-              className="fill-charcoal dark:fill-cream font-display font-semibold text-[12.5px]"
+              className="fill-charcoal dark:fill-cream font-display font-semibold text-[12px]"
             >
               Meridius Company Brain
             </text>
             <text
               x={brainCx}
-              y={brainCy + 74}
+              y={brainCy + 62}
               textAnchor="middle"
-              className="fill-charcoal-muted dark:fill-cream-dim font-mono text-[9px]"
+              className="fill-charcoal-muted dark:fill-cream-dim font-mono text-[8.5px]"
             >
               Continuously Acquiring & Synthesizing Context
             </text>
@@ -305,7 +305,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
             <circle
               cx={brainCx}
               cy={convergencePointY}
-              r="4.5"
+              r="4"
               fill={pulseColor}
               filter="url(#themeGlow)"
             />
