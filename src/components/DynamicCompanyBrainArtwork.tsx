@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2, ArrowDown } from 'lucide-react';
+import { ArrowDown, Shield } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ className = '' }) => {
-  const [activeSource, setActiveSource] = useState<number>(0);
   const [tick, setTick] = useState(0);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
@@ -19,46 +18,38 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
     {
       id: 0,
       title: 'Engineering',
-      tools: 'VS Code · Git',
-      x: 75,
-      y: 75,
-      stream: 'Code commits, test logs & PR context',
-      detail: 'Local Mac instance indexes active codebase commits and build outputs without exposing private repository write keys.',
+      tools: 'VS Code · Git · Terminal',
+      x: 105,
+      y: 110,
     },
     {
       id: 1,
       title: 'Product & Design',
-      tools: 'Figma · Linear',
-      x: 290,
-      y: 75,
-      stream: 'Live specs, roadmaps & canvas components',
-      detail: 'Synthesizes active project tickets with design systems and user journey flows across teammates in real-time.',
+      tools: 'Figma · Linear · Specs',
+      x: 335,
+      y: 110,
     },
     {
       id: 2,
       title: 'Growth & Sales',
-      tools: 'HubSpot · CRM',
-      x: 570,
-      y: 75,
-      stream: 'Customer signals & pipeline updates',
-      detail: 'Extracts customer engagement data and pipeline changes directly from authenticated browser sessions.',
+      tools: 'HubSpot · CRM · Analytics',
+      x: 565,
+      y: 110,
     },
     {
       id: 3,
       title: 'Operations & Finance',
-      tools: 'Stripe · QuickBooks',
-      x: 785,
-      y: 75,
-      stream: 'Invoices, payroll & billing events',
-      detail: 'Reconciles payment schedules and vendor invoices locally on Mac with zero cloud token exposure.',
+      tools: 'Stripe · QuickBooks · Docs',
+      x: 795,
+      y: 110,
     },
   ];
 
-  // Meridius Brain Circular Center (closer vertically)
-  const brainCx = 430;
-  const brainCy = 270;
+  // Meridius Brain Circular Center
+  const brainCx = 450;
+  const brainCy = 290;
   const brainRadius = 46;
-  const convergencePointY = brainCy - brainRadius; // 224
+  const convergencePointY = brainCy - brainRadius; // 244
 
   // Theme-tailored stroke & glow colors
   const primaryStroke = isDark ? 'rgba(245, 245, 238, 0.85)' : 'rgba(43, 43, 42, 0.85)';
@@ -77,17 +68,17 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
         <div className="flex items-center gap-3 text-charcoal-muted dark:text-cream-dim text-[11px]">
           <span className="flex items-center gap-1 text-charcoal dark:text-cream font-semibold">
             <ArrowDown className="w-3.5 h-3.5" />
-            4 Distributed Channels
+            4 Distributed Channels Active
           </span>
           <span>·</span>
           <span>Local Mac Keychain Auth</span>
         </div>
       </div>
 
-      {/* SVG Canvas with Wider Spread and Closer Meridius Node */}
-      <div className="relative w-full aspect-[860/380] max-w-4xl mx-auto flex items-center justify-center my-2">
+      {/* SVG Canvas with Generous Spacing and Zero Text Overlap */}
+      <div className="relative w-full aspect-[900/400] max-w-4xl mx-auto flex items-center justify-center my-2">
         <svg
-          viewBox="0 0 860 380"
+          viewBox="0 0 900 400"
           className="w-full h-full overflow-visible select-none"
         >
           <defs>
@@ -130,15 +121,14 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           />
 
           {/* ============================================================ */}
-          {/* CURVY CONDUITS CONVERGING TO ONE POINT */}
+          {/* CURVY CONDUITS CONVERGING SMOOTHLY TO APEX POINT */}
           {/* ============================================================ */}
           {sources.map((src) => {
-            const isCurrent = activeSource === src.id;
-            const sourceBottomY = src.y + 28;
+            const sourceBottomY = src.y + 26;
 
             // Soft S-curve Bézier converging into single point (brainCx, convergencePointY)
-            const ctrlY1 = sourceBottomY + 60;
-            const ctrlY2 = convergencePointY - 60;
+            const ctrlY1 = sourceBottomY + 55;
+            const ctrlY2 = convergencePointY - 55;
 
             const pathD = `M ${src.x} ${sourceBottomY} C ${src.x} ${ctrlY1}, ${brainCx} ${ctrlY2}, ${brainCx} ${convergencePointY}`;
 
@@ -149,23 +139,23 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
                   d={pathD}
                   fill="none"
                   stroke="currentColor"
-                  className={isCurrent ? "text-charcoal/40 dark:text-cream/40" : "text-charcoal/[0.12] dark:text-cream/[0.12]"}
-                  strokeWidth={isCurrent ? "2" : "1.25"}
+                  className="text-charcoal/[0.12] dark:text-cream/[0.12]"
+                  strokeWidth="1.5"
                 />
 
-                {/* Animated Streaming Pulse Stream Downward in Theme Color */}
+                {/* Animated Streaming Pulse Stream Downward */}
                 <path
                   d={pathD}
                   fill="none"
                   stroke={primaryStroke}
-                  strokeWidth={isCurrent ? "2.5" : "1.5"}
+                  strokeWidth="1.75"
                   strokeDasharray="10 24"
                   strokeDashoffset={tick * 2}
-                  opacity={isCurrent ? "0.95" : "0.45"}
+                  opacity="0.65"
                   filter="url(#themeGlow)"
                 />
 
-                {/* Flowing Data Energy Packet in Theme Color */}
+                {/* Flowing Data Energy Packet */}
                 <circle r="3.5" fill={pulseColor} filter="url(#themeGlow)">
                   <animateMotion
                     path={pathD}
@@ -178,67 +168,49 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           })}
 
           {/* ============================================================ */}
-          {/* TOP TIER: 4 CIRCULAR NODES WITH NAMES AT THE TOP */}
+          {/* TOP TIER: 4 CIRCULAR NODES WITH DEDICATED UNOBSTRUCTED TEXT */}
           {/* ============================================================ */}
           {sources.map((src) => {
-            const isCurrent = activeSource === src.id;
             return (
-              <g
-                key={`source-${src.id}`}
-                className="cursor-pointer transition-transform hover:scale-105"
-                onClick={() => setActiveSource(src.id)}
-                onMouseEnter={() => setActiveSource(src.id)}
-              >
-                {/* 1. NODE NAMES & TOOLS LOCATED AT THE TOP */}
+              <g key={`source-${src.id}`}>
+                {/* 1. NODE TITLE - Positioned with ample vertical clearance */}
                 <text
                   x={src.x}
-                  y={src.y - 36}
+                  y="36"
                   textAnchor="middle"
-                  className="fill-charcoal dark:fill-cream font-display font-semibold text-[12px]"
+                  className="fill-charcoal dark:fill-cream font-display font-semibold text-[13px]"
                 >
                   {src.title}
                 </text>
+
+                {/* 2. NODE SUB-NAME / TOOLS - Clearly separated below title */}
                 <text
                   x={src.x}
-                  y={src.y - 22}
+                  y="54"
                   textAnchor="middle"
-                  className="fill-charcoal-muted dark:fill-cream-dim font-mono text-[9px]"
+                  className="fill-charcoal-muted dark:fill-cream-dim font-mono text-[9.5px]"
                 >
                   {src.tools}
                 </text>
 
-                {/* 2. OUTER ACTIVE RING */}
-                {isCurrent && (
-                  <circle
-                    cx={src.x}
-                    cy={src.y}
-                    r="34"
-                    fill="none"
-                    stroke="currentColor"
-                    className="text-charcoal/60 dark:text-cream/60"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 4"
-                  />
-                )}
-
-                {/* 3. CIRCULAR NODE BASE */}
+                {/* 3. CIRCULAR NODE BASE (at y = 110, completely clear of text) */}
                 <circle
                   cx={src.x}
                   cy={src.y}
                   r="26"
                   fill="currentColor"
-                  className={isCurrent ? "text-charcoal/10 dark:text-cream/10" : "text-white dark:text-void"}
+                  className="text-white dark:text-void"
                   stroke="currentColor"
                   strokeWidth="1.75"
                 />
 
-                {/* 4. NODE CENTER DOT */}
+                {/* 4. NODE CENTER ACCENT DOT */}
                 <circle
                   cx={src.x}
                   cy={src.y}
                   r="11"
                   fill="currentColor"
-                  className={isCurrent ? "text-charcoal dark:text-cream" : "text-charcoal/80 dark:text-cream/80"}
+                  className="text-charcoal dark:text-cream"
                 />
 
                 {/* 5. NODE INDEX NUMBER */}
@@ -258,9 +230,9 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           })}
 
           {/* ============================================================ */}
-          {/* BOTTOM TIER: CIRCULAR MERIDIUS COMPANY BRAIN HUB (CLOSER) */}
+          {/* BOTTOM TIER: CIRCULAR MERIDIUS COMPANY BRAIN HUB */}
           {/* ============================================================ */}
-          <g className="cursor-pointer">
+          <g>
             {/* Outer Pulsing Circular Aura */}
             <circle
               cx={brainCx}
@@ -350,25 +322,17 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
         </svg>
       </div>
 
-      {/* Interactive Context Inspector Bar */}
-      <div className="mt-4 p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-white/[0.03] border border-charcoal/[0.08] dark:border-cream/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
-        <div className="flex items-center gap-3.5">
-          <div className="w-9 h-9 rounded-full bg-charcoal/10 dark:bg-cream/10 text-charcoal dark:text-cream flex items-center justify-center font-mono font-bold text-xs shrink-0 border border-charcoal/20 dark:border-cream/20">
-            0{sources[activeSource].id + 1}
-          </div>
-          <div>
-            <div className="font-display font-semibold text-xs sm:text-sm text-charcoal dark:text-cream">
-              {sources[activeSource].title} Stream · <span className="font-mono text-xs text-charcoal-muted dark:text-cream-dim font-normal">{sources[activeSource].stream}</span>
-            </div>
-            <div className="text-xs text-charcoal-muted dark:text-cream-muted font-sans mt-0.5 max-w-xl">
-              {sources[activeSource].detail}
-            </div>
-          </div>
+      {/* Unified Architecture Summary Footer */}
+      <div className="mt-4 p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-white/[0.03] border border-charcoal/[0.08] dark:border-cream/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors text-xs">
+        <div className="flex items-center gap-3">
+          <Shield className="w-4 h-4 text-charcoal dark:text-cream shrink-0" />
+          <span className="text-charcoal-muted dark:text-cream-muted font-sans">
+            Each team member's Meridius instance runs locally on macOS, synthesizing cross-functional intelligence while private credentials never leave their machine.
+          </span>
         </div>
 
-        <div className="text-[11px] font-mono text-charcoal dark:text-cream flex items-center gap-1.5 shrink-0 self-start sm:self-auto px-3.5 py-2 rounded-full bg-charcoal/[0.06] dark:bg-cream/[0.08] border border-charcoal/[0.08] dark:border-cream/[0.08]">
-          <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>Local Context Synthesized</span>
+        <div className="text-[11px] font-mono text-charcoal dark:text-cream shrink-0 self-start sm:self-auto px-3.5 py-1.5 rounded-full bg-charcoal/[0.06] dark:bg-cream/[0.08] border border-charcoal/[0.08] dark:border-cream/[0.08]">
+          Multiplayer Agent Mesh
         </div>
       </div>
 
