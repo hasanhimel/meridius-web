@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AnimatedLogoMark } from './AnimatedLogoMark';
 import { ArrowRight, Check } from 'lucide-react';
-import Dither from './Dither';
+import FaultyTerminal from './FaultyTerminal';
 import { useTheme } from '../context/ThemeContext';
 
 interface HeroSectionProps {
@@ -21,25 +21,29 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
     setTimeout(() => setSubmitted(false), 3000);
   };
 
-  // Theme-adaptive wave color: Charcoal in light mode, Warm Cream in dark mode
-  const ditherWaveColor: [number, number, number] = isDark
-    ? [0.9607843137, 0.9607843137, 0.9333333333] // #F5F5EE cream
-    : [0.168627451, 0.168627451, 0.1647058824]; // #2B2B2A charcoal
-
   return (
     <section className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:py-16 md:py-20 lg:py-24 bg-cream dark:bg-void transition-colors duration-200 overflow-hidden">
       
-      {/* Dynamic Animated Dither Background Wave (100% Transparent Background, Theme-Matched Color) */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-auto select-none z-0">
-        <Dither
-          waveColor={ditherWaveColor}
-          disableAnimation={false}
-          enableMouseInteraction={true}
-          mouseRadius={0.35}
-          waveAmplitude={0.32}
-          waveFrequency={4.2}
-          waveSpeed={0.035}
-          pixelSize={3.0}
+      {/* Faulty Terminal Shader Ambient Background Canvas with Soft Opacity */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-auto select-none opacity-[0.25] dark:opacity-[0.3] mix-blend-multiply dark:mix-blend-screen z-0">
+        <FaultyTerminal
+          scale={2.1}
+          gridMul={[2, 1]}
+          digitSize={1.1}
+          timeScale={0.5}
+          pause={false}
+          scanlineIntensity={0}
+          glitchAmount={1}
+          flickerAmount={1}
+          noiseAmp={0.5}
+          chromaticAberration={0}
+          dither={0}
+          curvature={0}
+          tint={isDark ? "#e5e5dc" : "#3f413f"}
+          mouseReact
+          mouseStrength={0.5}
+          pageLoadAnimation
+          brightness={0.6}
         />
       </div>
 
