@@ -53,10 +53,10 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
             </div>
 
             <h3 className="font-display font-semibold text-2xl text-charcoal dark:text-cream mb-2">
-              Request access to Meridius
+              Join the Waitlist
             </h3>
             <p className="text-sm text-charcoal-muted dark:text-cream-muted leading-relaxed mb-6 font-sans">
-              We are onboarding users in batches. Real native macOS app, zero cloud VMs, runs on your Mac.
+              We are onboarding users in weekly batches. Native macOS app with parallel execution and zero screen takeovers.
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -81,7 +81,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
                   disabled={isSubmitting}
                   className="cursor-btn-primary w-full py-2.5 px-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-sm"
                 >
-                  <span>{isSubmitting ? 'Requesting...' : 'Request Invitation'}</span>
+                  <span>{isSubmitting ? 'Joining...' : 'Join the Waitlist'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>

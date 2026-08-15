@@ -49,16 +49,16 @@ export const ComparisonSection: React.FC = () => {
     <section id="comparison" className="py-16 sm:py-24 border-t border-charcoal/[0.08] dark:border-cream/[0.08] bg-cream dark:bg-void transition-colors duration-200">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Section Header */}
-        <div className="max-w-2xl mb-12 sm:mb-16">
+        {/* Section Header (OpenWork-style) */}
+        <div className="max-w-2xl mb-10 sm:mb-12">
           <div className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider mb-2">
-            Comparison
+            Comparison · Open Ecosystem
           </div>
           <h2 className="font-display font-semibold text-2xl sm:text-3xl md:text-4xl text-charcoal dark:text-cream tracking-tight mb-3 sm:mb-4">
             How Meridius compares.
           </h2>
           <p className="text-charcoal-muted dark:text-cream-muted text-sm sm:text-base leading-relaxed">
-            Existing computer-use tools solve one piece and break another. Meridius delivers true parallel execution on your real Mac.
+            If you need computer-use workflows that don't steal your screen, Meridius runs locally on your Mac with your real logins, full model freedom, and zero interruptions.
           </p>
         </div>
 

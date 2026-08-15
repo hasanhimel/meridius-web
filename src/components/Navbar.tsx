@@ -29,17 +29,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlist }) => {
 
         {/* Minimal Nav Links */}
         <nav className="hidden md:flex items-center gap-8 text-sm font-sans text-charcoal-muted dark:text-cream-muted">
-          <a href="#how-it-works" className="hover:text-charcoal dark:hover:text-cream transition-colors">
-            How it works
+          <a href="#product" className="hover:text-charcoal dark:hover:text-cream transition-colors">
+            Product
           </a>
           <a href="#comparison" className="hover:text-charcoal dark:hover:text-cream transition-colors">
             Comparison
           </a>
           <a href="#sync" className="hover:text-charcoal dark:hover:text-cream transition-colors">
             Sync
-          </a>
-          <a href="#founder" className="hover:text-charcoal dark:hover:text-cream transition-colors">
-            Founder
           </a>
         </nav>
 
@@ -49,10 +46,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlist }) => {
 
           <button
             onClick={onOpenWaitlist}
-            className="cursor-btn-primary px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-sans flex items-center gap-1 sm:gap-1.5 shadow-sm"
+            className="cursor-btn-primary px-3.5 py-1.5 rounded-full text-xs font-sans flex items-center gap-1 shrink-0 shadow-sm"
           >
-            <span>Request Access</span>
-            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            <span>Join Waitlist</span>
+            <ArrowRight className="w-3 h-3" />
           </button>
         </div>
 

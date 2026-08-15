@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
-import { ArchitectureSection } from './components/ArchitectureSection';
+import { ProductSection } from './components/ProductSection';
 import { ComparisonSection } from './components/ComparisonSection';
-import { FounderSection } from './components/FounderSection';
+import { SyncSection } from './components/SyncSection';
 import { Footer } from './components/Footer';
 import { WaitlistModal } from './components/WaitlistModal';
 
@@ -17,12 +17,12 @@ export function App() {
         {/* Navigation */}
         <Navbar onOpenWaitlist={() => setIsWaitlistOpen(true)} />
 
-        {/* Main Content */}
+        {/* Main Single-Page Content */}
         <main className="flex-grow">
           <HeroSection onOpenWaitlist={() => setIsWaitlistOpen(true)} />
-          <ArchitectureSection />
+          <ProductSection />
           <ComparisonSection />
-          <FounderSection onOpenWaitlist={() => setIsWaitlistOpen(true)} />
+          <SyncSection onOpenWaitlist={() => setIsWaitlistOpen(true)} />
         </main>
 
         {/* Footer */}

@@ -25,14 +25,14 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
           {/* ============================================================ */}
-          {/* LEFT: OUTCOME-DRIVEN TYPOGRAPHY & COPY */}
+          {/* LEFT: OPENWORK-INSPIRED HEADLINE & VALUE PROP */}
           {/* ============================================================ */}
           <div className="lg:col-span-6 xl:col-span-6 flex flex-col items-start text-left w-full">
             
-            {/* Frosted Glass Status Badge */}
+            {/* Status Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full frosted-glass-pill text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-muted mb-6 transition-colors max-w-full truncate">
-              <span className="w-1.5 h-1.5 rounded-full bg-charcoal dark:bg-cream shrink-0" />
-              <span className="truncate">Parallel execution. Zero screen interruptions.</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+              <span className="truncate">Parallel Mac Execution · Zero Cursor Hijacking</span>
             </div>
 
             {/* Main Headline */}
@@ -40,12 +40,12 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
               Computer-using AI that never touches your screen.
             </h1>
 
-            {/* Outcome-Driven Product Description */}
+            {/* Product Description */}
             <p className="text-sm sm:text-base md:text-lg text-charcoal-muted dark:text-cream-muted font-sans leading-relaxed max-w-xl mb-8 transition-colors">
-              Meridius is a native Mac app that opens your real applications and clicks, types, and navigates them exactly like a human, while your actual screen and cursor stay 100% free for your own work. No hijacked mouse, no pop-up interruptions, and no disconnected cloud VMs.
+              Meridius is the native Mac app that opens your real desktop applications and navigates them with your existing accounts and logins — while your active screen and cursor stay 100% free for your own work.
             </p>
 
-            {/* Frosted Glass CTA Input Pill */}
+            {/* Inline Email Waitlist Form */}
             <div className="w-full max-w-md mb-8 sm:mb-10">
               <form onSubmit={handleInlineSubmit} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-1.5 rounded-2xl sm:rounded-full frosted-glass-pill transition-all">
                 <input
@@ -63,11 +63,11 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
                   {submitted ? (
                     <>
                       <Check className="w-3.5 h-3.5" />
-                      <span>Added</span>
+                      <span>Added to Waitlist</span>
                     </>
                   ) : (
                     <>
-                      <span>Request Access</span>
+                      <span>Join the waitlist</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
@@ -79,12 +79,12 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
             <div className="grid grid-cols-3 gap-3 sm:gap-6 pt-6 sm:pt-8 border-t border-charcoal/[0.08] dark:border-cream/[0.08] w-full max-w-lg transition-colors">
               <div>
                 <div className="font-mono text-sm sm:text-base md:text-lg font-semibold text-charcoal dark:text-cream">0px</div>
-                <div className="text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">Cursor Hijacking</div>
+                <div className="text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">Cursor Takeover</div>
               </div>
 
               <div>
                 <div className="font-mono text-sm sm:text-base md:text-lg font-semibold text-charcoal dark:text-cream">0%</div>
-                <div className="text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">Screen Interruption</div>
+                <div className="text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">Window Popups</div>
               </div>
 
               <div>

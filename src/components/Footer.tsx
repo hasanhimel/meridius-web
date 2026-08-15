@@ -19,7 +19,7 @@ export const Footer: React.FC = () => {
         </div>
 
         <div>
-          Built by Himel Hasan · Dhaka → San Francisco
+          Native macOS AI Agent · All rights reserved
         </div>
       </div>
     </footer>
