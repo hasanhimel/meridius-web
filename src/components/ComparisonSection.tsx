@@ -1,105 +1,84 @@
 import React from 'react';
+import { Check, X, AlertTriangle, Minus } from 'lucide-react';
 
 export const ComparisonSection: React.FC = () => {
   const rows = [
     {
-      label: 'Display',
-      meridius: 'Separate display, rendered by your own Mac',
-      codex: 'Your one real display',
-      claude: 'Your one real display',
-      coasty: 'Cloud VM, not your machine',
-      openwork: 'Your one real display (browser mode: cloud browser)',
-      hermes: 'Your one real display',
-      voiceos: 'N/A, no screen control',
-      clicky: 'N/A, no screen control',
+      feature: 'Separate display',
+      meridius: 'check',
+      codex: 'cross',
+      claude: 'cross',
+      coasty: 'cross',
+      openwork: 'cross',
+      hermes: 'cross',
+      voiceos: 'na',
+      clicky: 'na',
     },
     {
-      label: 'Cursor',
-      meridius: 'Own software cursor, never touches yours',
-      codex: "Doesn't hijack your cursor",
-      claude: 'Hijacks your real cursor',
-      coasty: 'No local cursor (cloud VM)',
-      openwork: 'Hijacks your cursor for native apps',
-      hermes: "Doesn't move your cursor",
-      voiceos: 'N/A',
-      clicky: 'N/A',
+      feature: 'Never hijacks your cursor',
+      meridius: 'check',
+      codex: 'check',
+      claude: 'cross',
+      coasty: 'check',
+      openwork: 'cross',
+      hermes: 'check',
+      voiceos: 'na',
+      clicky: 'na',
     },
     {
-      label: 'App foregrounding',
-      meridius: 'Never, target apps are never on real display',
-      codex: 'Occasionally forces app forward anyway',
-      claude: 'Full screen takeover by design',
-      coasty: 'N/A, runs on cloud machine',
-      openwork: 'Foregrounds your display for native tasks',
-      hermes: 'Direct events, but still on real display',
-      voiceos: 'N/A',
-      clicky: 'N/A',
+      feature: 'Stays in background',
+      meridius: 'check',
+      codex: 'partial',
+      claude: 'cross',
+      coasty: 'na',
+      openwork: 'cross',
+      hermes: 'partial',
+      voiceos: 'na',
+      clicky: 'na',
     },
     {
-      label: 'Runs your real, logged-in native apps',
-      meridius: 'Yes',
-      codex: 'Yes',
-      claude: 'Yes',
-      coasty: 'No, fresh disconnected copy of accounts',
-      openwork: 'No for browser tasks, separate browser',
-      hermes: 'Yes',
-      voiceos: 'N/A',
-      clicky: 'N/A',
+      feature: 'Uses your real, logged-in apps',
+      meridius: 'check',
+      codex: 'check',
+      claude: 'check',
+      coasty: 'cross',
+      openwork: 'partial',
+      hermes: 'check',
+      voiceos: 'na',
+      clicky: 'na',
     },
     {
-      label: 'Local model support',
-      meridius: 'Yes, via Ollama',
-      codex: 'No, ChatGPT models only',
-      claude: 'No',
-      coasty: 'No',
-      openwork: 'Not specified',
-      hermes: 'Not specified',
-      voiceos: 'N/A',
-      clicky: 'N/A',
+      feature: 'Local model option',
+      meridius: 'check',
+      codex: 'cross',
+      claude: 'cross',
+      coasty: 'cross',
+      openwork: 'cross',
+      hermes: 'cross',
+      voiceos: 'na',
+      clicky: 'na',
     },
     {
-      label: 'Core technique',
-      meridius: 'AX-first, screenshot fallback for non-AX apps',
-      codex: 'Not disclosed in detail',
-      claude: 'Not disclosed in detail',
-      coasty: 'Screenshot-and-action loop',
-      openwork: 'AX-based clicking + screenshot fallback',
-      hermes: 'Direct event posting via SkyLight APIs',
-      voiceos: 'MCP / API connectors only',
-      clicky: 'Screen-aware guidance + background mode',
+      feature: 'Voice + memory',
+      meridius: 'check',
+      codex: 'cross',
+      claude: 'cross',
+      coasty: 'cross',
+      openwork: 'cross',
+      hermes: 'cross',
+      voiceos: 'check',
+      clicky: 'check',
     },
     {
-      label: 'Reliability risk',
-      meridius: 'Uses public, documented Apple APIs',
-      codex: 'Occasional foregrounding despite promise',
-      claude: 'Takes the screen outright',
-      coasty: 'Screenshot loop breaks on poor UIs, token-heavy',
-      openwork: 'Screenshot loop shares Coasty issues',
-      hermes: 'Undocumented private APIs, can break on updates',
-      voiceos: 'Limited to supported app APIs',
-      clicky: 'Limited outside supported connectors',
-    },
-    {
-      label: 'Voice + persistent memory',
-      meridius: 'Yes, always-on voice with persistent memory',
-      codex: 'No',
-      claude: 'No',
-      coasty: 'No',
-      openwork: 'No',
-      hermes: 'No',
-      voiceos: 'Yes, but predefined / not dynamic',
-      clicky: 'Yes, primarily guidance-oriented',
-    },
-    {
-      label: 'Multiplayer / team sync',
-      meridius: 'Planned (Meridius Sync): multi-instance shared project coordination',
-      codex: 'No',
-      claude: 'No',
-      coasty: 'No',
-      openwork: 'No',
-      hermes: 'No',
-      voiceos: 'No',
-      clicky: 'No',
+      feature: 'Team sync',
+      meridius: 'planned',
+      codex: 'cross',
+      claude: 'cross',
+      coasty: 'cross',
+      openwork: 'cross',
+      hermes: 'cross',
+      voiceos: 'cross',
+      clicky: 'cross',
     },
   ];
 
@@ -116,40 +95,40 @@ export const ComparisonSection: React.FC = () => {
             Meridius vs. Competitors
           </h2>
           <p className="text-charcoal-muted dark:text-cream-muted text-sm sm:text-base leading-relaxed">
-            Detailed technical and experiential comparison across the current computer-use and AI automation landscape.
+            Direct capability matrix across the computer-use and autonomous AI landscape.
           </p>
         </div>
 
-        {/* Full Comprehensive Comparison Table */}
-        <div className="overflow-x-auto rounded-2xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] shadow-sm mb-12">
-          <table className="w-full text-left border-collapse min-w-[1100px] text-xs">
+        {/* Minimalist Symbol-Based Comparison Table */}
+        <div className="overflow-x-auto rounded-2xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] shadow-sm mb-5">
+          <table className="w-full text-left border-collapse min-w-[860px] text-xs">
             <thead>
               <tr className="border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-white/50 dark:bg-white/[0.03]">
-                <th className="py-4 px-4 font-mono font-semibold text-charcoal-muted dark:text-cream-dim uppercase tracking-wider w-[14%] sticky left-0 bg-cream/90 dark:bg-void/90 backdrop-blur-md z-10">
-                  Dimension
+                <th className="py-4 px-5 font-mono font-semibold text-charcoal-muted dark:text-cream-dim uppercase tracking-wider w-[24%] sticky left-0 bg-cream/95 dark:bg-void/95 backdrop-blur-md z-10">
+                  Feature
                 </th>
-                <th className="py-4 px-4 font-mono font-bold text-charcoal dark:text-cream tracking-wider w-[15%] bg-charcoal/[0.04] dark:bg-cream/[0.05]">
+                <th className="py-4 px-3.5 font-mono font-bold text-charcoal dark:text-cream tracking-wider text-center w-[12%] bg-charcoal/[0.04] dark:bg-cream/[0.05]">
                   Meridius
                 </th>
-                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider w-[11%]">
-                  Codex
+                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[10%]">
+                  Codex CU
                 </th>
-                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider w-[11%]">
+                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[11%]">
                   Claude Cowork
                 </th>
-                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider w-[11%]">
-                  Coasty AI
+                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[9%]">
+                  Coasty
                 </th>
-                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider w-[11%]">
+                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[10%]">
                   OpenWork
                 </th>
-                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider w-[11%]">
-                  Hermes Agent
+                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[12%]">
+                  Hermes (cua-driver)
                 </th>
-                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider w-[8%]">
+                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[8%]">
                   VoiceOS
                 </th>
-                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider w-[8%]">
+                <th className="py-4 px-3 font-mono font-semibold text-charcoal-muted dark:text-cream-dim tracking-wider text-center w-[8%]">
                   Clicky
                 </th>
               </tr>
@@ -157,49 +136,65 @@ export const ComparisonSection: React.FC = () => {
             <tbody className="divide-y divide-charcoal/[0.06] dark:divide-cream/[0.06] font-sans">
               {rows.map((row, idx) => (
                 <tr key={idx} className="hover:bg-white/30 dark:hover:bg-white/[0.01] transition-colors">
-                  {/* Dimension Header */}
-                  <td className="py-3.5 px-4 font-semibold text-charcoal dark:text-cream font-display sticky left-0 bg-cream/95 dark:bg-void/95 backdrop-blur-md z-10 border-r border-charcoal/[0.04] dark:border-cream/[0.04]">
-                    {row.label}
+                  {/* Feature Label */}
+                  <td className="py-3.5 px-5 font-semibold text-charcoal dark:text-cream font-display sticky left-0 bg-cream/95 dark:bg-void/95 backdrop-blur-md z-10 border-r border-charcoal/[0.04] dark:border-cream/[0.04]">
+                    {row.feature}
                   </td>
 
-                  {/* Meridius Column (Highlighted) */}
-                  <td className="py-3.5 px-4 font-medium text-charcoal dark:text-cream bg-charcoal/[0.04] dark:bg-cream/[0.05] leading-relaxed">
-                    <span className="font-semibold">{row.meridius}</span>
+                  {/* Meridius Column */}
+                  <td className="py-3.5 px-3.5 text-center bg-charcoal/[0.04] dark:bg-cream/[0.05]">
+                    <div className="flex justify-center items-center">
+                      {renderBadge(row.meridius)}
+                    </div>
                   </td>
 
                   {/* Codex */}
-                  <td className="py-3.5 px-3 text-charcoal-muted dark:text-cream-muted leading-relaxed">
-                    {row.codex}
+                  <td className="py-3.5 px-3 text-center">
+                    <div className="flex justify-center items-center">
+                      {renderBadge(row.codex)}
+                    </div>
                   </td>
 
                   {/* Claude */}
-                  <td className="py-3.5 px-3 text-charcoal-muted dark:text-cream-muted leading-relaxed">
-                    {row.claude}
+                  <td className="py-3.5 px-3 text-center">
+                    <div className="flex justify-center items-center">
+                      {renderBadge(row.claude)}
+                    </div>
                   </td>
 
                   {/* Coasty */}
-                  <td className="py-3.5 px-3 text-charcoal-muted dark:text-cream-muted leading-relaxed">
-                    {row.coasty}
+                  <td className="py-3.5 px-3 text-center">
+                    <div className="flex justify-center items-center">
+                      {renderBadge(row.coasty)}
+                    </div>
                   </td>
 
                   {/* OpenWork */}
-                  <td className="py-3.5 px-3 text-charcoal-muted dark:text-cream-muted leading-relaxed">
-                    {row.openwork}
+                  <td className="py-3.5 px-3 text-center">
+                    <div className="flex justify-center items-center">
+                      {renderBadge(row.openwork)}
+                    </div>
                   </td>
 
                   {/* Hermes */}
-                  <td className="py-3.5 px-3 text-charcoal-muted dark:text-cream-muted leading-relaxed">
-                    {row.hermes}
+                  <td className="py-3.5 px-3 text-center">
+                    <div className="flex justify-center items-center">
+                      {renderBadge(row.hermes)}
+                    </div>
                   </td>
 
                   {/* VoiceOS */}
-                  <td className="py-3.5 px-3 text-charcoal-muted dark:text-cream-dim leading-relaxed font-mono text-[11px]">
-                    {row.voiceos}
+                  <td className="py-3.5 px-3 text-center">
+                    <div className="flex justify-center items-center">
+                      {renderBadge(row.voiceos)}
+                    </div>
                   </td>
 
                   {/* Clicky */}
-                  <td className="py-3.5 px-3 text-charcoal-muted dark:text-cream-dim leading-relaxed font-mono text-[11px]">
-                    {row.clicky}
+                  <td className="py-3.5 px-3 text-center">
+                    <div className="flex justify-center items-center">
+                      {renderBadge(row.clicky)}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -207,33 +202,59 @@ export const ComparisonSection: React.FC = () => {
           </table>
         </div>
 
-        {/* 3 Detailed Notes on the Close Calls */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 rounded-2xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08]">
-            <h4 className="font-display font-semibold text-sm text-charcoal dark:text-cream mb-2">
-              Codex & Hermes: Structural vs. Hook-Based Isolation
-            </h4>
-            <p className="text-xs text-charcoal-muted dark:text-cream-muted font-sans leading-relaxed">
-              Codex and Hermes try to solve non-disruptive computer use on your main screen. But Codex is vulnerable when macOS forces windows forward, and Hermes relies on private undocumented Apple APIs that can break on OS updates. Meridius avoids both failure modes structurally.
-            </p>
+        {/* Legend */}
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-mono text-charcoal-muted dark:text-cream-muted mb-12 px-1">
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">✓</span>
+            <span>works as claimed</span>
           </div>
-
-          <div className="p-6 rounded-2xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08]">
-            <h4 className="font-display font-semibold text-sm text-charcoal dark:text-cream mb-2">
-              Coasty & OpenWork: The Cloud VM Disconnect
-            </h4>
-            <p className="text-xs text-charcoal-muted dark:text-cream-muted font-sans leading-relaxed">
-              Coasty's cloud VM approach means the agent literally isn't running on your computer, so it can't touch your real, already-logged-in apps. You get a fresh, disconnected copy of your accounts on a remote machine.
-            </p>
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-charcoal-muted/70 dark:text-cream-dim text-sm">✗</span>
+            <span>doesn't</span>
           </div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-amber-500 text-sm">⚠</span>
+            <span>partial, breaks sometimes</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-charcoal-muted/50 dark:text-cream-dim/50 text-sm">—</span>
+            <span>not applicable</span>
+          </div>
+        </div>
 
-          <div className="p-6 rounded-2xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08]">
-            <h4 className="font-display font-semibold text-sm text-charcoal dark:text-cream mb-2">
-              VoiceOS & Clicky: API Connectors vs. Autonomous Agents
-            </h4>
-            <p className="text-xs text-charcoal-muted dark:text-cream-muted font-sans leading-relaxed">
-              VoiceOS and Clicky are voice-first automation layers that act through app-specific connectors (MCPs, APIs), not by controlling software dynamically. Useful for basic integrations, but not autonomous computer use.
-            </p>
+        {/* The 3 Things That Actually Matter */}
+        <div className="rounded-2xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] p-6 sm:p-8">
+          <h3 className="font-display font-semibold text-base sm:text-lg text-charcoal dark:text-cream mb-4">
+            The 3 things that actually matter
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs sm:text-[13px] text-charcoal-muted dark:text-cream-muted font-sans leading-relaxed">
+            <div className="space-y-1.5">
+              <span className="font-semibold text-charcoal dark:text-cream font-display block text-sm">
+                Codex & Hermes
+              </span>
+              <p>
+                Try to stay backgrounded but slip occasionally — Codex because macOS forces the app forward sometimes, Hermes because it leans on undocumented Apple APIs. Meridius can't slip, the app is never on your real display.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <span className="font-semibold text-charcoal dark:text-cream font-display block text-sm">
+                Coasty & OpenWork
+              </span>
+              <p>
+                Solve isolation by leaving your machine (cloud VM or a separate browser), so they lose access to your real, already-logged-in native apps.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <span className="font-semibold text-charcoal dark:text-cream font-display block text-sm">
+                VoiceOS & Clicky
+              </span>
+              <p>
+                Aren't computer-use agents at all — they trigger actions through app connectors (MCPs, APIs), not dynamic screen control.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -241,3 +262,39 @@ export const ComparisonSection: React.FC = () => {
     </section>
   );
 };
+
+function renderBadge(type: string) {
+  switch (type) {
+    case 'check':
+      return (
+        <span className="w-5 h-5 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-xs">
+          <Check className="w-3.5 h-3.5" />
+        </span>
+      );
+    case 'cross':
+      return (
+        <span className="w-5 h-5 rounded-full flex items-center justify-center text-charcoal-muted/60 dark:text-cream-dim/60 font-bold text-xs">
+          <X className="w-3.5 h-3.5" />
+        </span>
+      );
+    case 'partial':
+      return (
+        <span className="w-5 h-5 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 font-bold text-xs">
+          <AlertTriangle className="w-3 h-3" />
+        </span>
+      );
+    case 'planned':
+      return (
+        <span className="px-2 py-0.5 rounded-full bg-charcoal/10 dark:bg-cream/10 text-[10px] font-mono font-medium text-charcoal dark:text-cream">
+          Planned
+        </span>
+      );
+    case 'na':
+    default:
+      return (
+        <span className="text-charcoal-muted/40 dark:text-cream-dim/40 flex items-center justify-center">
+          <Minus className="w-3.5 h-3.5" />
+        </span>
+      );
+  }
+}
