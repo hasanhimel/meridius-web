@@ -31,10 +31,10 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
           disableAnimation={false}
           enableMouseInteraction
           mouseRadius={0.3}
-          colorNum={6.4}
+          colorNum={3}
           waveAmplitude={0.05}
           waveFrequency={2.1}
-          waveSpeed={0.04}
+          waveSpeed={0.01}
         />
       </div>
 
