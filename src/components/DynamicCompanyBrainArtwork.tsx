@@ -19,8 +19,6 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
       tools: 'VS Code · Git',
       x: 120,
       y: 50,
-      targetX: 335,
-      targetY: 316,
       stream: 'Code commits, test logs & PR context',
       detail: 'Local Mac instance indexes active codebase commits and build outputs without exposing private repository write keys.',
     },
@@ -30,8 +28,6 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
       tools: 'Figma · Linear',
       x: 310,
       y: 50,
-      targetX: 375,
-      targetY: 304,
       stream: 'Live specs, roadmaps & canvas components',
       detail: 'Synthesizes active project tickets with design systems and user journey flows across teammates in real-time.',
     },
@@ -41,8 +37,6 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
       tools: 'HubSpot · CRM',
       x: 490,
       y: 50,
-      targetX: 425,
-      targetY: 304,
       stream: 'Customer signals & pipeline updates',
       detail: 'Extracts customer engagement data and pipeline changes directly from authenticated browser sessions.',
     },
@@ -52,8 +46,6 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
       tools: 'Stripe · QuickBooks',
       x: 680,
       y: 50,
-      targetX: 465,
-      targetY: 316,
       stream: 'Invoices, payroll & billing events',
       detail: 'Reconciles payment schedules and vendor invoices locally on Mac with zero cloud token exposure.',
     },
@@ -63,6 +55,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
   const brainCx = 400;
   const brainCy = 350;
   const brainRadius = 48;
+  const convergencePointY = brainCy - brainRadius; // Exactly 302 (single apex point)
 
   return (
     <div className={`w-full rounded-3xl frosted-glass p-6 sm:p-8 border border-charcoal/[0.12] dark:border-cream/[0.12] overflow-hidden relative ${className}`}>
@@ -76,14 +69,14 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
         <div className="flex items-center gap-3 text-charcoal-muted dark:text-cream-dim text-[11px]">
           <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
             <ArrowDown className="w-3.5 h-3.5" />
-            4 Distributed Circular Nodes Active
+            4 Streams Converging at Center
           </span>
           <span>·</span>
           <span>Local Mac Keychain Auth</span>
         </div>
       </div>
 
-      {/* SVG Canvas with Circular Nodes and Soft Curvy Conduits */}
+      {/* SVG Canvas with Circular Nodes and Soft Curvy Conduits Converging to One Point */}
       <div className="relative w-full aspect-[800/440] max-w-4xl mx-auto flex items-center justify-center my-2">
         <svg
           viewBox="0 0 800 440"
@@ -129,17 +122,17 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           />
 
           {/* ============================================================ */}
-          {/* CURVY CONDUITS CONNECTING CIRCULAR NODES */}
+          {/* CURVY CONDUITS CONVERGING ALL TO ONE POINT AT (brainCx, convergencePointY) */}
           {/* ============================================================ */}
           {sources.map((src) => {
             const isCurrent = activeSource === src.id;
             const sourceBottomY = src.y + 30;
 
-            // Soft S-curve Bézier to separate targetX/targetY port on Circular Meridius Node
-            const ctrlY1 = sourceBottomY + 90;
-            const ctrlY2 = src.targetY - 80;
+            // Soft S-curve Bézier converging to single point (brainCx, convergencePointY)
+            const ctrlY1 = sourceBottomY + 100;
+            const ctrlY2 = convergencePointY - 80;
 
-            const pathD = `M ${src.x} ${sourceBottomY} C ${src.x} ${ctrlY1}, ${src.targetX} ${ctrlY2}, ${src.targetX} ${src.targetY}`;
+            const pathD = `M ${src.x} ${sourceBottomY} C ${src.x} ${ctrlY1}, ${brainCx} ${ctrlY2}, ${brainCx} ${convergencePointY}`;
 
             return (
               <g key={src.id}>
@@ -336,21 +329,14 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
               ● Continuously Acquiring & Synthesizing Context
             </text>
 
-            {/* 4 Distinct Top Inflow Ports on the Circular Perimeter */}
-            {sources.map((src) => {
-              const isCurrent = activeSource === src.id;
-              return (
-                <circle
-                  key={`port-${src.id}`}
-                  cx={src.targetX}
-                  cy={src.targetY}
-                  r="4"
-                  fill={isCurrent ? "#10b981" : "currentColor"}
-                  className={isCurrent ? "" : "text-charcoal-dim dark:text-cream-dim"}
-                  filter="url(#circleGlow)"
-                />
-              );
-            })}
+            {/* Single Convergence Apex Inflow Port on the Circular Perimeter */}
+            <circle
+              cx={brainCx}
+              cy={convergencePointY}
+              r="5"
+              fill="#10b981"
+              filter="url(#circleGlow)"
+            />
           </g>
 
         </svg>
