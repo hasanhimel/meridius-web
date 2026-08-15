@@ -86,8 +86,10 @@ float fbm(vec2 p) {
 }
 
 float pattern(vec2 p) {
-  vec2 p2 = p - time * waveSpeed;
-  return fbm(p + fbm(p2)); 
+  float t = time * (waveSpeed * 12.0);
+  vec2 p2 = p - vec2(t * 0.4, t * 0.25);
+  vec2 q = vec2(fbm(p + vec2(t * 0.1, 0.0)), fbm(p2 + vec2(0.0, t * 0.15)));
+  return fbm(p + q); 
 }
 
 void main() {
@@ -276,6 +278,7 @@ export default function Dither({
 }: DitherProps) {
   return (
     <Canvas
+      frameloop="always"
       className="w-full h-full relative"
       style={{ background: 'transparent' }}
       camera={{ position: [0, 0, 6] }}
