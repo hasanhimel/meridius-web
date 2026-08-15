@@ -55,7 +55,7 @@
 body {
   background-color: var(--bg-page);
   color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-family: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -64,13 +64,17 @@ body {
 
 /* Headings */
 h1, h2, h3, h4, h5, h6, .font-display {
-  font-family: 'General Sans', 'Söhne', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-  letter-spacing: -0.03em;
+  font-family: 'Geist', 'General Sans', 'Söhne', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  letter-spacing: -0.035em;
   color: var(--text-primary);
 }
 
 .font-mono {
-  font-family: 'JetBrains Mono', 'IBM Plex Mono', Menlo, monospace;
+  font-family: 'Geist Mono', 'JetBrains Mono', 'IBM Plex Mono', Menlo, monospace;
+}
+
+.font-brand {
+  font-family: 'Cabinet Grotesk', 'Space Grotesk', 'Syne', 'Clash Display', sans-serif;
 }
 
 /* Subtle background dot pattern */

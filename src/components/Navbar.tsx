@@ -22,8 +22,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlist }) => {
             alt="Meridius" 
             className="w-9 h-9 sm:w-10 sm:h-10 object-contain opacity-100 transition-transform group-hover:scale-105 shrink-0"
           />
-          <span className="font-display font-medium sm:font-semibold text-base sm:text-[17px] tracking-tight text-charcoal dark:text-cream transition-colors">
-            Meridius
+          <span className="font-brand font-extrabold text-base sm:text-[18px] tracking-[0.02em] uppercase text-charcoal dark:text-cream transition-colors">
+            MERIDIUS
           </span>
         </a>
 
