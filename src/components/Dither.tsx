@@ -25,7 +25,6 @@ uniform vec2 mousePos;
 uniform int enableMouseInteraction;
 uniform float mouseRadius;
 uniform float pixelSize;
-uniform float colorNum;
 
 const float bayerMatrix8x8[64] = float[64](
   0.0/64.0, 48.0/64.0, 12.0/64.0, 60.0/64.0,  3.0/64.0, 51.0/64.0, 15.0/64.0, 63.0/64.0,
@@ -71,10 +70,10 @@ float cnoise(vec2 P) {
   return 2.3 * mix(n_x.x, n_x.y, fade_xy.y);
 }
 
-const int OCTAVES = 4;
+const int OCTAVES = 3;
 float fbm(vec2 p) {
   float value = 0.0;
-  float amp = 1.0;
+  float amp = 0.8;
   float freq = waveFrequency;
   for (int i = 0; i < OCTAVES; i++) {
     value += amp * abs(cnoise(p));
@@ -110,12 +109,16 @@ void main() {
   int y = int(mod(scaledCoord.y, 8.0));
   float threshold = bayerMatrix8x8[y * 8 + x];
 
-  // Map wave intensity through dither step
-  float intensity = clamp(f * 0.85, 0.0, 1.0);
-  float dithered = step(threshold, intensity);
+  // Sparse wave crest mapping: only gentle wave peaks produce dither dots
+  float waveIntensity = smoothstep(0.45, 0.95, f);
 
-  // Pure transparent background: only the dither dots have alpha
-  gl_FragColor = vec4(waveColor, dithered * 0.35);
+  // If below dither threshold, discard completely (100% transparent, ZERO dark background)
+  if (waveIntensity < threshold || waveIntensity <= 0.02) {
+    discard;
+  }
+
+  // Soft low opacity on visible dither dots
+  gl_FragColor = vec4(waveColor, 0.28);
 }
 `;
 
@@ -131,7 +134,6 @@ interface WaveUniforms {
   enableMouseInteraction: THREE.Uniform<number>;
   mouseRadius: THREE.Uniform<number>;
   pixelSize: THREE.Uniform<number>;
-  colorNum: THREE.Uniform<number>;
 }
 
 interface DitheredWavesProps {
@@ -139,7 +141,6 @@ interface DitheredWavesProps {
   waveFrequency: number;
   waveAmplitude: number;
   waveColor: [number, number, number];
-  colorNum: number;
   pixelSize: number;
   disableAnimation: boolean;
   enableMouseInteraction: boolean;
@@ -151,7 +152,6 @@ function DitheredWaves({
   waveFrequency,
   waveAmplitude,
   waveColor,
-  colorNum,
   pixelSize,
   disableAnimation,
   enableMouseInteraction,
@@ -171,8 +171,7 @@ function DitheredWaves({
     mousePos: new THREE.Uniform(new THREE.Vector2(0, 0)),
     enableMouseInteraction: new THREE.Uniform(enableMouseInteraction ? 1 : 0),
     mouseRadius: new THREE.Uniform(mouseRadius),
-    pixelSize: new THREE.Uniform(pixelSize),
-    colorNum: new THREE.Uniform(colorNum)
+    pixelSize: new THREE.Uniform(pixelSize)
   });
 
   useEffect(() => {
@@ -197,7 +196,6 @@ function DitheredWaves({
     if (u.waveFrequency.value !== waveFrequency) u.waveFrequency.value = waveFrequency;
     if (u.waveAmplitude.value !== waveAmplitude) u.waveAmplitude.value = waveAmplitude;
     if (u.pixelSize.value !== pixelSize) u.pixelSize.value = pixelSize;
-    if (u.colorNum.value !== colorNum) u.colorNum.value = colorNum;
 
     if (!prevColor.current.every((v, i) => v === waveColor[i])) {
       u.waveColor.value.set(...waveColor);
@@ -251,7 +249,6 @@ export interface DitherProps {
   waveFrequency?: number;
   waveAmplitude?: number;
   waveColor?: [number, number, number];
-  colorNum?: number;
   pixelSize?: number;
   disableAnimation?: boolean;
   enableMouseInteraction?: boolean;
@@ -259,29 +256,28 @@ export interface DitherProps {
 }
 
 export default function Dither({
-  waveSpeed = 0.04,
-  waveFrequency = 5.8,
-  waveAmplitude = 0.37,
+  waveSpeed = 0.035,
+  waveFrequency = 4.2,
+  waveAmplitude = 0.32,
   waveColor = [0.3137254901960784, 0.3137254901960784, 0.3137254901960784],
-  colorNum = 4,
-  pixelSize = 2.5,
+  pixelSize = 3.0,
   disableAnimation = false,
   enableMouseInteraction = true,
-  mouseRadius = 0.3
+  mouseRadius = 0.35
 }: DitherProps) {
   return (
     <Canvas
       className="w-full h-full relative"
+      style={{ background: 'transparent' }}
       camera={{ position: [0, 0, 6] }}
       dpr={1}
-      gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
+      gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true, premultipliedAlpha: false }}
     >
       <DitheredWaves
         waveSpeed={waveSpeed}
         waveFrequency={waveFrequency}
         waveAmplitude={waveAmplitude}
         waveColor={waveColor}
-        colorNum={colorNum}
         pixelSize={pixelSize}
         disableAnimation={disableAnimation}
         enableMouseInteraction={enableMouseInteraction}
