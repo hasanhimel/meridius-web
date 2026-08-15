@@ -117,9 +117,6 @@ export const ComparisonSection: React.FC = () => {
           <p className="text-charcoal-muted dark:text-cream-muted text-sm sm:text-base leading-relaxed">
             Direct capability matrix across the computer-use and autonomous AI landscape.
           </p>
-          <p className="text-xs font-mono text-charcoal-dim dark:text-cream-dim italic mt-2">
-            *Hover over any ⚠ for the specific caveat.*
-          </p>
         </div>
 
         {/* Minimalist Comparison Table Container with Perfect Rounded Corners */}
