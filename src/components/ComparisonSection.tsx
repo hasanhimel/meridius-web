@@ -99,7 +99,7 @@ export const ComparisonSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Minimalist Symbol-Based Comparison Table */}
+        {/* Minimalist Icon-Only Comparison Table */}
         <div className="overflow-x-auto rounded-2xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] shadow-sm mb-5">
           <table className="w-full text-left border-collapse min-w-[880px] text-xs">
             <thead>
@@ -202,30 +202,22 @@ export const ComparisonSection: React.FC = () => {
           </table>
         </div>
 
-        {/* Legend with Subdued Circular Badges */}
+        {/* Legend */}
         <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-mono text-charcoal-muted dark:text-cream-muted mb-12 px-1">
-          <div className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded-full bg-emerald-500/[0.08] dark:bg-emerald-500/[0.12] border border-emerald-500/20 flex items-center justify-center text-emerald-600/80 dark:text-emerald-400/80 text-[10px] font-bold">
-              ✓
-            </span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-emerald-600/80 dark:text-emerald-400/80 text-sm">✓</span>
             <span>works as claimed</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded-full bg-charcoal/[0.04] dark:bg-cream/[0.04] border border-charcoal/[0.08] dark:border-cream/[0.08] flex items-center justify-center text-charcoal-muted/60 dark:text-cream-dim/60 text-[10px] font-bold">
-              ✗
-            </span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-charcoal-muted/50 dark:text-cream-dim/50 text-sm">✗</span>
             <span>doesn't</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded-full bg-amber-500/[0.08] dark:bg-amber-500/[0.12] border border-amber-500/20 flex items-center justify-center text-amber-600/80 dark:text-amber-400/80 text-[10px] font-bold">
-              ⚠
-            </span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-amber-500/80 dark:text-amber-400/80 text-sm">⚠</span>
             <span>partial, breaks sometimes, or comes with a real tradeoff</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-4 h-4 rounded-full border border-charcoal/[0.06] dark:border-cream/[0.06] flex items-center justify-center text-charcoal-muted/30 dark:text-cream-dim/30 text-[10px]">
-              —
-            </span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-bold text-charcoal-muted/30 dark:text-cream-dim/30 text-sm">—</span>
             <span>not applicable</span>
           </div>
         </div>
@@ -274,35 +266,19 @@ export const ComparisonSection: React.FC = () => {
 function renderBadge(type: string) {
   switch (type) {
     case 'check':
-      return (
-        <span className="w-5 h-5 rounded-full bg-emerald-500/[0.08] dark:bg-emerald-500/[0.12] border border-emerald-500/20 flex items-center justify-center text-emerald-600/80 dark:text-emerald-400/80 font-bold text-xs shadow-none">
-          <Check className="w-3 h-3 stroke-[2.5]" />
-        </span>
-      );
+      return <Check className="w-4 h-4 text-emerald-600/80 dark:text-emerald-400/80 stroke-[2.25]" />;
     case 'cross':
-      return (
-        <span className="w-5 h-5 rounded-full bg-charcoal/[0.03] dark:bg-cream/[0.04] border border-charcoal/[0.08] dark:border-cream/[0.08] flex items-center justify-center text-charcoal-muted/60 dark:text-cream-dim/60 font-bold text-xs">
-          <X className="w-3 h-3 stroke-[2.5]" />
-        </span>
-      );
+      return <X className="w-3.5 h-3.5 text-charcoal-muted/45 dark:text-cream-dim/45 stroke-[2.25]" />;
     case 'partial':
-      return (
-        <span className="w-5 h-5 rounded-full bg-amber-500/[0.08] dark:bg-amber-500/[0.12] border border-amber-500/20 flex items-center justify-center text-amber-600/80 dark:text-amber-400/80 font-bold text-xs">
-          <AlertTriangle className="w-2.5 h-2.5 stroke-[2.5]" />
-        </span>
-      );
+      return <AlertTriangle className="w-3.5 h-3.5 text-amber-500/80 dark:text-amber-400/80 stroke-[2.25]" />;
     case 'planned':
       return (
-        <span className="px-2 py-0.5 rounded-full bg-charcoal/[0.06] dark:bg-cream/[0.08] border border-charcoal/[0.08] dark:border-cream/[0.08] text-[10px] font-mono font-medium text-charcoal dark:text-cream">
+        <span className="text-[11px] font-mono font-medium text-charcoal-muted dark:text-cream-dim">
           Planned
         </span>
       );
     case 'na':
     default:
-      return (
-        <span className="w-5 h-5 rounded-full border border-charcoal/[0.05] dark:border-cream/[0.05] flex items-center justify-center text-charcoal-muted/30 dark:text-cream-dim/30">
-          <Minus className="w-3 h-3" />
-        </span>
-      );
+      return <Minus className="w-3.5 h-3.5 text-charcoal-muted/30 dark:text-cream-dim/30" />;
   }
 }
