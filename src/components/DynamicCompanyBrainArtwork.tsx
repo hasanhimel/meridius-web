@@ -19,6 +19,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
       tools: 'VS Code · Git · Terminal',
       x: 120,
       y: 45,
+      targetX: 280,
       stream: 'Code commits, test logs & PR context',
       detail: 'Local Mac instance indexes active codebase commits and build outputs without exposing private repository write keys.',
     },
@@ -28,6 +29,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
       tools: 'Figma · Linear · Notion',
       x: 310,
       y: 45,
+      targetX: 360,
       stream: 'Live specs, roadmaps & canvas components',
       detail: 'Synthesizes active project tickets with design systems and user journey flows across teammates in real-time.',
     },
@@ -37,6 +39,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
       tools: 'HubSpot · Analytics · CRM',
       x: 490,
       y: 45,
+      targetX: 440,
       stream: 'Customer signals & pipeline updates',
       detail: 'Extracts customer engagement data and pipeline changes directly from authenticated browser sessions.',
     },
@@ -46,6 +49,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
       tools: 'Stripe · QuickBooks · Docs',
       x: 680,
       y: 45,
+      targetX: 520,
       stream: 'Invoices, payroll & billing events',
       detail: 'Reconciles payment schedules and vendor invoices locally on Mac with zero cloud token exposure.',
     },
@@ -54,6 +58,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
   // Meridius Brain Target at the Bottom
   const brainCx = 400;
   const brainCy = 350;
+  const brainTargetY = brainCy - 35; // 315
 
   return (
     <div className={`w-full rounded-3xl frosted-glass p-6 sm:p-8 border border-charcoal/[0.12] dark:border-cream/[0.12] overflow-hidden relative ${className}`}>
@@ -67,14 +72,14 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
         <div className="flex items-center gap-3 text-charcoal-muted dark:text-cream-dim text-[11px]">
           <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
             <ArrowDown className="w-3.5 h-3.5" />
-            Inflowing Stream Active
+            4 Distributed Channels Active
           </span>
           <span>·</span>
           <span>Local Mac Keychain Auth</span>
         </div>
       </div>
 
-      {/* SVG Canvas with Soft Curvy Converging Conduits */}
+      {/* SVG Canvas with Separate Curvy Conduits */}
       <div className="relative w-full aspect-[800/440] max-w-4xl mx-auto flex items-center justify-center my-2">
         <svg
           viewBox="0 0 800 440"
@@ -120,20 +125,17 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           />
 
           {/* ============================================================ */}
-          {/* SOFT CURVY CONVERGING CONDUITS (TOP SOURCES -> BOTTOM BRAIN) */}
+          {/* SEPARATE SOFT CURVY CONDUITS (EACH WITH ITS OWN LANDING PORT) */}
           {/* ============================================================ */}
           {sources.map((src) => {
             const isCurrent = activeSource === src.id;
             const sourceBottomY = src.y + 35;
-            const targetY = brainCy - 40;
 
-            // Soft S-curve Bézier control points
-            const ctrlX1 = src.x;
-            const ctrlY1 = sourceBottomY + 110;
-            const ctrlX2 = brainCx + (src.x - brainCx) * 0.15;
-            const ctrlY2 = targetY - 70;
+            // Soft S-curve Bézier to separate targetX port on Meridius node
+            const ctrlY1 = sourceBottomY + 90;
+            const ctrlY2 = brainTargetY - 90;
 
-            const pathD = `M ${src.x} ${sourceBottomY} C ${ctrlX1} ${ctrlY1}, ${ctrlX2} ${ctrlY2}, ${brainCx} ${targetY}`;
+            const pathD = `M ${src.x} ${sourceBottomY} C ${src.x} ${ctrlY1}, ${src.targetX} ${ctrlY2}, ${src.targetX} ${brainTargetY}`;
 
             return (
               <g key={src.id}>
@@ -158,7 +160,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
                   filter="url(#softGlow)"
                 />
 
-                {/* Flowing Data Energy Packet traveling downward */}
+                {/* Flowing Data Energy Packet traveling downward to its port */}
                 <circle r="4" fill="#10b981" filter="url(#softGlow)">
                   <animateMotion
                     path={pathD}
@@ -228,14 +230,14 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           })}
 
           {/* ============================================================ */}
-          {/* BOTTOM TIER: CENTRAL MERIDIUS COMPANY BRAIN */}
+          {/* BOTTOM TIER: CENTRAL MERIDIUS COMPANY BRAIN WITH 4 PORTS */}
           {/* ============================================================ */}
           <g className="cursor-pointer">
             {/* Outer Pulsing Aura */}
             <rect
-              x="250"
+              x="230"
               y={brainCy - 35}
-              width="300"
+              width="340"
               height="70"
               rx="20"
               fill="none"
@@ -254,9 +256,9 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
 
             {/* Core Brain Container */}
             <rect
-              x="250"
+              x="230"
               y={brainCy - 35}
-              width="300"
+              width="340"
               height="70"
               rx="20"
               fill="currentColor"
@@ -266,21 +268,34 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
             />
 
             {/* Brain Central Logo Mark */}
-            <circle cx="295" cy={brainCy} r="18" fill="currentColor" className="text-charcoal dark:text-cream" />
-            <text x="295" y={brainCy + 5} textAnchor="middle" className="fill-cream dark:fill-charcoal font-brand font-extrabold text-[14px]">
+            <circle cx="275" cy={brainCy} r="18" fill="currentColor" className="text-charcoal dark:text-cream" />
+            <text x="275" y={brainCy + 5} textAnchor="middle" className="fill-cream dark:fill-charcoal font-brand font-extrabold text-[14px]">
               M
             </text>
 
             {/* Brain Labels */}
-            <text x="328" y={brainCy - 5} className="fill-charcoal dark:fill-cream font-display font-semibold text-[14px]">
+            <text x="308" y={brainCy - 5} className="fill-charcoal dark:fill-cream font-display font-semibold text-[14px]">
               Meridius Company Brain
             </text>
-            <text x="328" y={brainCy + 14} className="fill-emerald-600 dark:fill-emerald-400 font-mono text-[9.5px] font-semibold">
+            <text x="308" y={brainCy + 14} className="fill-emerald-600 dark:fill-emerald-400 font-mono text-[9.5px] font-semibold">
               ● Continuously Acquiring & Synthesizing Context
             </text>
 
-            {/* Top Inflow Port */}
-            <circle cx={brainCx} cy={brainCy - 35} r="4.5" fill="#10b981" filter="url(#softGlow)" />
+            {/* 4 Distinct Top Inflow Ports on the Meridius Node */}
+            {sources.map((src) => {
+              const isCurrent = activeSource === src.id;
+              return (
+                <circle
+                  key={`port-${src.id}`}
+                  cx={src.targetX}
+                  cy={brainTargetY}
+                  r="4"
+                  fill={isCurrent ? "#10b981" : "currentColor"}
+                  className={isCurrent ? "" : "text-charcoal-dim dark:text-cream-dim"}
+                  filter="url(#softGlow)"
+                />
+              );
+            })}
           </g>
 
         </svg>
