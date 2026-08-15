@@ -193,38 +193,29 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
                   {src.tools}
                 </text>
 
-                {/* 3. CIRCULAR NODE BASE */}
+                {/* 3. SINGLE UNIFIED CIRCULAR NODE */}
                 <circle
                   cx={src.x}
                   cy={src.y}
-                  r="26"
-                  fill="currentColor"
-                  className="text-white dark:text-void"
-                  stroke="currentColor"
-                  strokeWidth="1.75"
-                />
-
-                {/* 4. NODE CENTER ACCENT DOT */}
-                <circle
-                  cx={src.x}
-                  cy={src.y}
-                  r="11"
+                  r="24"
                   fill="currentColor"
                   className="text-charcoal dark:text-cream"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
                 />
 
-                {/* 5. NODE INDEX NUMBER */}
+                {/* 4. NODE INDEX NUMBER */}
                 <text
                   x={src.x}
                   y={src.y + 3.5}
                   textAnchor="middle"
-                  className="fill-cream dark:fill-charcoal font-mono font-bold text-[8.5px]"
+                  className="fill-cream dark:fill-charcoal font-mono font-bold text-[10px]"
                 >
                   0{src.id + 1}
                 </text>
 
-                {/* 6. BOTTOM OUTPUT PORT */}
-                <circle cx={src.x} cy={src.y + 26} r="3" fill="currentColor" className="text-charcoal dark:text-cream" />
+                {/* 5. BOTTOM OUTPUT PORT */}
+                <circle cx={src.x} cy={src.y + 24} r="3" fill="currentColor" className="text-charcoal dark:text-cream" />
               </g>
             );
           })}
@@ -252,28 +243,18 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
               />
             </circle>
 
-            {/* Core Circular Brain Body */}
+            {/* Single Unified Circular Brain Node */}
             <circle
               cx={brainCx}
               cy={brainCy}
               r={brainRadius}
               fill="currentColor"
-              className="text-white dark:text-void"
-              stroke="currentColor"
-              strokeWidth="2"
-            />
-
-            {/* Inner Core Circle */}
-            <circle
-              cx={brainCx}
-              cy={brainCy}
-              r="28"
-              fill="currentColor"
               className="text-charcoal dark:text-cream"
-              filter="url(#themeGlow)"
+              stroke="currentColor"
+              strokeWidth="1.5"
             />
 
-            {/* PROMINENT MERIDIUS VECTOR LOGO MARK (BIGGER INSIDE CIRCLE) */}
+            {/* Prominent Meridius Vector Logo Mark Inside Single Circle */}
             <image
               href={isDark ? "/assets/logo/meridius-mark-black.svg" : "/assets/logo/meridius-mark-white.svg"}
               x={brainCx - 22}
