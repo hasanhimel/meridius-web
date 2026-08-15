@@ -25,7 +25,7 @@ void main() {
 `;
 
 const fragmentShader = `
-precision mediump float;
+precision highp float;
 varying vec2 vUv;
 
 uniform float time;
@@ -38,6 +38,7 @@ uniform vec2 mousePos;
 uniform float enableMouseInteraction;
 uniform float mouseRadius;
 uniform float pixelSize;
+uniform float colorNum;
 
 const float bayerMatrix8x8[64] = float[64](
   0.0/64.0, 48.0/64.0, 12.0/64.0, 60.0/64.0,  3.0/64.0, 51.0/64.0, 15.0/64.0, 63.0/64.0,
@@ -50,14 +51,14 @@ const float bayerMatrix8x8[64] = float[64](
   42.0/64.0,26.0/64.0, 38.0/64.0, 22.0/64.0, 41.0/64.0,25.0/64.0, 37.0/64.0, 21.0/64.0
 );
 
-// High-Performance Smooth Harmonic Flow Wave Synthesis
+// High-Performance Smooth Liquid Wave Synthesis
 float smoothWaves(vec2 p, float t) {
   float freq = waveFrequency * 0.45;
   vec2 p2 = p * freq;
   
-  float v1 = sin(p2.x * 1.8 + t * 0.75 + sin(p2.y * 1.4 + t * 0.4));
-  float v2 = cos(p2.y * 2.0 - t * 0.65 + cos(p2.x * 1.5 - t * 0.35));
-  float v3 = sin(length(p2 * 1.2) * 1.6 - t * 0.9);
+  float v1 = sin(p2.x * 1.8 + t * 0.8 + sin(p2.y * 1.4 + t * 0.4));
+  float v2 = cos(p2.y * 2.0 - t * 0.7 + cos(p2.x * 1.5 - t * 0.35));
+  float v3 = sin(length(p2 * 1.2) * 1.6 - t * 0.95);
   
   return (v1 + v2 + v3 + 3.0) / 6.0;
 }
@@ -67,7 +68,7 @@ void main() {
   vec2 p = uv - 0.5;
   p.x *= resolution.x / resolution.y;
 
-  float t = time * (waveSpeed * 16.0);
+  float t = time * (waveSpeed * 18.0);
   float f = smoothWaves(p, t);
 
   if (enableMouseInteraction > 0.5) {
@@ -82,18 +83,20 @@ void main() {
   vec2 scaledCoord = floor(gl_FragCoord.xy / pixelSize);
   int x = int(mod(scaledCoord.x, 8.0));
   int y = int(mod(scaledCoord.y, 8.0));
-  float threshold = bayerMatrix8x8[y * 8 + x];
+  float threshold = bayerMatrix8x8[y * 8 + x] - 0.25;
 
-  // Sparse wave crest mapping
-  float waveIntensity = smoothstep(0.46, 0.94, f * (1.0 + waveAmplitude * 0.35));
+  float stepVal = 1.0 / (colorNum - 1.0);
+  float val = f + threshold * stepVal;
+  val = clamp(val - 0.15, 0.0, 1.0);
+  float dithered = floor(val * (colorNum - 1.0) + 0.5) / (colorNum - 1.0);
 
-  // Discard non-dither pixels for 100% pure transparent background (no black box)
-  if (waveIntensity < threshold || waveIntensity <= 0.02) {
+  // Discard 100% of unlit background pixels so background is completely transparent
+  if (dithered <= 0.05) {
     discard;
   }
 
-  // Render dither wave particles
-  gl_FragColor = vec4(waveColor, 0.32);
+  // Render visible dither wave particles clearly with theme color
+  gl_FragColor = vec4(waveColor, dithered);
 }
 `;
 
@@ -110,11 +113,12 @@ export default function Dither({
   waveFrequency = 5.8,
   waveAmplitude = 0.37,
   waveColor = [0.3137254901960784, 0.3137254901960784, 0.3137254901960784],
+  colorNum = 4,
   pixelSize = 2.5,
   disableAnimation = false,
   enableMouseInteraction = true,
   mouseRadius = 0.3,
-  dpr = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 1.5),
+  dpr = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 2),
   className,
   style,
   ...rest
@@ -161,7 +165,8 @@ export default function Dither({
         mousePos: { value: new Float32Array([smoothMouseRef.current.x, smoothMouseRef.current.y]) },
         enableMouseInteraction: { value: enableMouseInteraction ? 1 : 0 },
         mouseRadius: { value: mouseRadius },
-        pixelSize: { value: pixelSize }
+        pixelSize: { value: pixelSize },
+        colorNum: { value: colorNum }
       }
     });
 
@@ -220,6 +225,7 @@ export default function Dither({
     waveFrequency,
     waveAmplitude,
     colorVec,
+    colorNum,
     mouseRadius,
     pixelSize,
     handleMouseMove

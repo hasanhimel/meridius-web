@@ -24,16 +24,17 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
   return (
     <section className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:py-16 md:py-20 lg:py-24 bg-cream dark:bg-void transition-colors duration-200 overflow-hidden">
       
-      {/* Interactive Dither Wave Ambient Background Canvas with 100% Transparent Background & Soft Low Opacity */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none select-none opacity-[0.16] dark:opacity-[0.22] z-0">
+      {/* Interactive Dither Wave Ambient Background Canvas with 100% Transparent Background */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none select-none opacity-[0.38] dark:opacity-[0.45] z-0">
         <Dither
-          waveColor={isDark ? "#e5e5dc" : "#3f413f"}
+          waveColor={isDark ? "#e5e5dc" : "#2B2B2A"}
           disableAnimation={false}
           enableMouseInteraction
           mouseRadius={0.3}
           waveAmplitude={0.37}
           waveFrequency={5.8}
           waveSpeed={0.04}
+          colorNum={4}
           pixelSize={2.5}
         />
       </div>
