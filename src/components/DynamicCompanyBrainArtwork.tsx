@@ -16,49 +16,53 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
     {
       id: 0,
       title: 'Engineering',
-      tools: 'VS Code · Git · Terminal',
+      tools: 'VS Code · Git',
       x: 120,
-      y: 45,
-      targetX: 280,
+      y: 50,
+      targetX: 335,
+      targetY: 316,
       stream: 'Code commits, test logs & PR context',
       detail: 'Local Mac instance indexes active codebase commits and build outputs without exposing private repository write keys.',
     },
     {
       id: 1,
       title: 'Product & Design',
-      tools: 'Figma · Linear · Notion',
+      tools: 'Figma · Linear',
       x: 310,
-      y: 45,
-      targetX: 360,
+      y: 50,
+      targetX: 375,
+      targetY: 304,
       stream: 'Live specs, roadmaps & canvas components',
       detail: 'Synthesizes active project tickets with design systems and user journey flows across teammates in real-time.',
     },
     {
       id: 2,
       title: 'Growth & Sales',
-      tools: 'HubSpot · Analytics · CRM',
+      tools: 'HubSpot · CRM',
       x: 490,
-      y: 45,
-      targetX: 440,
+      y: 50,
+      targetX: 425,
+      targetY: 304,
       stream: 'Customer signals & pipeline updates',
       detail: 'Extracts customer engagement data and pipeline changes directly from authenticated browser sessions.',
     },
     {
       id: 3,
       title: 'Operations & Finance',
-      tools: 'Stripe · QuickBooks · Docs',
+      tools: 'Stripe · QuickBooks',
       x: 680,
-      y: 45,
-      targetX: 520,
+      y: 50,
+      targetX: 465,
+      targetY: 316,
       stream: 'Invoices, payroll & billing events',
       detail: 'Reconciles payment schedules and vendor invoices locally on Mac with zero cloud token exposure.',
     },
   ];
 
-  // Meridius Brain Target at the Bottom
+  // Meridius Brain Circular Center
   const brainCx = 400;
   const brainCy = 350;
-  const brainTargetY = brainCy - 35; // 315
+  const brainRadius = 48;
 
   return (
     <div className={`w-full rounded-3xl frosted-glass p-6 sm:p-8 border border-charcoal/[0.12] dark:border-cream/[0.12] overflow-hidden relative ${className}`}>
@@ -72,14 +76,14 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
         <div className="flex items-center gap-3 text-charcoal-muted dark:text-cream-dim text-[11px]">
           <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
             <ArrowDown className="w-3.5 h-3.5" />
-            4 Distributed Channels Active
+            4 Distributed Circular Nodes Active
           </span>
           <span>·</span>
           <span>Local Mac Keychain Auth</span>
         </div>
       </div>
 
-      {/* SVG Canvas with Separate Curvy Conduits */}
+      {/* SVG Canvas with Circular Nodes and Soft Curvy Conduits */}
       <div className="relative w-full aspect-[800/440] max-w-4xl mx-auto flex items-center justify-center my-2">
         <svg
           viewBox="0 0 800 440"
@@ -87,22 +91,22 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
         >
           <defs>
             {/* Glowing filter */}
-            <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3.5" result="blur" />
+            <filter id="circleGlow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
               <feComposite in="SourceGraphic" in2="blur" operator="over" />
             </filter>
 
             {/* Ambient Radial Gradient at Bottom Brain */}
             <radialGradient id="brainField" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
               <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
             </radialGradient>
           </defs>
 
           {/* Ambient Brain Glow Field at Bottom */}
-          <circle cx={brainCx} cy={brainCy} r="150" fill="url(#brainField)" />
+          <circle cx={brainCx} cy={brainCy} r="160" fill="url(#brainField)" />
 
-          {/* Concentric Synthesis Rings around Meridius Brain */}
+          {/* Concentric Synthesis Rings around Circular Meridius Brain */}
           <circle
             cx={brainCx}
             cy={brainCy}
@@ -125,17 +129,17 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           />
 
           {/* ============================================================ */}
-          {/* SEPARATE SOFT CURVY CONDUITS (EACH WITH ITS OWN LANDING PORT) */}
+          {/* CURVY CONDUITS CONNECTING CIRCULAR NODES */}
           {/* ============================================================ */}
           {sources.map((src) => {
             const isCurrent = activeSource === src.id;
-            const sourceBottomY = src.y + 35;
+            const sourceBottomY = src.y + 30;
 
-            // Soft S-curve Bézier to separate targetX port on Meridius node
+            // Soft S-curve Bézier to separate targetX/targetY port on Circular Meridius Node
             const ctrlY1 = sourceBottomY + 90;
-            const ctrlY2 = brainTargetY - 90;
+            const ctrlY2 = src.targetY - 80;
 
-            const pathD = `M ${src.x} ${sourceBottomY} C ${src.x} ${ctrlY1}, ${src.targetX} ${ctrlY2}, ${src.targetX} ${brainTargetY}`;
+            const pathD = `M ${src.x} ${sourceBottomY} C ${src.x} ${ctrlY1}, ${src.targetX} ${ctrlY2}, ${src.targetX} ${src.targetY}`;
 
             return (
               <g key={src.id}>
@@ -157,11 +161,11 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
                   strokeDasharray="10 24"
                   strokeDashoffset={tick * 2}
                   opacity={isCurrent ? "0.9" : "0.4"}
-                  filter="url(#softGlow)"
+                  filter="url(#circleGlow)"
                 />
 
-                {/* Flowing Data Energy Packet traveling downward to its port */}
-                <circle r="4" fill="#10b981" filter="url(#softGlow)">
+                {/* Flowing Data Energy Packet */}
+                <circle r="4" fill="#10b981" filter="url(#circleGlow)">
                   <animateMotion
                     path={pathD}
                     dur={`${2.2 + src.id * 0.3}s`}
@@ -173,7 +177,7 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
           })}
 
           {/* ============================================================ */}
-          {/* TOP TIER: 4 DISTRIBUTED INFORMATION SOURCES */}
+          {/* TOP TIER: 4 CIRCULAR DEPARTMENT NODES */}
           {/* ============================================================ */}
           {sources.map((src) => {
             const isCurrent = activeSource === src.id;
@@ -184,62 +188,83 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
                 onClick={() => setActiveSource(src.id)}
                 onMouseEnter={() => setActiveSource(src.id)}
               >
-                {/* Source Box */}
-                <rect
-                  x={src.x - 75}
-                  y={src.y - 25}
-                  width="150"
-                  height="60"
-                  rx="14"
+                {/* Outer Ring on Active */}
+                {isCurrent && (
+                  <circle
+                    cx={src.x}
+                    cy={src.y}
+                    r="38"
+                    fill="none"
+                    stroke="#10b981"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 4"
+                    opacity="0.8"
+                  />
+                )}
+
+                {/* Circular Node Base */}
+                <circle
+                  cx={src.x}
+                  cy={src.y}
+                  r="30"
                   fill="currentColor"
-                  className={isCurrent ? "text-emerald-500/15" : "text-white dark:text-void"}
+                  className={isCurrent ? "text-emerald-500/20" : "text-white dark:text-void"}
                   stroke={isCurrent ? "#10b981" : "currentColor"}
                   strokeWidth={isCurrent ? "2" : "1.5"}
                 />
 
-                {/* Status Dot */}
+                {/* Node Center Dot */}
                 <circle
-                  cx={src.x - 55}
-                  cy={src.y - 4}
-                  r="4"
-                  fill={isCurrent ? "#10b981" : "currentColor"}
-                  className={isCurrent ? "" : "text-charcoal-dim dark:text-cream-dim"}
+                  cx={src.x}
+                  cy={src.y}
+                  r="12"
+                  fill="currentColor"
+                  className={isCurrent ? "text-emerald-500" : "text-charcoal dark:text-cream"}
                 />
 
-                {/* Source Title & Subtitle */}
+                {/* Node Index Number inside center */}
                 <text
-                  x={src.x - 42}
-                  y={src.y}
+                  x={src.x}
+                  y={src.y + 4}
+                  textAnchor="middle"
+                  className={isCurrent ? "fill-white dark:fill-void font-mono font-bold text-[9px]" : "fill-cream dark:fill-charcoal font-mono font-bold text-[9px]"}
+                >
+                  0{src.id + 1}
+                </text>
+
+                {/* Node Titles Below Circle */}
+                <text
+                  x={src.x}
+                  y={src.y + 50}
+                  textAnchor="middle"
                   className="fill-charcoal dark:fill-cream font-display font-semibold text-[11.5px]"
                 >
                   {src.title}
                 </text>
                 <text
                   x={src.x}
-                  y={src.y + 18}
+                  y={src.y + 64}
                   textAnchor="middle"
-                  className="fill-charcoal-muted dark:fill-cream-dim font-mono text-[8.5px]"
+                  className="fill-charcoal-muted dark:fill-cream-dim font-mono text-[9px]"
                 >
                   {src.tools}
                 </text>
 
                 {/* Bottom Source Output Port */}
-                <circle cx={src.x} cy={src.y + 35} r="3.5" fill={isCurrent ? "#10b981" : "currentColor"} className="text-charcoal-dim dark:text-cream-dim" />
+                <circle cx={src.x} cy={src.y + 30} r="3.5" fill={isCurrent ? "#10b981" : "currentColor"} className="text-charcoal-dim dark:text-cream-dim" />
               </g>
             );
           })}
 
           {/* ============================================================ */}
-          {/* BOTTOM TIER: CENTRAL MERIDIUS COMPANY BRAIN WITH 4 PORTS */}
+          {/* BOTTOM TIER: CIRCULAR MERIDIUS COMPANY BRAIN HUB */}
           {/* ============================================================ */}
           <g className="cursor-pointer">
-            {/* Outer Pulsing Aura */}
-            <rect
-              x="230"
-              y={brainCy - 35}
-              width="340"
-              height="70"
-              rx="20"
+            {/* Outer Pulsing Circular Aura */}
+            <circle
+              cx={brainCx}
+              cy={brainCy}
+              r={brainRadius + 14}
               fill="none"
               stroke="#10b981"
               strokeWidth="1.5"
@@ -247,52 +272,82 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
               opacity="0.6"
             >
               <animate
-                attributeName="opacity"
-                values="0.3;0.8;0.3"
+                attributeName="r"
+                values="58;64;58"
                 dur="3s"
                 repeatCount="indefinite"
               />
-            </rect>
+            </circle>
 
-            {/* Core Brain Container */}
-            <rect
-              x="230"
-              y={brainCy - 35}
-              width="340"
-              height="70"
-              rx="20"
+            {/* Core Circular Brain Body */}
+            <circle
+              cx={brainCx}
+              cy={brainCy}
+              r={brainRadius}
               fill="currentColor"
               className="text-white dark:text-void"
               stroke="currentColor"
-              strokeWidth="2"
+              strokeWidth="2.5"
             />
 
-            {/* Brain Central Logo Mark */}
-            <circle cx="275" cy={brainCy} r="18" fill="currentColor" className="text-charcoal dark:text-cream" />
-            <text x="275" y={brainCy + 5} textAnchor="middle" className="fill-cream dark:fill-charcoal font-brand font-extrabold text-[14px]">
+            {/* Inner Core Circle */}
+            <circle
+              cx={brainCx}
+              cy={brainCy}
+              r="34"
+              fill="currentColor"
+              className="text-charcoal dark:text-cream"
+              filter="url(#circleGlow)"
+            />
+
+            {/* Brain Central M Mark */}
+            <text
+              x={brainCx}
+              y={brainCy - 2}
+              textAnchor="middle"
+              className="fill-cream dark:fill-charcoal font-brand font-extrabold text-[18px] select-none"
+            >
               M
             </text>
+            <text
+              x={brainCx}
+              y={brainCy + 14}
+              textAnchor="middle"
+              className="fill-cream/80 dark:fill-charcoal/80 font-mono text-[8px] font-semibold tracking-wider select-none"
+            >
+              BRAIN
+            </text>
 
-            {/* Brain Labels */}
-            <text x="308" y={brainCy - 5} className="fill-charcoal dark:fill-cream font-display font-semibold text-[14px]">
+            {/* Brain Title Below Circle */}
+            <text
+              x={brainCx}
+              y={brainCy + 72}
+              textAnchor="middle"
+              className="fill-charcoal dark:fill-cream font-display font-semibold text-[13px]"
+            >
               Meridius Company Brain
             </text>
-            <text x="308" y={brainCy + 14} className="fill-emerald-600 dark:fill-emerald-400 font-mono text-[9.5px] font-semibold">
+            <text
+              x={brainCx}
+              y={brainCy + 86}
+              textAnchor="middle"
+              className="fill-emerald-600 dark:fill-emerald-400 font-mono text-[9.5px] font-semibold"
+            >
               ● Continuously Acquiring & Synthesizing Context
             </text>
 
-            {/* 4 Distinct Top Inflow Ports on the Meridius Node */}
+            {/* 4 Distinct Top Inflow Ports on the Circular Perimeter */}
             {sources.map((src) => {
               const isCurrent = activeSource === src.id;
               return (
                 <circle
                   key={`port-${src.id}`}
                   cx={src.targetX}
-                  cy={brainTargetY}
+                  cy={src.targetY}
                   r="4"
                   fill={isCurrent ? "#10b981" : "currentColor"}
                   className={isCurrent ? "" : "text-charcoal-dim dark:text-cream-dim"}
-                  filter="url(#softGlow)"
+                  filter="url(#circleGlow)"
                 />
               );
             })}
@@ -302,9 +357,9 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
       </div>
 
       {/* Interactive Context Inspector Bar */}
-      <div className="mt-4 p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-white/[0.03] border border-charcoal/[0.08] dark:border-cream/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
+      <div className="mt-8 p-4 sm:p-5 rounded-2xl bg-white/70 dark:bg-white/[0.03] border border-charcoal/[0.08] dark:border-cream/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
         <div className="flex items-center gap-3.5">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-mono font-bold text-xs shrink-0">
+          <div className="w-9 h-9 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-mono font-bold text-xs shrink-0 border border-emerald-500/20">
             0{sources[activeSource].id + 1}
           </div>
           <div>
