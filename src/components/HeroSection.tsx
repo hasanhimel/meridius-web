@@ -25,14 +25,14 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
           {/* ============================================================ */}
-          {/* LEFT: CURSOR-INSPIRED MINIMALIST TYPOGRAPHY & COPY */}
+          {/* LEFT: OUTCOME-DRIVEN TYPOGRAPHY & COPY */}
           {/* ============================================================ */}
           <div className="lg:col-span-6 xl:col-span-6 flex flex-col items-start text-left w-full">
             
             {/* Frosted Glass Status Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full frosted-glass-pill text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-muted mb-6 transition-colors max-w-full truncate">
               <span className="w-1.5 h-1.5 rounded-full bg-charcoal dark:bg-cream shrink-0" />
-              <span className="truncate">Two displays. You only ever see one.</span>
+              <span className="truncate">Parallel execution. Zero screen interruptions.</span>
             </div>
 
             {/* Main Headline */}
@@ -40,9 +40,9 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
               Computer-using AI that never touches your screen.
             </h1>
 
-            {/* Locked Copy Product Description */}
+            {/* Outcome-Driven Product Description */}
             <p className="text-sm sm:text-base md:text-lg text-charcoal-muted dark:text-cream-muted font-sans leading-relaxed max-w-xl mb-8 transition-colors">
-              Meridius is a native Mac app that gives your computer a second display, one your own Mac renders and fully controls, completely separate from the screen in front of you. Meridius opens your real apps there and clicks, types, and navigates them exactly like you would, while your actual screen and cursor stay completely free.
+              Meridius is a native Mac app that opens your real applications and clicks, types, and navigates them exactly like a human, while your actual screen and cursor stay 100% free for your own work. No hijacked mouse, no pop-up interruptions, and no disconnected cloud VMs.
             </p>
 
             {/* Frosted Glass CTA Input Pill */}
@@ -75,7 +75,7 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
               </form>
             </div>
 
-            {/* 3 Quiet Hardware Facts */}
+            {/* 3 Outcome Metrics */}
             <div className="grid grid-cols-3 gap-3 sm:gap-6 pt-6 sm:pt-8 border-t border-charcoal/[0.08] dark:border-cream/[0.08] w-full max-w-lg transition-colors">
               <div>
                 <div className="font-mono text-sm sm:text-base md:text-lg font-semibold text-charcoal dark:text-cream">0px</div>
@@ -83,20 +83,20 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
               </div>
 
               <div>
-                <div className="font-mono text-sm sm:text-base md:text-lg font-semibold text-charcoal dark:text-cream">2nd</div>
-                <div className="text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">macOS Display</div>
+                <div className="font-mono text-sm sm:text-base md:text-lg font-semibold text-charcoal dark:text-cream">0%</div>
+                <div className="text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">Screen Interruption</div>
               </div>
 
               <div>
                 <div className="font-mono text-sm sm:text-base md:text-lg font-semibold text-charcoal dark:text-cream">100%</div>
-                <div className="text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">Local Logins</div>
+                <div className="text-[11px] sm:text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">Local Logins & Privacy</div>
               </div>
             </div>
 
           </div>
 
           {/* ============================================================ */}
-          {/* RIGHT: FLUID RESPONSIVE ANIMATED MERIDIUS LOGO MARK */}
+          {/* RIGHT: FLUID ANIMATED MERIDIUS LOGO MARK */}
           {/* ============================================================ */}
           <div className="lg:col-span-6 xl:col-span-6 flex items-center justify-center w-full py-4 lg:py-0">
             <div className="relative w-full max-w-[280px] sm:max-w-[380px] md:max-w-[440px] lg:max-w-[500px] xl:max-w-[540px] aspect-square flex items-center justify-center mx-auto">

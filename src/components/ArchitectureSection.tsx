@@ -2,52 +2,52 @@ import React from 'react';
 
 export const ArchitectureSection: React.FC = () => {
   return (
-    <section id="how-it-works" className="py-16 sm:py-24 border-t border-charcoal/[0.08] dark:border-cream/[0.08] bg-cream dark:bg-void transition-colors duration-200">
+    <section id="capabilities" className="py-16 sm:py-24 border-t border-charcoal/[0.08] dark:border-cream/[0.08] bg-cream dark:bg-void transition-colors duration-200">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="max-w-xl mb-12 sm:mb-16">
           <div className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider mb-2">
-            Architecture
+            Outcomes
           </div>
           <h2 className="font-display font-semibold text-2xl sm:text-3xl md:text-4xl text-charcoal dark:text-cream tracking-tight mb-3 sm:mb-4">
-            A second display, not a trick.
+            Real computer work, zero interference.
           </h2>
           <p className="text-charcoal-muted dark:text-cream-muted text-sm sm:text-base leading-relaxed">
-            There are two displays. You only ever see one. Meridius lives on the other one.
+            You stay in your flow. Meridius gets the work done in parallel on your Mac.
           </p>
         </div>
 
-        {/* 3 Beats Grid */}
+        {/* 3 Outcome Beats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           
           <div className="border-t border-charcoal/[0.12] dark:border-cream/[0.12] pt-5 sm:pt-6 transition-colors">
-            <div className="text-xs font-mono text-charcoal-dim dark:text-cream-dim mb-2.5">01 / Display</div>
+            <div className="text-xs font-mono text-charcoal-dim dark:text-cream-dim mb-2.5">01 / Flow</div>
             <h3 className="font-display font-semibold text-base sm:text-lg text-charcoal dark:text-cream mb-2">
-              Hardware-level separation
+              Uninterrupted Parallel Execution
             </h3>
             <p className="text-sm text-charcoal-muted dark:text-cream-muted font-sans leading-relaxed">
-              Meridius creates a second, invisible display that your Mac actually renders. Not a cloud VM. Not a background process pretending to be invisible.
+              Keep coding, writing documents, or presenting on calls. Meridius performs tasks simultaneously without stealing your cursor or ever forcing background windows onto your screen.
             </p>
           </div>
 
           <div className="border-t border-charcoal/[0.12] dark:border-cream/[0.12] pt-5 sm:pt-6 transition-colors">
-            <div className="text-xs font-mono text-charcoal-dim dark:text-cream-dim mb-2.5">02 / Authentication</div>
+            <div className="text-xs font-mono text-charcoal-dim dark:text-cream-dim mb-2.5">02 / Ecosystem</div>
             <h3 className="font-display font-semibold text-base sm:text-lg text-charcoal dark:text-cream mb-2">
-              Your real native apps
+              Your Real Apps & Logins
             </h3>
             <p className="text-sm text-charcoal-muted dark:text-cream-muted font-sans leading-relaxed">
-              Your real apps open there, fully logged in, fully native. Meridius clicks, types, and navigates them with your actual session state and Keychain access.
+              Works directly with your actual installed Mac software, logged-in browser sessions, and Keychain credentials. No fresh sandboxes, no re-authenticating, and no disconnected cloud VMs.
             </p>
           </div>
 
           <div className="border-t border-charcoal/[0.12] dark:border-cream/[0.12] pt-5 sm:pt-6 transition-colors">
-            <div className="text-xs font-mono text-charcoal-dim dark:text-cream-dim mb-2.5">03 / Focus</div>
+            <div className="text-xs font-mono text-charcoal-dim dark:text-cream-dim mb-2.5">03 / Privacy</div>
             <h3 className="font-display font-semibold text-base sm:text-lg text-charcoal dark:text-cream mb-2">
-              Zero cursor movement
+              Local Privacy & Model Freedom
             </h3>
             <p className="text-sm text-charcoal-muted dark:text-cream-muted font-sans leading-relaxed">
-              Your own screen and cursor never move. You can keep working the entire time, or talk to it out loud while it gets the work done.
+              Connect to your favorite cloud models or run entirely offline with local models. Your screen visuals, private files, and sensitive credentials stay strictly on your personal Mac.
             </p>
           </div>
 
