@@ -265,10 +265,10 @@ export interface DitherProps {
 
 export default function Dither({
   waveSpeed = 0.04,
-  waveFrequency = 5.8,
-  waveAmplitude = 0.37,
-  waveColor = [0.3137254901960784, 0.3137254901960784, 0.3137254901960784],
-  colorNum = 4,
+  waveFrequency = 2.1,
+  waveAmplitude = 0.05,
+  waveColor = [0.4, 0.4, 0.4],
+  colorNum = 6.4,
   pixelSize = 2,
   disableAnimation = false,
   enableMouseInteraction = true,
