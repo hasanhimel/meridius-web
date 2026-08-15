@@ -4,7 +4,7 @@ import { ParallelExecutionSvg } from './ProductArtwork';
 export const ProductSection: React.FC = () => {
   return (
     <section id="product" className="py-16 sm:py-24 border-t border-charcoal/[0.08] dark:border-cream/[0.08] bg-cream dark:bg-void transition-colors duration-200">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header (OpenWork-style) */}
         <div className="max-w-2xl mb-10 sm:mb-12">
