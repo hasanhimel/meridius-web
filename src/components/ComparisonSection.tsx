@@ -227,26 +227,6 @@ export const ComparisonSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Legend */}
-        <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-mono text-charcoal-muted dark:text-cream-muted mb-12 px-1">
-          <div className="flex items-center gap-1.5">
-            <span className="font-bold text-emerald-600/80 dark:text-emerald-400/80 text-sm">✓</span>
-            <span>works as claimed</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="font-bold text-charcoal-muted/50 dark:text-cream-dim/50 text-sm">✗</span>
-            <span>doesn't</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="font-bold text-amber-500/80 dark:text-amber-400/80 text-sm">⚠</span>
-            <span>partial, breaks sometimes, or comes with a real tradeoff (hover for detail)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="font-bold text-charcoal-muted/30 dark:text-cream-dim/30 text-sm">—</span>
-            <span>not applicable</span>
-          </div>
-        </div>
-
         {/* The 3 Things That Actually Matter */}
         <div className="rounded-2xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] p-6 sm:p-8">
           <h3 className="font-display font-semibold text-base sm:text-lg text-charcoal dark:text-cream mb-4">
