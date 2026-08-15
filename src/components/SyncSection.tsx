@@ -1,5 +1,5 @@
 import React from 'react';
-import { CompanyBrainSyncSvg } from './ProductArtwork';
+import { DynamicCompanyBrainArtwork } from './DynamicCompanyBrainArtwork';
 import { ArrowRight, Network } from 'lucide-react';
 
 interface SyncSectionProps {
@@ -25,9 +25,9 @@ export const SyncSection: React.FC<SyncSectionProps> = ({ onOpenWaitlist }) => {
           </p>
         </div>
 
-        {/* SVG Network Visual Diagram */}
+        {/* Dynamic Animated Company Brain Visual */}
         <div className="mb-12">
-          <CompanyBrainSyncSvg />
+          <DynamicCompanyBrainArtwork />
         </div>
 
         {/* 3 Capabilities Grid */}
