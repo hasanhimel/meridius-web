@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, ArrowRight, Check } from 'lucide-react';
+import { X, ArrowRight, Check, Loader2 } from 'lucide-react';
+import { joinWaitlist } from '../lib/supabase';
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -8,8 +9,11 @@ interface WaitlistModalProps {
 
 export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [company, setCompany] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -23,15 +27,25 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || isSubmitting) return;
+    setErrorMsg('');
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const result = await joinWaitlist({
+      email,
+      name: name || undefined,
+      company: company || undefined
+    });
+
+    setIsSubmitting(false);
+
+    if (result.success) {
       setIsSubmitted(true);
-    }, 400);
+    } else {
+      setErrorMsg(result.error || 'Failed to submit. Please try again.');
+    }
   };
 
   return (
@@ -59,10 +73,10 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
               We are onboarding users in weekly batches. Native macOS app with parallel execution and zero screen takeovers.
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-mono text-charcoal-muted dark:text-cream-dim mb-1.5">
-                  Work Email
+                  Work Email <span className="text-emerald-500">*</span>
                 </label>
                 <input
                   type="email"
@@ -75,14 +89,56 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
                 />
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-mono text-charcoal-muted dark:text-cream-dim mb-1.5">
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Jane Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl frosted-glass-pill text-charcoal dark:text-cream placeholder-charcoal-muted/60 dark:placeholder-cream-muted/60 text-sm focus:outline-none focus:border-charcoal/40 dark:focus:border-cream/30 transition-colors font-sans"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono text-charcoal-muted dark:text-cream-dim mb-1.5">
+                    Company / Role
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Acme · Founder"
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl frosted-glass-pill text-charcoal dark:text-cream placeholder-charcoal-muted/60 dark:placeholder-cream-muted/60 text-sm focus:outline-none focus:border-charcoal/40 dark:focus:border-cream/30 transition-colors font-sans"
+                  />
+                </div>
+              </div>
+
+              {errorMsg && (
+                <div className="text-xs text-rose-500 font-mono py-1">
+                  {errorMsg}
+                </div>
+              )}
+
               <div className="pt-2">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="cursor-btn-primary w-full py-2.5 px-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-sm"
+                  className="cursor-btn-primary w-full py-2.5 px-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-sm disabled:opacity-70"
                 >
-                  <span>{isSubmitting ? 'Joining...' : 'Join the Waitlist'}</span>
-                  <ArrowRight className="w-4 h-4" />
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Joining...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Join the Waitlist</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -98,7 +154,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
             </h3>
 
             <p className="text-sm text-charcoal-muted dark:text-cream-muted font-sans max-w-xs mx-auto">
-              We'll send download instructions to <span className="text-charcoal dark:text-cream font-mono font-semibold">{email}</span> when your access is ready.
+              We'll send download instructions to <span className="text-charcoal dark:text-cream font-mono font-semibold">{email}</span> when your batch is ready.
             </p>
 
             <div className="pt-4">

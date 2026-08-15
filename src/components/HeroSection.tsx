@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AnimatedLogoMark } from './AnimatedLogoMark';
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, Loader2 } from 'lucide-react';
+import { joinWaitlist } from '../lib/supabase';
 
 interface HeroSectionProps {
   onOpenWaitlist?: () => void;
@@ -9,12 +10,21 @@ interface HeroSectionProps {
 export const HeroSection: React.FC<HeroSectionProps> = () => {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInlineSubmit = (e: React.FormEvent) => {
+  const handleInlineSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+    if (!email || isSubmitting) return;
+
+    setIsSubmitting(true);
+    const result = await joinWaitlist({ email });
+    setIsSubmitting(false);
+
+    if (result.success) {
+      setSubmitted(true);
+      setEmail('');
+      setTimeout(() => setSubmitted(false), 4000);
+    }
   };
 
   return (
@@ -58,9 +68,15 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
                 />
                 <button
                   type="submit"
-                  className="cursor-btn-primary px-5 py-2.5 sm:py-2 rounded-full text-xs font-medium flex items-center justify-center gap-1.5 shrink-0 shadow-sm"
+                  disabled={isSubmitting}
+                  className="cursor-btn-primary px-5 py-2.5 sm:py-2 rounded-full text-xs font-medium flex items-center justify-center gap-1.5 shrink-0 shadow-sm disabled:opacity-70"
                 >
-                  {submitted ? (
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : submitted ? (
                     <>
                       <Check className="w-3.5 h-3.5" />
                       <span>Added to Waitlist</span>

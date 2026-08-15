@@ -69,13 +69,14 @@ export const AnimatedLogoMark: React.FC<AnimatedLogoMarkProps> = ({
 
     // Timeline Configuration (in seconds):
     // 0.0s - 0.5s: Initial calm baseline (all dots small at r = 2.0px)
-    // 0.5s - 2.8s: Wave 1 expands from center -> smoothly reveals M shape
-    // 2.8s - 4.4s: Hold in 100% exact original vector logo form
-    // 4.4s - 6.4s: Wave 2 shrinks from center -> smoothly returns to r = 2.0px
-    // 6.4s - 6.8s: Baseline calm before loop repeats
-    const CYCLE_DURATION = 6.8;
+    // 0.5s - 2.5s: Water drop ripple expands from center -> smoothly creates the M shape
+    // 2.5s - 17.5s: Consistent hold in 100% exact M shape form (15 seconds hold)
+    // 17.5s - 19.8s: Wave gently shrinks from center -> returns to r = 2.0px
+    // 19.8s - 20.2s: Brief baseline calm before loop repeats
     const EXPAND_START = 0.5;
-    const SHRINK_START = 4.4;
+    const HOLD_DURATION = 15.0; // 15s consistent hold
+    const SHRINK_START = 2.5 + HOLD_DURATION; // 17.5s
+    const CYCLE_DURATION = SHRINK_START + 2.7; // 20.2s
     const WAVE_SPEED = 190.0; // Pixels per second
 
     const isDark = resolvedTheme === 'dark';
