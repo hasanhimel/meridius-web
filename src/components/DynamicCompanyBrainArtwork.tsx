@@ -48,8 +48,8 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
   // Meridius Brain Circular Center
   const brainCx = 450;
   const brainCy = 290;
-  const brainRadius = 46;
-  const convergencePointY = brainCy - brainRadius; // 244
+  const brainRadius = 54;
+  const convergencePointY = brainCy - brainRadius; // 236
 
   // Theme-tailored stroke & glow colors
   const primaryStroke = isDark ? 'rgba(245, 245, 238, 0.85)' : 'rgba(43, 43, 42, 0.85)';
@@ -267,34 +267,34 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
             <circle
               cx={brainCx}
               cy={brainCy}
-              r="34"
+              r="44"
               fill="currentColor"
               className="text-charcoal dark:text-cream"
               filter="url(#themeGlow)"
             />
 
-            {/* ONLY THE MERIDIUS VECTOR LOGO MARK INSIDE THE NODE */}
+            {/* ONLY THE MERIDIUS VECTOR LOGO MARK INSIDE THE NODE (ENLARGED) */}
             <image
               href={isDark ? "/assets/logo/meridius-mark-black.svg" : "/assets/logo/meridius-mark-white.svg"}
-              x={brainCx - 19}
-              y={brainCy - 19}
-              width="38"
-              height="38"
+              x={brainCx - 28}
+              y={brainCy - 28}
+              width="56"
+              height="56"
               className="select-none pointer-events-none"
             />
 
             {/* Brain Title Below Circle */}
             <text
               x={brainCx}
-              y={brainCy + 66}
+              y={brainCy + 76}
               textAnchor="middle"
-              className="fill-charcoal dark:fill-cream font-display font-semibold text-[12.5px]"
+              className="fill-charcoal dark:fill-cream font-display font-semibold text-[13px]"
             >
               Meridius Company Brain
             </text>
             <text
               x={brainCx}
-              y={brainCy + 80}
+              y={brainCy + 92}
               textAnchor="middle"
               className="fill-charcoal-muted dark:fill-cream-dim font-mono text-[9px]"
             >
