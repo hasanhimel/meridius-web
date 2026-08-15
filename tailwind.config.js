@@ -35,9 +35,9 @@ export default {
         void: "#0e0e0e",
       },
       fontFamily: {
-        display: ['"General Sans"', '"Söhne"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', 'sans-serif'],
-        sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', 'sans-serif'],
-        mono: ['"JetBrains Mono"', '"IBM Plex Mono"', 'Menlo', 'monospace'],
+        display: ['"Geist"', '"General Sans"', '"Söhne"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', 'sans-serif'],
+        sans: ['"Geist"', '"Inter"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', 'sans-serif'],
+        mono: ['"Geist Mono"', '"JetBrains Mono"', '"IBM Plex Mono"', 'Menlo', 'monospace'],
       },
       letterSpacing: {
         tighter: '-0.04em',
