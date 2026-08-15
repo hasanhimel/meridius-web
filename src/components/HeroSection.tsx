@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AnimatedLogoMark } from './AnimatedLogoMark';
 import { ArrowRight, Check } from 'lucide-react';
+import Dither from './Dither';
 
 interface HeroSectionProps {
   onOpenWaitlist?: () => void;
@@ -18,8 +19,23 @@ export const HeroSection: React.FC<HeroSectionProps> = () => {
   };
 
   return (
-    <section className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:py-16 md:py-20 lg:py-24 bg-cream dark:bg-void bg-subtle-dots transition-colors duration-200 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+    <section className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-center py-12 sm:py-16 md:py-20 lg:py-24 bg-cream dark:bg-void transition-colors duration-200 overflow-hidden">
+      
+      {/* Soft Low-Opacity Dither Background Canvas */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none opacity-[0.18] dark:opacity-[0.25] select-none z-0">
+        <Dither
+          waveColor={[0.3137254901960784, 0.3137254901960784, 0.3137254901960784]}
+          disableAnimation={false}
+          enableMouseInteraction
+          mouseRadius={0.3}
+          colorNum={4}
+          waveAmplitude={0.37}
+          waveFrequency={5.8}
+          waveSpeed={0.04}
+        />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
         
         {/* Two-Column Responsive Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
