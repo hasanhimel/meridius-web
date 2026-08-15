@@ -20,7 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlist }) => {
           <img 
             src={isDark ? "/assets/logo/meridius-mark-white.svg" : "/assets/logo/meridius-mark-black.svg"} 
             alt="Meridius" 
-            className="w-7 h-7 sm:w-8 sm:h-8 object-contain opacity-100 transition-transform group-hover:scale-105"
+            className="w-9 h-9 sm:w-10 sm:h-10 object-contain opacity-100 transition-transform group-hover:scale-105 shrink-0"
           />
           <span className="font-display font-semibold text-sm sm:text-base tracking-wider text-charcoal dark:text-cream transition-colors">
             MERIDIUS
