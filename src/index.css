@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-page: #f5f5ee;
+  --text-primary: #2b2b2a;
+  --text-muted: #5e5e57;
+  --text-dim: #8a8a82;
+  --border-subtle: rgba(43, 43, 42, 0.08);
+  --border-medium: rgba(43, 43, 42, 0.16);
+  --border-hover: rgba(43, 43, 42, 0.28);
+  --btn-primary-bg: #2b2b2a;
+  --btn-primary-text: #f5f5ee;
+  --btn-secondary-border: rgba(43, 43, 42, 0.14);
+  --btn-secondary-hover: rgba(43, 43, 42, 0.04);
+  --dot-color: rgba(43, 43, 42, 0.06);
+}
+
+.dark {
+  --bg-page: #0e0e0e;
+  --text-primary: #f5f5ee;
+  --text-muted: #c4c4bb;
+  --text-dim: #8a8a82;
+  --border-subtle: rgba(245, 245, 238, 0.08);
+  --border-medium: rgba(245, 245, 238, 0.16);
+  --border-hover: rgba(245, 245, 238, 0.28);
+  --btn-primary-bg: #f5f5ee;
+  --btn-primary-text: #121212;
+  --btn-secondary-border: rgba(245, 245, 238, 0.14);
+  --btn-secondary-hover: rgba(245, 245, 238, 0.04);
+  --dot-color: rgba(245, 245, 238, 0.04);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-page);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-primary);
+}
+
+/* Base typography */
+body {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: 'General Sans', 'Söhne', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', Menlo, monospace;
+}
+
+/* Subtle background dot pattern */
+.bg-subtle-dots {
+  background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ======================================================= */
+/* FROSTED GLASS UI (Glassmorphism for Light & Dark)       */
+/* ======================================================= */
+.frosted-glass {
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(43, 43, 42, 0.08);
+  box-shadow: 0 4px 20px -2px rgba(43, 43, 42, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.frosted-glass:hover {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(43, 43, 42, 0.14);
+}
+
+.dark .frosted-glass {
+  background: rgba(24, 24, 23, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(245, 245, 238, 0.08);
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+.dark .frosted-glass:hover {
+  background: rgba(30, 30, 29, 0.75);
+  border-color: rgba(245, 245, 238, 0.16);
+}
+
+.frosted-glass-pill {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(43, 43, 42, 0.08);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+}
+
+.dark .frosted-glass-pill {
+  background: rgba(24, 24, 23, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 245, 238, 0.08);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Primary and Secondary CTA Buttons */
+.cursor-btn-primary {
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  font-weight: 600;
+  transition: opacity 0.2s ease, transform 0.15s ease, background-color 0.2s ease;
+}
+
+.cursor-btn-primary:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.cursor-btn-secondary {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--btn-secondary-border);
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+}
+
+.cursor-btn-secondary:hover {
+  border-color: var(--border-hover);
+  background-color: var(--btn-secondary-hover);
+  transform: translateY(-1px);
+}
