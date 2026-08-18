@@ -17,10 +17,13 @@ import {
   ShieldCheck, 
   TrendingUp,
   Mail,
-  UserCheck
+  UserCheck,
+  MapPin,
+  Compass
 } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { getAdminData, WaitlistEntry, VisitorEntry, PageViewEntry } from '../../lib/supabase';
+import { getCountryFlag } from '../../lib/geo';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -38,7 +41,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   
   const [activeTab, setActiveTab] = useState<'waitlist' | 'visitors' | 'feed'>('waitlist');
   const [searchQuery, setSearchQuery] = useState('');
+  const [visitorSearchQuery, setVisitorSearchQuery] = useState('');
+  const [selectedCountryFilter, setSelectedCountryFilter] = useState<string>('ALL');
+  
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
+  const [copiedVisitorId, setCopiedVisitorId] = useState<string | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
 
   const fetchData = async () => {
@@ -66,9 +73,57 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         w.email.toLowerCase().includes(q) ||
         w.name?.toLowerCase().includes(q) ||
         w.company?.toLowerCase().includes(q) ||
-        w.role?.toLowerCase().includes(q)
+        w.role?.toLowerCase().includes(q) ||
+        w.metadata?.city?.toLowerCase().includes(q) ||
+        w.metadata?.country?.toLowerCase().includes(q)
     );
   }, [waitlist, searchQuery]);
+
+  // Country Breakdown for Visitors
+  const countryBreakdown = useMemo(() => {
+    const counts: Record<string, { count: number; name: string; flag: string }> = {};
+    
+    visitors.forEach((v) => {
+      const code = v.country_code?.toUpperCase() || (v.country ? v.country.slice(0, 2).toUpperCase() : 'UNKNOWN');
+      const name = v.country || 'Unknown Location';
+      const flag = v.flag_emoji || getCountryFlag(code !== 'UNKNOWN' ? code : null);
+
+      if (!counts[code]) {
+        counts[code] = { count: 0, name, flag };
+      }
+      counts[code].count += 1;
+    });
+
+    return Object.entries(counts)
+      .map(([code, info]) => ({ code, ...info }))
+      .sort((a, b) => b.count - a.count);
+  }, [visitors]);
+
+  // Filtered visitors
+  const filteredVisitors = useMemo(() => {
+    return visitors.filter((v) => {
+      // Country chip filter
+      if (selectedCountryFilter !== 'ALL') {
+        const vCode = v.country_code?.toUpperCase() || (v.country ? v.country.slice(0, 2).toUpperCase() : 'UNKNOWN');
+        if (vCode !== selectedCountryFilter) return false;
+      }
+
+      // Search query filter
+      if (!visitorSearchQuery.trim()) return true;
+      const q = visitorSearchQuery.toLowerCase();
+      return (
+        v.visitor_id.toLowerCase().includes(q) ||
+        v.city?.toLowerCase().includes(q) ||
+        v.country?.toLowerCase().includes(q) ||
+        v.country_code?.toLowerCase().includes(q) ||
+        v.region?.toLowerCase().includes(q) ||
+        v.os?.toLowerCase().includes(q) ||
+        v.browser?.toLowerCase().includes(q) ||
+        v.last_path?.toLowerCase().includes(q) ||
+        v.device_type?.toLowerCase().includes(q)
+      );
+    });
+  }, [visitors, visitorSearchQuery, selectedCountryFilter]);
 
   // Analytics Metrics
   const metrics = useMemo(() => {
@@ -90,6 +145,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       ? (totalVisitsSum / totalUniqueVisitors).toFixed(1) 
       : '0';
 
+    const validCountries = countryBreakdown.filter((c) => c.code !== 'UNKNOWN');
+    const totalCountriesCount = validCountries.length;
+    const topCountry = validCountries[0] || null;
+
     return {
       totalWaitlist,
       totalPageViews,
@@ -98,14 +157,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       returnRate,
       macUsers,
       macRate,
-      avgVisits
+      avgVisits,
+      totalCountriesCount,
+      topCountry
     };
-  }, [waitlist, visitors, pageViews]);
+  }, [waitlist, visitors, pageViews, countryBreakdown]);
 
   const handleCopyEmail = (email: string) => {
     navigator.clipboard.writeText(email);
     setCopiedEmail(email);
     setTimeout(() => setCopiedEmail(null), 2000);
+  };
+
+  const handleCopyVisitorId = (id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopiedVisitorId(id);
+    setTimeout(() => setCopiedVisitorId(null), 2000);
   };
 
   const handleCopyAllEmails = () => {
@@ -115,13 +182,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     setTimeout(() => setCopiedAll(false), 2000);
   };
 
-  const handleExportCSV = () => {
-    const headers = ['Email', 'Name', 'Company', 'Role', 'Signed Up Date'];
+  const handleExportWaitlistCSV = () => {
+    const headers = ['Email', 'Name', 'Company', 'Role', 'City', 'Country', 'Signed Up Date'];
     const rows = waitlist.map((w) => [
       `"${w.email}"`,
       `"${w.name || ''}"`,
       `"${w.company || ''}"`,
       `"${w.role || ''}"`,
+      `"${w.metadata?.city || ''}"`,
+      `"${w.metadata?.country || ''}"`,
       `"${w.created_at ? new Date(w.created_at).toLocaleString() : ''}"`
     ]);
 
@@ -130,6 +199,50 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
     link.setAttribute('download', `meridius_waitlist_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportVisitorsCSV = () => {
+    const headers = [
+      'Visitor ID',
+      'Total Visits',
+      'City',
+      'Country',
+      'Country Code',
+      'Region',
+      'Device Type',
+      'OS',
+      'Browser',
+      'Screen Resolution',
+      'First Seen',
+      'Last Active',
+      'Last Route',
+      'Referrer'
+    ];
+    const rows = visitors.map((v) => [
+      `"${v.visitor_id}"`,
+      `"${v.total_visits || 1}"`,
+      `"${v.city || ''}"`,
+      `"${v.country || ''}"`,
+      `"${v.country_code || ''}"`,
+      `"${v.region || ''}"`,
+      `"${v.device_type || ''}"`,
+      `"${v.os || ''}"`,
+      `"${v.browser || ''}"`,
+      `"${v.screen_res || ''}"`,
+      `"${v.first_seen_at ? new Date(v.first_seen_at).toLocaleString() : ''}"`,
+      `"${v.last_seen_at ? new Date(v.last_seen_at).toLocaleString() : ''}"`,
+      `"${v.last_path || '/'}"`,
+      `"${v.referrer || 'Direct'}"`
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `meridius_visitors_geo_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -220,28 +333,43 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               Intelligence & Growth Overview
             </h1>
             <p className="text-xs sm:text-sm text-charcoal-muted dark:text-cream-dim mt-1 font-mono">
-              Live telemetry, waitlist registrations, and unique visitor repeat patterns.
+              Live telemetry, visitor geolocation, waitlist registrations, and repeat visit frequency.
             </p>
           </div>
 
           <div className="flex items-center gap-2.5">
-            <button
-              onClick={handleCopyAllEmails}
-              disabled={waitlist.length === 0}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full frosted-glass-pill text-xs font-mono font-medium text-charcoal dark:text-cream hover:bg-charcoal/5 dark:hover:bg-cream/10 transition-colors disabled:opacity-50"
-            >
-              {copiedAll ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Mail className="w-3.5 h-3.5" />}
-              <span>{copiedAll ? 'Copied All!' : 'Copy All Emails'}</span>
-            </button>
+            {activeTab === 'waitlist' && (
+              <>
+                <button
+                  onClick={handleCopyAllEmails}
+                  disabled={waitlist.length === 0}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-full frosted-glass-pill text-xs font-mono font-medium text-charcoal dark:text-cream hover:bg-charcoal/5 dark:hover:bg-cream/10 transition-colors disabled:opacity-50"
+                >
+                  {copiedAll ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Mail className="w-3.5 h-3.5" />}
+                  <span>{copiedAll ? 'Copied All!' : 'Copy All Emails'}</span>
+                </button>
 
-            <button
-              onClick={handleExportCSV}
-              disabled={waitlist.length === 0}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full cursor-btn-primary text-xs font-mono font-medium shadow-sm disabled:opacity-50"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Export CSV</span>
-            </button>
+                <button
+                  onClick={handleExportWaitlistCSV}
+                  disabled={waitlist.length === 0}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-full cursor-btn-primary text-xs font-mono font-medium shadow-sm disabled:opacity-50"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export Waitlist</span>
+                </button>
+              </>
+            )}
+
+            {activeTab === 'visitors' && (
+              <button
+                onClick={handleExportVisitorsCSV}
+                disabled={visitors.length === 0}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full cursor-btn-primary text-xs font-mono font-medium shadow-sm disabled:opacity-50"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Export Visitors & Geo</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -269,7 +397,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             </div>
           </div>
 
-          {/* Card 2: Unique Visitors */}
+          {/* Card 2: Unique Visitors & Global Reach */}
           <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
@@ -282,8 +410,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             <div className="font-display font-semibold text-3xl sm:text-4xl text-charcoal dark:text-cream">
               {metrics.totalUniqueVisitors}
             </div>
-            <div className="text-[11px] font-mono text-charcoal-muted dark:text-cream-dim mt-2">
-              <span>{metrics.avgVisits} avg visits per visitor</span>
+            <div className="text-[11px] font-mono text-charcoal-muted dark:text-cream-dim mt-2 flex items-center gap-1">
+              <MapPin className="w-3 h-3 text-blue-500" />
+              <span>
+                {metrics.totalCountriesCount > 0 
+                  ? `Across ${metrics.totalCountriesCount} ${metrics.totalCountriesCount === 1 ? 'country' : 'countries'}`
+                  : `${metrics.avgVisits} avg visits per visitor`}
+              </span>
             </div>
           </div>
 
@@ -310,7 +443,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             </div>
           </div>
 
-          {/* Card 4: Total Pageviews */}
+          {/* Card 4: Total Pageviews & Primary Market */}
           <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
@@ -324,8 +457,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               {metrics.totalPageViews}
             </div>
             <div className="text-[11px] font-mono text-charcoal-muted dark:text-cream-dim mt-2 flex items-center gap-1.5">
-              <Laptop className="w-3 h-3" />
-              <span>{metrics.macRate}% macOS native traffic</span>
+              {metrics.topCountry ? (
+                <span>
+                  Top: {metrics.topCountry.flag} {metrics.topCountry.name} ({metrics.topCountry.count})
+                </span>
+              ) : (
+                <>
+                  <Laptop className="w-3 h-3" />
+                  <span>{metrics.macRate}% macOS traffic</span>
+                </>
+              )}
             </div>
           </div>
 
@@ -334,10 +475,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         {/* ============================================================ */}
         {/* Navigation Tabs */}
         {/* ============================================================ */}
-        <div className="flex items-center gap-2 border-b border-charcoal/[0.08] dark:border-cream/[0.08] pb-3">
+        <div className="flex items-center gap-2 border-b border-charcoal/[0.08] dark:border-cream/[0.08] pb-3 overflow-x-auto">
           <button
             onClick={() => setActiveTab('waitlist')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-medium whitespace-nowrap transition-all ${
               activeTab === 'waitlist'
                 ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal shadow-sm'
                 : 'text-charcoal-muted dark:text-cream-dim hover:text-charcoal dark:hover:text-cream'
@@ -349,19 +490,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
           <button
             onClick={() => setActiveTab('visitors')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-medium whitespace-nowrap transition-all ${
               activeTab === 'visitors'
                 ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal shadow-sm'
                 : 'text-charcoal-muted dark:text-cream-dim hover:text-charcoal dark:hover:text-cream'
             }`}
           >
             <Globe className="w-3.5 h-3.5" />
-            <span>Unique Visitors & Frequency ({visitors.length})</span>
+            <span>Visitor Identity & Repeat Visit Logs ({visitors.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('feed')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-medium transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-medium whitespace-nowrap transition-all ${
               activeTab === 'feed'
                 ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal shadow-sm'
                 : 'text-charcoal-muted dark:text-cream-dim hover:text-charcoal dark:hover:text-cream'
@@ -384,7 +525,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal-muted dark:text-cream-dim" />
                 <input
                   type="text"
-                  placeholder="Filter by email, name, company, or role..."
+                  placeholder="Filter by email, name, company, role, city, or country..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 rounded-full frosted-glass-pill text-xs font-mono text-charcoal dark:text-cream placeholder-charcoal-muted/60 dark:placeholder-cream-muted/60 focus:outline-none"
@@ -405,6 +546,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                     <th className="py-3.5 px-6 font-medium">Email</th>
                     <th className="py-3.5 px-6 font-medium">Name</th>
                     <th className="py-3.5 px-6 font-medium">Company & Role</th>
+                    <th className="py-3.5 px-6 font-medium">Location</th>
                     <th className="py-3.5 px-6 font-medium">Applied Date</th>
                     <th className="py-3.5 px-6 font-medium text-right">Action</th>
                   </tr>
@@ -434,6 +576,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                             '—'
                           )}
                         </td>
+                        <td className="py-4 px-6 text-charcoal dark:text-cream">
+                          {item.metadata?.city || item.metadata?.country ? (
+                            <div className="flex items-center gap-1.5">
+                              <span>{getCountryFlag(item.metadata?.country_code)}</span>
+                              <span>
+                                {[item.metadata?.city, item.metadata?.country].filter(Boolean).join(', ')}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-charcoal-muted dark:text-cream-dim">—</span>
+                          )}
+                        </td>
                         <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim">
                           {formatDate(item.created_at)}
                         </td>
@@ -454,7 +608,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-charcoal-muted dark:text-cream-dim">
+                      <td colSpan={7} className="py-12 text-center text-charcoal-muted dark:text-cream-dim">
                         {loading ? 'Loading registrations from Supabase...' : 'No waitlist applicants found.'}
                       </td>
                     </tr>
@@ -467,31 +621,86 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         )}
 
         {/* ============================================================ */}
-        {/* TAB 2: UNIQUE VISITORS & FREQUENCY INTELLIGENCE */}
+        {/* TAB 2: UNIQUE VISITORS & FREQUENCY INTELLIGENCE (WITH GEO) */}
         {/* ============================================================ */}
         {activeTab === 'visitors' && (
           <div className="rounded-3xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] overflow-hidden">
             
-            <div className="p-4 sm:p-6 border-b border-charcoal/[0.08] dark:border-cream/[0.08] flex items-center justify-between">
-              <div>
-                <h3 className="font-display font-semibold text-base text-charcoal dark:text-cream">
-                  Visitor Identity & Repeat Visit Logs
-                </h3>
-                <p className="text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">
-                  See every unique visitor, their total session count, device, and timeline.
-                </p>
+            {/* Header & Controls */}
+            <div className="p-4 sm:p-6 border-b border-charcoal/[0.08] dark:border-cream/[0.08] space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h3 className="font-display font-semibold text-base text-charcoal dark:text-cream flex items-center gap-2">
+                    <span>Visitor Identity & Repeat Visit Logs</span>
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-normal">
+                      Geo Enabled
+                    </span>
+                  </h3>
+                  <p className="text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">
+                    Track visitor origin (city & country), session frequency, hardware profile, and route pathways.
+                  </p>
+                </div>
+                <div className="text-xs font-mono text-charcoal-muted dark:text-cream-dim">
+                  Showing {filteredVisitors.length} of {visitors.length} Visitors
+                </div>
               </div>
-              <div className="text-xs font-mono text-charcoal-muted dark:text-cream-dim">
-                {visitors.length} Unique Visitor Profiles
+
+              {/* Search & Location Filter Bar */}
+              <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-2">
+                
+                {/* Search Box */}
+                <div className="relative flex-1 max-w-md">
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal-muted dark:text-cream-dim" />
+                  <input
+                    type="text"
+                    placeholder="Search by city, country, OS, browser, or visitor ID..."
+                    value={visitorSearchQuery}
+                    onChange={(e) => setVisitorSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 rounded-full frosted-glass-pill text-xs font-mono text-charcoal dark:text-cream placeholder-charcoal-muted/60 dark:placeholder-cream-muted/60 focus:outline-none"
+                  />
+                </div>
+
+                {/* Country Filter Chips */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
+                  <button
+                    onClick={() => setSelectedCountryFilter('ALL')}
+                    className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all shrink-0 ${
+                      selectedCountryFilter === 'ALL'
+                        ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal font-semibold shadow-sm'
+                        : 'bg-charcoal/[0.04] dark:bg-cream/[0.06] text-charcoal-muted dark:text-cream-dim hover:bg-charcoal/10 dark:hover:bg-cream/10'
+                    }`}
+                  >
+                    All ({visitors.length})
+                  </button>
+
+                  {countryBreakdown.map((item) => (
+                    <button
+                      key={item.code}
+                      onClick={() => setSelectedCountryFilter(item.code)}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono transition-all shrink-0 ${
+                        selectedCountryFilter === item.code
+                          ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal font-semibold shadow-sm'
+                          : 'bg-charcoal/[0.04] dark:bg-cream/[0.06] text-charcoal-muted dark:text-cream-dim hover:bg-charcoal/10 dark:hover:bg-cream/10'
+                      }`}
+                    >
+                      <span>{item.flag}</span>
+                      <span>{item.code === 'UNKNOWN' ? 'Unresolved' : item.name}</span>
+                      <span className="opacity-60 text-[10px]">({item.count})</span>
+                    </button>
+                  ))}
+                </div>
+
               </div>
             </div>
 
+            {/* Visitors Table with City & Country */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs font-mono border-collapse">
                 <thead>
                   <tr className="border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-charcoal/[0.02] dark:bg-cream/[0.02] text-charcoal-muted dark:text-cream-dim">
-                    <th className="py-3.5 px-6 font-medium">Visitor ID</th>
-                    <th className="py-3.5 px-6 font-medium">Total Visits</th>
+                    <th className="py-3.5 px-6 font-medium">Visitor Profile</th>
+                    <th className="py-3.5 px-6 font-medium">Origin (City & Country)</th>
+                    <th className="py-3.5 px-6 font-medium">Visits</th>
                     <th className="py-3.5 px-6 font-medium">Device & OS</th>
                     <th className="py-3.5 px-6 font-medium">Browser</th>
                     <th className="py-3.5 px-6 font-medium">First Seen</th>
@@ -500,56 +709,118 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-charcoal/[0.06] dark:divide-cream/[0.06]">
-                  {visitors.length > 0 ? (
-                    visitors.map((visitor) => (
-                      <tr
-                        key={visitor.visitor_id}
-                        className="hover:bg-charcoal/[0.02] dark:hover:bg-cream/[0.02] transition-colors"
-                      >
-                        <td className="py-4 px-6 font-semibold text-charcoal dark:text-cream">
-                          <span className="px-2 py-0.5 rounded bg-charcoal/5 dark:bg-cream/10">
-                            {visitor.visitor_id.slice(0, 10)}...
-                          </span>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-semibold ${
-                              visitor.total_visits > 3
-                                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                                : visitor.total_visits > 1
-                                ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-                                : 'bg-charcoal/[0.05] dark:bg-cream/[0.08] text-charcoal-muted dark:text-cream-dim'
-                            }`}
-                          >
-                            {visitor.total_visits} {visitor.total_visits === 1 ? 'visit' : 'visits'}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6 text-charcoal dark:text-cream flex items-center gap-1.5">
-                          {visitor.device_type === 'Mobile' ? (
-                            <Smartphone className="w-3.5 h-3.5 text-charcoal-muted dark:text-cream-dim" />
-                          ) : (
-                            <Laptop className="w-3.5 h-3.5 text-charcoal-muted dark:text-cream-dim" />
-                          )}
-                          <span>{visitor.os || 'Unknown OS'}</span>
-                        </td>
-                        <td className="py-4 px-6 text-charcoal-muted dark:text-cream-muted">
-                          {visitor.browser || 'Unknown'}
-                        </td>
-                        <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim">
-                          {formatDate(visitor.first_seen_at)}
-                        </td>
-                        <td className="py-4 px-6 text-charcoal dark:text-cream">
-                          {formatDate(visitor.last_seen_at)}
-                        </td>
-                        <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim font-mono">
-                          {visitor.last_path || '/'}
-                        </td>
-                      </tr>
-                    ))
+                  {filteredVisitors.length > 0 ? (
+                    filteredVisitors.map((visitor) => {
+                      const flag = visitor.flag_emoji || getCountryFlag(visitor.country_code);
+                      const hasLocation = Boolean(visitor.city || visitor.country);
+
+                      return (
+                        <tr
+                          key={visitor.visitor_id}
+                          className="hover:bg-charcoal/[0.02] dark:hover:bg-cream/[0.02] transition-colors"
+                        >
+                          {/* Visitor ID & Copy */}
+                          <td className="py-4 px-6 font-semibold text-charcoal dark:text-cream">
+                            <div className="flex items-center gap-1.5">
+                              <span className="px-2 py-0.5 rounded bg-charcoal/5 dark:bg-cream/10 font-mono">
+                                {visitor.visitor_id.slice(0, 10)}...
+                              </span>
+                              <button
+                                onClick={() => handleCopyVisitorId(visitor.visitor_id)}
+                                className="p-1 rounded hover:bg-charcoal/10 dark:hover:bg-cream/10 transition-colors text-charcoal-muted dark:text-cream-dim"
+                                title="Copy Visitor ID"
+                              >
+                                {copiedVisitorId === visitor.visitor_id ? (
+                                  <Check className="w-3 h-3 text-emerald-500" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
+                              </button>
+                            </div>
+                          </td>
+
+                          {/* Origin (City & Country) */}
+                          <td className="py-4 px-6">
+                            {hasLocation ? (
+                              <div className="flex items-start gap-2.5">
+                                <span className="text-base leading-none mt-0.5" title={visitor.country || 'Location'}>
+                                  {flag}
+                                </span>
+                                <div>
+                                  <div className="font-semibold text-charcoal dark:text-cream flex items-center gap-1.5">
+                                    <span>{visitor.city || visitor.country || 'Unknown City'}</span>
+                                    {visitor.country_code && (
+                                      <span className="text-[10px] uppercase px-1.5 py-0.2 rounded bg-charcoal/[0.06] dark:bg-cream/[0.1] text-charcoal-muted dark:text-cream-dim">
+                                        {visitor.country_code}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-[11px] text-charcoal-muted dark:text-cream-dim">
+                                    {[visitor.region, visitor.country].filter(Boolean).join(', ')}
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-charcoal/[0.04] dark:bg-cream/[0.06] text-charcoal-muted dark:text-cream-dim text-[11px]">
+                                <Compass className="w-3 h-3 opacity-60" />
+                                <span>Pending next visit</span>
+                              </div>
+                            )}
+                          </td>
+
+                          {/* Total Visits Badge */}
+                          <td className="py-4 px-6">
+                            <span
+                              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-semibold ${
+                                visitor.total_visits > 3
+                                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                                  : visitor.total_visits > 1
+                                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                                  : 'bg-charcoal/[0.05] dark:bg-cream/[0.08] text-charcoal-muted dark:text-cream-dim'
+                              }`}
+                            >
+                              {visitor.total_visits} {visitor.total_visits === 1 ? 'visit' : 'visits'}
+                            </span>
+                          </td>
+
+                          {/* Device & OS */}
+                          <td className="py-4 px-6 text-charcoal dark:text-cream">
+                            <div className="flex items-center gap-1.5">
+                              {visitor.device_type === 'Mobile' ? (
+                                <Smartphone className="w-3.5 h-3.5 text-charcoal-muted dark:text-cream-dim" />
+                              ) : (
+                                <Laptop className="w-3.5 h-3.5 text-charcoal-muted dark:text-cream-dim" />
+                              )}
+                              <span>{visitor.os || 'Unknown OS'}</span>
+                            </div>
+                          </td>
+
+                          {/* Browser */}
+                          <td className="py-4 px-6 text-charcoal-muted dark:text-cream-muted">
+                            {visitor.browser || 'Unknown'}
+                          </td>
+
+                          {/* First Seen */}
+                          <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim">
+                            {formatDate(visitor.first_seen_at)}
+                          </td>
+
+                          {/* Last Active */}
+                          <td className="py-4 px-6 text-charcoal dark:text-cream">
+                            {formatDate(visitor.last_seen_at)}
+                          </td>
+
+                          {/* Last Route */}
+                          <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim font-mono">
+                            {visitor.last_path || '/'}
+                          </td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
-                      <td colSpan={7} className="py-12 text-center text-charcoal-muted dark:text-cream-dim">
-                        {loading ? 'Loading visitor metrics...' : 'No visitor records found.'}
+                      <td colSpan={8} className="py-12 text-center text-charcoal-muted dark:text-cream-dim">
+                        {loading ? 'Loading visitor metrics from Supabase...' : 'No visitor records match your filter.'}
                       </td>
                     </tr>
                   )}
@@ -561,39 +832,57 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         )}
 
         {/* ============================================================ */}
-        {/* TAB 3: LIVE EVENT STREAM */}
+        {/* TAB 3: LIVE EVENT STREAM (WITH REAL-TIME GEO) */}
         {/* ============================================================ */}
         {activeTab === 'feed' && (
           <div className="rounded-3xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] overflow-hidden p-6">
-            <h3 className="font-display font-semibold text-base text-charcoal dark:text-cream mb-4">
-              Real-Time Event Stream (Last 200 Views)
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display font-semibold text-base text-charcoal dark:text-cream">
+                Real-Time Event Stream (Last 200 Views)
+              </h3>
+              <div className="text-xs font-mono text-charcoal-muted dark:text-cream-dim">
+                Auto-refreshes every 30s
+              </div>
+            </div>
 
             <div className="space-y-3">
               {pageViews.length > 0 ? (
-                pageViews.map((pv, idx) => (
-                  <div
-                    key={pv.id || idx}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-2xl bg-charcoal/[0.02] dark:bg-cream/[0.02] border border-charcoal/[0.04] dark:border-cream/[0.04] text-xs font-mono gap-2"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-                      <span className="font-semibold text-charcoal dark:text-cream">
-                        {pv.path}
-                      </span>
-                      <span className="text-charcoal-muted dark:text-cream-dim">
-                        via {pv.referrer || 'Direct'}
-                      </span>
-                    </div>
+                pageViews.map((pv, idx) => {
+                  const flag = getCountryFlag(pv.country_code);
+                  const hasGeo = Boolean(pv.city || pv.country);
 
-                    <div className="flex items-center gap-4 text-charcoal-muted dark:text-cream-dim text-[11px]">
-                      <span className="px-2 py-0.5 rounded bg-charcoal/5 dark:bg-cream/10">
-                        {pv.visitor_id.slice(0, 8)}...
-                      </span>
-                      <span>{formatDate(pv.created_at)}</span>
+                  return (
+                    <div
+                      key={pv.id || idx}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-2xl bg-charcoal/[0.02] dark:bg-cream/[0.02] border border-charcoal/[0.04] dark:border-cream/[0.04] text-xs font-mono gap-2 hover:bg-charcoal/[0.04] dark:hover:bg-cream/[0.04] transition-colors"
+                    >
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                        <span className="font-semibold text-charcoal dark:text-cream">
+                          {pv.path}
+                        </span>
+                        <span className="text-charcoal-muted dark:text-cream-dim">
+                          via {pv.referrer || 'Direct'}
+                        </span>
+
+                        {/* Location Tag on Live Feed */}
+                        {hasGeo && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-charcoal/[0.05] dark:bg-cream/[0.08] text-charcoal dark:text-cream text-[11px]">
+                            <span>{flag}</span>
+                            <span>{[pv.city, pv.country_code || pv.country].filter(Boolean).join(', ')}</span>
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-4 text-charcoal-muted dark:text-cream-dim text-[11px] shrink-0">
+                        <span className="px-2 py-0.5 rounded bg-charcoal/5 dark:bg-cream/10">
+                          {pv.visitor_id.slice(0, 8)}...
+                        </span>
+                        <span>{formatDate(pv.created_at)}</span>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="py-12 text-center text-charcoal-muted dark:text-cream-dim text-xs font-mono">
                   {loading ? 'Connecting to activity stream...' : 'No recent pageview events recorded.'}

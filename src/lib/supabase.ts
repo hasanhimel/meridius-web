@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { fetchVisitorGeo, GeoLocation } from './geo';
 
 const SUPABASE_URL = (import.meta as any).env?.VITE_SUPABASE_URL || 'https://mthtrnwwauawbhldmshy.supabase.co';
 const SUPABASE_ANON_KEY = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10aHRybnd3YXVhd2JobGRtc2h5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3ODg1MTUsImV4cCI6MjEwMjM2NDUxNX0.NPZVctN_4DyQWMK9hFzapiJ6YjhO5oRP3P3608OudW0';
@@ -27,6 +28,12 @@ export interface VisitorEntry {
   screen_res?: string;
   referrer?: string;
   last_path?: string;
+  city?: string;
+  country?: string;
+  country_code?: string;
+  region?: string;
+  ip?: string;
+  flag_emoji?: string;
 }
 
 export interface PageViewEntry {
@@ -36,6 +43,9 @@ export interface PageViewEntry {
   referrer?: string;
   session_id?: string;
   created_at?: string;
+  city?: string;
+  country?: string;
+  country_code?: string;
 }
 
 /**
@@ -91,7 +101,7 @@ export function getSessionId(): string {
 }
 
 /**
- * Record a visit and page view in Supabase
+ * Record a visit and page view in Supabase with Geolocation
  */
 export async function trackPageView(path = window.location.pathname) {
   try {
@@ -101,18 +111,34 @@ export async function trackPageView(path = window.location.pathname) {
     const { os, deviceType, browser, screenRes } = getDeviceDetails();
     const referrer = document.referrer || 'Direct';
 
+    // Fetch visitor geolocation (city, country, region, flag)
+    let geo: GeoLocation = {
+      city: null,
+      country: null,
+      country_code: null,
+      region: null,
+      ip: null,
+      flag_emoji: null,
+    };
+
+    try {
+      geo = await fetchVisitorGeo();
+    } catch (e) {
+      console.warn('Geolocation capture deferred/unavailable:', e);
+    }
+
     if (isNewSession) {
       sessionStorage.setItem('meridius_session_tracked', 'true');
 
       // Check if visitor already exists in DB
       const { data: existingVisitor } = await supabase
         .from('visitors')
-        .select('total_visits')
+        .select('total_visits, city, country, country_code, region, ip, flag_emoji')
         .eq('visitor_id', visitorId)
         .single();
 
       if (existingVisitor) {
-        // Increment visit count and update timestamp
+        // Increment visit count and update timestamp & location
         await supabase
           .from('visitors')
           .update({
@@ -123,7 +149,13 @@ export async function trackPageView(path = window.location.pathname) {
             device_type: deviceType,
             browser,
             os,
-            screen_res: screenRes
+            screen_res: screenRes,
+            city: geo.city || existingVisitor.city || null,
+            country: geo.country || existingVisitor.country || null,
+            country_code: geo.country_code || existingVisitor.country_code || null,
+            region: geo.region || existingVisitor.region || null,
+            ip: geo.ip || existingVisitor.ip || null,
+            flag_emoji: geo.flag_emoji || existingVisitor.flag_emoji || null,
           })
           .eq('visitor_id', visitorId);
       } else {
@@ -138,17 +170,34 @@ export async function trackPageView(path = window.location.pathname) {
           os,
           screen_res: screenRes,
           referrer,
-          last_path: path
+          last_path: path,
+          city: geo.city || null,
+          country: geo.country || null,
+          country_code: geo.country_code || null,
+          region: geo.region || null,
+          ip: geo.ip || null,
+          flag_emoji: geo.flag_emoji || null,
         });
       }
     } else {
-      // Just update last seen and path
+      // Just update last seen and path (and backfill geo if missing)
+      const updatePayload: Record<string, any> = {
+        last_seen_at: new Date().toISOString(),
+        last_path: path,
+      };
+
+      if (geo.city || geo.country) {
+        if (geo.city) updatePayload.city = geo.city;
+        if (geo.country) updatePayload.country = geo.country;
+        if (geo.country_code) updatePayload.country_code = geo.country_code;
+        if (geo.region) updatePayload.region = geo.region;
+        if (geo.flag_emoji) updatePayload.flag_emoji = geo.flag_emoji;
+        if (geo.ip) updatePayload.ip = geo.ip;
+      }
+
       await supabase
         .from('visitors')
-        .update({
-          last_seen_at: new Date().toISOString(),
-          last_path: path
-        })
+        .update(updatePayload)
         .eq('visitor_id', visitorId);
     }
 
@@ -158,7 +207,10 @@ export async function trackPageView(path = window.location.pathname) {
       path,
       referrer,
       session_id: sessionId,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      city: geo.city || null,
+      country: geo.country || null,
+      country_code: geo.country_code || null,
     });
   } catch (err) {
     console.error('Telemetry tracking error:', err);
@@ -177,6 +229,11 @@ export async function joinWaitlist(entry: {
 }): Promise<{ success: boolean; error?: string; alreadyJoined?: boolean }> {
   try {
     const visitorId = getVisitorId();
+    let geo: GeoLocation | null = null;
+    try {
+      geo = await fetchVisitorGeo();
+    } catch {}
+
     const { error } = await supabase
       .from('waitlist')
       .insert({
@@ -188,8 +245,12 @@ export async function joinWaitlist(entry: {
         metadata: {
           visitor_id: visitorId,
           user_agent: navigator.userAgent,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+          city: geo?.city || null,
+          country: geo?.country || null,
+          country_code: geo?.country_code || null,
+          region: geo?.region || null,
+        },
       })
       .select();
 
@@ -214,13 +275,13 @@ export async function getAdminData() {
   const [waitlistRes, visitorsRes, pageViewsRes] = await Promise.all([
     supabase.from('waitlist').select('*').order('created_at', { ascending: false }),
     supabase.from('visitors').select('*').order('last_seen_at', { ascending: false }),
-    supabase.from('page_views').select('*').order('created_at', { ascending: false }).limit(200)
+    supabase.from('page_views').select('*').order('created_at', { ascending: false }).limit(200),
   ]);
 
   return {
     waitlist: (waitlistRes.data || []) as WaitlistEntry[],
     visitors: (visitorsRes.data || []) as VisitorEntry[],
     pageViews: (pageViewsRes.data || []) as PageViewEntry[],
-    error: waitlistRes.error || visitorsRes.error || pageViewsRes.error
+    error: waitlistRes.error || visitorsRes.error || pageViewsRes.error,
   };
 }
