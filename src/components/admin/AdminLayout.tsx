@@ -83,10 +83,10 @@ export const AdminLayout: React.FC = () => {
           </div>
 
           <h2 className="font-display font-semibold text-xl tracking-tight text-charcoal dark:text-cream">
-            Meridius Control
+            Meridius Admin
           </h2>
           <p className="text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-1">
-            Restricted Admin Portal Access
+            Enter password to continue
           </p>
         </div>
 
@@ -94,7 +94,7 @@ export const AdminLayout: React.FC = () => {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-xs font-mono text-charcoal-muted dark:text-cream-dim mb-2 flex items-center justify-between">
-              <span>Master Passphrase</span>
+              <span>Password</span>
               <KeyRound className="w-3.5 h-3.5 opacity-60" />
             </label>
 
@@ -102,7 +102,7 @@ export const AdminLayout: React.FC = () => {
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
-                placeholder="Enter admin password..."
+                placeholder="Enter password..."
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoFocus
@@ -124,7 +124,7 @@ export const AdminLayout: React.FC = () => {
             {error && (
               <div className="flex items-center gap-1.5 text-xs text-rose-500 font-mono mt-2 animate-in fade-in">
                 <AlertCircle className="w-3.5 h-3.5" />
-                <span>Invalid credentials. Access denied.</span>
+                <span>Incorrect password</span>
               </div>
             )}
           </div>
@@ -134,14 +134,14 @@ export const AdminLayout: React.FC = () => {
             className="cursor-btn-primary w-full py-3 rounded-2xl text-xs font-mono font-semibold flex items-center justify-center gap-2 shadow-sm transition-all mt-2"
           >
             <Lock className="w-3.5 h-3.5" />
-            <span>Unlock Dashboard</span>
+            <span>Sign In</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </form>
 
         {/* Footer info */}
         <div className="mt-8 pt-4 border-t border-charcoal/[0.08] dark:border-cream/[0.08] text-center text-[11px] font-mono text-charcoal-muted dark:text-cream-dim">
-          <span>Protected by Meridius Auth Guard</span>
+          <span>Meridius Security</span>
         </div>
 
       </div>

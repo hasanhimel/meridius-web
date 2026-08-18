@@ -279,7 +279,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             <span className="text-charcoal-muted dark:text-cream-dim text-xs">/</span>
             <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-charcoal/[0.05] dark:bg-cream/[0.08] text-xs font-mono font-medium text-charcoal dark:text-cream">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              <span>Admin Console</span>
+              <span>Admin</span>
             </div>
           </div>
 
@@ -288,7 +288,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             {/* Live Indicator */}
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-mono text-emerald-600 dark:text-emerald-400">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Supabase Live</span>
+              <span>Live</span>
             </div>
 
             {/* Refresh Button */}
@@ -296,7 +296,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               onClick={fetchData}
               disabled={refreshing}
               className="p-2 rounded-full frosted-glass-pill hover:bg-charcoal/5 dark:hover:bg-cream/10 transition-colors text-charcoal dark:text-cream"
-              title="Refresh Data"
+              title="Refresh"
             >
               <RotateCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             </button>
@@ -326,14 +326,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       {/* Main Content Body */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
         
-        {/* Top Header & Context */}
+        {/* Top Header & Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="font-display font-semibold text-2xl sm:text-3xl tracking-tight text-charcoal dark:text-cream">
-              Intelligence & Growth Overview
+              Overview
             </h1>
             <p className="text-xs sm:text-sm text-charcoal-muted dark:text-cream-dim mt-1 font-mono">
-              Live telemetry, visitor geolocation, waitlist registrations, and repeat visit frequency.
+              Live telemetry and waitlist activity.
             </p>
           </div>
 
@@ -346,7 +346,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                   className="flex items-center gap-1.5 px-4 py-2 rounded-full frosted-glass-pill text-xs font-mono font-medium text-charcoal dark:text-cream hover:bg-charcoal/5 dark:hover:bg-cream/10 transition-colors disabled:opacity-50"
                 >
                   {copiedAll ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Mail className="w-3.5 h-3.5" />}
-                  <span>{copiedAll ? 'Copied All!' : 'Copy All Emails'}</span>
+                  <span>{copiedAll ? 'Copied' : 'Copy emails'}</span>
                 </button>
 
                 <button
@@ -355,7 +355,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                   className="flex items-center gap-1.5 px-4 py-2 rounded-full cursor-btn-primary text-xs font-mono font-medium shadow-sm disabled:opacity-50"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Export Waitlist</span>
+                  <span>Export CSV</span>
                 </button>
               </>
             )}
@@ -367,14 +367,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                 className="flex items-center gap-1.5 px-4 py-2 rounded-full cursor-btn-primary text-xs font-mono font-medium shadow-sm disabled:opacity-50"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Export Visitors & Geo</span>
+                <span>Export CSV</span>
               </button>
             )}
           </div>
         </div>
 
         {/* ============================================================ */}
-        {/* 4 High-Impact KPI Metric Cards */}
+        {/* 4 Metric Cards */}
         {/* ============================================================ */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           
@@ -382,7 +382,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
-                Waitlist Signups
+                Waitlist
               </span>
               <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                 <Users className="w-4 h-4" />
@@ -393,15 +393,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             </div>
             <div className="flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 mt-2">
               <TrendingUp className="w-3 h-3" />
-              <span>Verified applicants in DB</span>
+              <span>Total signups</span>
             </div>
           </div>
 
-          {/* Card 2: Unique Visitors & Global Reach */}
+          {/* Card 2: Unique Visitors */}
           <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
-                Unique Visitors
+                Visitors
               </span>
               <div className="w-8 h-8 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                 <Globe className="w-4 h-4" />
@@ -414,17 +414,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               <MapPin className="w-3 h-3 text-blue-500" />
               <span>
                 {metrics.totalCountriesCount > 0 
-                  ? `Across ${metrics.totalCountriesCount} ${metrics.totalCountriesCount === 1 ? 'country' : 'countries'}`
-                  : `${metrics.avgVisits} avg visits per visitor`}
+                  ? `${metrics.totalCountriesCount} ${metrics.totalCountriesCount === 1 ? 'country' : 'countries'}`
+                  : `${metrics.avgVisits} avg visits`}
               </span>
             </div>
           </div>
 
-          {/* Card 3: Returning Visitors Ratio */}
+          {/* Card 3: Returning Visitors */}
           <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
-                Returning Users
+                Returning
               </span>
               <div className="w-8 h-8 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                 <UserCheck className="w-4 h-4" />
@@ -439,15 +439,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               </span>
             </div>
             <div className="text-[11px] font-mono text-charcoal-muted dark:text-cream-dim mt-2">
-              <span>Visited 2+ times</span>
+              <span>Repeat visitors (2+)</span>
             </div>
           </div>
 
-          {/* Card 4: Total Pageviews & Primary Market */}
+          {/* Card 4: Total Pageviews */}
           <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
-                Total Page Views
+                Page Views
               </span>
               <div className="w-8 h-8 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
                 <Eye className="w-4 h-4" />
@@ -464,7 +464,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               ) : (
                 <>
                   <Laptop className="w-3 h-3" />
-                  <span>{metrics.macRate}% macOS traffic</span>
+                  <span>{metrics.macRate}% macOS</span>
                 </>
               )}
             </div>
@@ -485,7 +485,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            <span>Waitlist Directory ({waitlist.length})</span>
+            <span>Waitlist ({waitlist.length})</span>
           </button>
 
           <button
@@ -497,7 +497,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             }`}
           >
             <Globe className="w-3.5 h-3.5" />
-            <span>Visitor Identity & Repeat Visit Logs ({visitors.length})</span>
+            <span>Visitors ({visitors.length})</span>
           </button>
 
           <button
@@ -509,12 +509,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             }`}
           >
             <Activity className="w-3.5 h-3.5" />
-            <span>Live Activity Feed ({pageViews.length})</span>
+            <span>Live Feed ({pageViews.length})</span>
           </button>
         </div>
 
         {/* ============================================================ */}
-        {/* TAB 1: WAITLIST DIRECTORY */}
+        {/* TAB 1: WAITLIST */}
         {/* ============================================================ */}
         {activeTab === 'waitlist' && (
           <div className="rounded-3xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] overflow-hidden">
@@ -525,7 +525,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal-muted dark:text-cream-dim" />
                 <input
                   type="text"
-                  placeholder="Filter by email, name, company, role, city, or country..."
+                  placeholder="Search waitlist..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 rounded-full frosted-glass-pill text-xs font-mono text-charcoal dark:text-cream placeholder-charcoal-muted/60 dark:placeholder-cream-muted/60 focus:outline-none"
@@ -533,7 +533,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
               </div>
 
               <div className="text-xs font-mono text-charcoal-muted dark:text-cream-dim">
-                Showing {filteredWaitlist.length} of {waitlist.length} applicants
+                {filteredWaitlist.length} {filteredWaitlist.length === 1 ? 'applicant' : 'applicants'}
               </div>
             </div>
 
@@ -547,8 +547,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                     <th className="py-3.5 px-6 font-medium">Name</th>
                     <th className="py-3.5 px-6 font-medium">Company & Role</th>
                     <th className="py-3.5 px-6 font-medium">Location</th>
-                    <th className="py-3.5 px-6 font-medium">Applied Date</th>
-                    <th className="py-3.5 px-6 font-medium text-right">Action</th>
+                    <th className="py-3.5 px-6 font-medium">Date</th>
+                    <th className="py-3.5 px-6 font-medium text-right"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-charcoal/[0.06] dark:divide-cream/[0.06]">
@@ -609,7 +609,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                   ) : (
                     <tr>
                       <td colSpan={7} className="py-12 text-center text-charcoal-muted dark:text-cream-dim">
-                        {loading ? 'Loading registrations from Supabase...' : 'No waitlist applicants found.'}
+                        {loading ? 'Loading waitlist...' : 'No waitlist applicants found.'}
                       </td>
                     </tr>
                   )}
@@ -621,91 +621,71 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         )}
 
         {/* ============================================================ */}
-        {/* TAB 2: UNIQUE VISITORS & FREQUENCY INTELLIGENCE (WITH GEO) */}
+        {/* TAB 2: VISITORS */}
         {/* ============================================================ */}
         {activeTab === 'visitors' && (
           <div className="rounded-3xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] overflow-hidden">
             
             {/* Header & Controls */}
-            <div className="p-4 sm:p-6 border-b border-charcoal/[0.08] dark:border-cream/[0.08] space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <h3 className="font-display font-semibold text-base text-charcoal dark:text-cream flex items-center gap-2">
-                    <span>Visitor Identity & Repeat Visit Logs</span>
-                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-normal">
-                      Geo Enabled
-                    </span>
-                  </h3>
-                  <p className="text-xs font-mono text-charcoal-muted dark:text-cream-dim mt-0.5">
-                    Track visitor origin (city & country), session frequency, hardware profile, and route pathways.
-                  </p>
-                </div>
-                <div className="text-xs font-mono text-charcoal-muted dark:text-cream-dim">
-                  Showing {filteredVisitors.length} of {visitors.length} Visitors
-                </div>
+            <div className="p-4 sm:p-6 border-b border-charcoal/[0.08] dark:border-cream/[0.08] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+              
+              {/* Search Box */}
+              <div className="relative flex-1 max-w-md">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal-muted dark:text-cream-dim" />
+                <input
+                  type="text"
+                  placeholder="Search visitors by city, OS, browser, or ID..."
+                  value={visitorSearchQuery}
+                  onChange={(e) => setVisitorSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 rounded-full frosted-glass-pill text-xs font-mono text-charcoal dark:text-cream placeholder-charcoal-muted/60 dark:placeholder-cream-muted/60 focus:outline-none"
+                />
               </div>
 
-              {/* Search & Location Filter Bar */}
-              <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-2">
-                
-                {/* Search Box */}
-                <div className="relative flex-1 max-w-md">
-                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal-muted dark:text-cream-dim" />
-                  <input
-                    type="text"
-                    placeholder="Search by city, country, OS, browser, or visitor ID..."
-                    value={visitorSearchQuery}
-                    onChange={(e) => setVisitorSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 rounded-full frosted-glass-pill text-xs font-mono text-charcoal dark:text-cream placeholder-charcoal-muted/60 dark:placeholder-cream-muted/60 focus:outline-none"
-                  />
-                </div>
+              {/* Country Filter Chips */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
+                <button
+                  onClick={() => setSelectedCountryFilter('ALL')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all shrink-0 ${
+                    selectedCountryFilter === 'ALL'
+                      ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal font-semibold shadow-sm'
+                      : 'bg-charcoal/[0.04] dark:bg-cream/[0.06] text-charcoal-muted dark:text-cream-dim hover:bg-charcoal/10 dark:hover:bg-cream/10'
+                  }`}
+                >
+                  All ({visitors.length})
+                </button>
 
-                {/* Country Filter Chips */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
+                {countryBreakdown.map((item) => (
                   <button
-                    onClick={() => setSelectedCountryFilter('ALL')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all shrink-0 ${
-                      selectedCountryFilter === 'ALL'
+                    key={item.code}
+                    onClick={() => setSelectedCountryFilter(item.code)}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono transition-all shrink-0 ${
+                      selectedCountryFilter === item.code
                         ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal font-semibold shadow-sm'
                         : 'bg-charcoal/[0.04] dark:bg-cream/[0.06] text-charcoal-muted dark:text-cream-dim hover:bg-charcoal/10 dark:hover:bg-cream/10'
                     }`}
                   >
-                    All ({visitors.length})
+                    <span>{item.flag}</span>
+                    <span>{item.code === 'UNKNOWN' ? 'Unknown' : item.name}</span>
+                    <span className="opacity-60 text-[10px]">({item.count})</span>
                   </button>
-
-                  {countryBreakdown.map((item) => (
-                    <button
-                      key={item.code}
-                      onClick={() => setSelectedCountryFilter(item.code)}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono transition-all shrink-0 ${
-                        selectedCountryFilter === item.code
-                          ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal font-semibold shadow-sm'
-                          : 'bg-charcoal/[0.04] dark:bg-cream/[0.06] text-charcoal-muted dark:text-cream-dim hover:bg-charcoal/10 dark:hover:bg-cream/10'
-                      }`}
-                    >
-                      <span>{item.flag}</span>
-                      <span>{item.code === 'UNKNOWN' ? 'Unresolved' : item.name}</span>
-                      <span className="opacity-60 text-[10px]">({item.count})</span>
-                    </button>
-                  ))}
-                </div>
-
+                ))}
               </div>
+
             </div>
 
-            {/* Visitors Table with City & Country */}
+            {/* Visitors Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs font-mono border-collapse">
                 <thead>
                   <tr className="border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-charcoal/[0.02] dark:bg-cream/[0.02] text-charcoal-muted dark:text-cream-dim">
-                    <th className="py-3.5 px-6 font-medium">Visitor Profile</th>
-                    <th className="py-3.5 px-6 font-medium">Origin (City & Country)</th>
+                    <th className="py-3.5 px-6 font-medium">Visitor ID</th>
+                    <th className="py-3.5 px-6 font-medium">Location</th>
                     <th className="py-3.5 px-6 font-medium">Visits</th>
-                    <th className="py-3.5 px-6 font-medium">Device & OS</th>
+                    <th className="py-3.5 px-6 font-medium">Device</th>
                     <th className="py-3.5 px-6 font-medium">Browser</th>
                     <th className="py-3.5 px-6 font-medium">First Seen</th>
                     <th className="py-3.5 px-6 font-medium">Last Active</th>
-                    <th className="py-3.5 px-6 font-medium">Last Route</th>
+                    <th className="py-3.5 px-6 font-medium">Last Page</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-charcoal/[0.06] dark:divide-cream/[0.06]">
@@ -728,7 +708,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                               <button
                                 onClick={() => handleCopyVisitorId(visitor.visitor_id)}
                                 className="p-1 rounded hover:bg-charcoal/10 dark:hover:bg-cream/10 transition-colors text-charcoal-muted dark:text-cream-dim"
-                                title="Copy Visitor ID"
+                                title="Copy ID"
                               >
                                 {copiedVisitorId === visitor.visitor_id ? (
                                   <Check className="w-3 h-3 text-emerald-500" />
@@ -739,7 +719,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                             </div>
                           </td>
 
-                          {/* Origin (City & Country) */}
+                          {/* Location */}
                           <td className="py-4 px-6">
                             {hasLocation ? (
                               <div className="flex items-start gap-2.5">
@@ -748,7 +728,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                                 </span>
                                 <div>
                                   <div className="font-semibold text-charcoal dark:text-cream flex items-center gap-1.5">
-                                    <span>{visitor.city || visitor.country || 'Unknown City'}</span>
+                                    <span>{visitor.city || visitor.country}</span>
                                     {visitor.country_code && (
                                       <span className="text-[10px] uppercase px-1.5 py-0.2 rounded bg-charcoal/[0.06] dark:bg-cream/[0.1] text-charcoal-muted dark:text-cream-dim">
                                         {visitor.country_code}
@@ -756,14 +736,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                                     )}
                                   </div>
                                   <div className="text-[11px] text-charcoal-muted dark:text-cream-dim">
-                                    {[visitor.region, visitor.country].filter(Boolean).join(', ')}
+                                    {[visitor.region && visitor.region.length > 2 ? visitor.region : null, visitor.country].filter(Boolean).join(', ')}
                                   </div>
                                 </div>
                               </div>
                             ) : (
                               <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-charcoal/[0.04] dark:bg-cream/[0.06] text-charcoal-muted dark:text-cream-dim text-[11px]">
                                 <Compass className="w-3 h-3 opacity-60" />
-                                <span>Pending next visit</span>
+                                <span>Pending</span>
                               </div>
                             )}
                           </td>
@@ -773,7 +753,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                             <span
                               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-semibold ${
                                 visitor.total_visits > 3
-                                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
                                   : visitor.total_visits > 1
                                   ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                                   : 'bg-charcoal/[0.05] dark:bg-cream/[0.08] text-charcoal-muted dark:text-cream-dim'
@@ -791,13 +771,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                               ) : (
                                 <Laptop className="w-3.5 h-3.5 text-charcoal-muted dark:text-cream-dim" />
                               )}
-                              <span>{visitor.os || 'Unknown OS'}</span>
+                              <span>{visitor.os || 'Unknown'}</span>
                             </div>
                           </td>
 
                           {/* Browser */}
                           <td className="py-4 px-6 text-charcoal-muted dark:text-cream-muted">
-                            {visitor.browser || 'Unknown'}
+                            {visitor.browser || '—'}
                           </td>
 
                           {/* First Seen */}
@@ -820,7 +800,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                   ) : (
                     <tr>
                       <td colSpan={8} className="py-12 text-center text-charcoal-muted dark:text-cream-dim">
-                        {loading ? 'Loading visitor metrics from Supabase...' : 'No visitor records match your filter.'}
+                        {loading ? 'Loading visitors...' : 'No visitors found.'}
                       </td>
                     </tr>
                   )}
@@ -832,16 +812,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         )}
 
         {/* ============================================================ */}
-        {/* TAB 3: LIVE EVENT STREAM (WITH REAL-TIME GEO) */}
+        {/* TAB 3: LIVE ACTIVITY STREAM */}
         {/* ============================================================ */}
         {activeTab === 'feed' && (
           <div className="rounded-3xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] overflow-hidden p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display font-semibold text-base text-charcoal dark:text-cream">
-                Real-Time Event Stream (Last 200 Views)
+                Recent Activity
               </h3>
-              <div className="text-xs font-mono text-charcoal-muted dark:text-cream-dim">
-                Auto-refreshes every 30s
+              <div className="text-xs font-mono text-charcoal-muted dark:text-cream-dim flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Auto-refreshing</span>
               </div>
             </div>
 
@@ -885,7 +866,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
                 })
               ) : (
                 <div className="py-12 text-center text-charcoal-muted dark:text-cream-dim text-xs font-mono">
-                  {loading ? 'Connecting to activity stream...' : 'No recent pageview events recorded.'}
+                  {loading ? 'Loading activity...' : 'No recent activity.'}
                 </div>
               )}
             </div>
