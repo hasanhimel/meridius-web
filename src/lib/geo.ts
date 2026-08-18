@@ -4,7 +4,7 @@
  * Multi-tier detection:
  * 1. Session Storage Cache (fastest, prevents redundant queries)
  * 2. Vercel Serverless Edge Headers (/api/geo)
- * 3. Fallback to public IP geolocation APIs (ipwho.is / ipinfo.io)
+ * 3. Fallback / City-enrichment with public IP geolocation APIs (ipwho.is / ipinfo.io)
  */
 
 export interface GeoLocation {
@@ -98,7 +98,8 @@ export async function fetchVisitorGeo(): Promise<GeoLocation> {
           flag_emoji: data.flag_emoji || getCountryFlag(countryCode),
         };
 
-        if (geo.country || geo.city) {
+        // If we have both city and country, cache and return immediately
+        if (geo.city && geo.country) {
           try {
             sessionStorage.setItem(CACHE_KEY, JSON.stringify(geo));
           } catch {}
@@ -110,7 +111,7 @@ export async function fetchVisitorGeo(): Promise<GeoLocation> {
     // /api/geo timed out or in local dev without Vercel backend
   }
 
-  // 3. Fallback to ipwho.is (fast, CORS-enabled, reliable)
+  // 3. Fallback or enrich with ipwho.is (to get city if Vercel header omitted it)
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 2500);
@@ -123,14 +124,14 @@ export async function fetchVisitorGeo(): Promise<GeoLocation> {
     if (res.ok) {
       const data = await res.json();
       if (data && data.success !== false) {
-        const countryCode = data.country_code || null;
+        const countryCode = data.country_code || geo.country_code;
         geo = {
-          city: data.city || null,
-          country: data.country || getCountryName(countryCode),
+          city: data.city || geo.city,
+          country: data.country || geo.country || getCountryName(countryCode),
           country_code: countryCode,
-          region: data.region || null,
-          ip: data.ip || null,
-          flag_emoji: data.flag?.emoji || getCountryFlag(countryCode),
+          region: data.region || geo.region,
+          ip: data.ip || geo.ip,
+          flag_emoji: data.flag?.emoji || geo.flag_emoji || getCountryFlag(countryCode),
         };
 
         try {
@@ -156,14 +157,14 @@ export async function fetchVisitorGeo(): Promise<GeoLocation> {
     if (res.ok) {
       const data = await res.json();
       if (data) {
-        const countryCode = data.country || null;
+        const countryCode = data.country || geo.country_code;
         geo = {
-          city: data.city || null,
-          country: getCountryName(countryCode) || countryCode,
+          city: data.city || geo.city,
+          country: getCountryName(countryCode) || data.country || geo.country,
           country_code: countryCode,
-          region: data.region || null,
-          ip: data.ip || null,
-          flag_emoji: getCountryFlag(countryCode),
+          region: data.region || geo.region,
+          ip: data.ip || geo.ip,
+          flag_emoji: getCountryFlag(countryCode) || geo.flag_emoji,
         };
 
         try {
@@ -174,6 +175,13 @@ export async function fetchVisitorGeo(): Promise<GeoLocation> {
     }
   } catch {
     // Fallback failed
+  }
+
+  // Return whatever was obtained
+  if (geo.country || geo.city) {
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify(geo));
+    } catch {}
   }
 
   return geo;
