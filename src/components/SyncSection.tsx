@@ -1,12 +1,12 @@
 import React from 'react';
 import { DynamicCompanyBrainArtwork } from './DynamicCompanyBrainArtwork';
-import { ArrowRight, Network } from 'lucide-react';
+import { Network } from 'lucide-react';
 
 interface SyncSectionProps {
-  onOpenWaitlist: () => void;
+  onOpenWaitlist?: () => void;
 }
 
-export const SyncSection: React.FC<SyncSectionProps> = ({ onOpenWaitlist }) => {
+export const SyncSection: React.FC<SyncSectionProps> = () => {
   return (
     <section id="sync" className="py-16 sm:py-24 border-t border-charcoal/[0.08] dark:border-cream/[0.08] bg-cream dark:bg-void transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,7 +31,7 @@ export const SyncSection: React.FC<SyncSectionProps> = ({ onOpenWaitlist }) => {
         </div>
 
         {/* 3 Capabilities Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 pt-6 border-t border-charcoal/[0.08] dark:border-cream/[0.08] mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 pt-6 border-t border-charcoal/[0.08] dark:border-cream/[0.08]">
           <div>
             <div className="font-display font-semibold text-base text-charcoal dark:text-cream mb-2">
               Multiplayer Agent Mesh
@@ -58,26 +58,6 @@ export const SyncSection: React.FC<SyncSectionProps> = ({ onOpenWaitlist }) => {
               Two co-founders or an entire 500-person organization executing simultaneously in complete lockstep.
             </p>
           </div>
-        </div>
-
-        {/* Bottom CTA Card */}
-        <div className="p-8 sm:p-10 rounded-3xl frosted-glass border border-charcoal/[0.12] dark:border-cream/[0.12] flex flex-col sm:flex-row sm:items-center justify-between gap-6 transition-colors">
-          <div>
-            <h3 className="font-display font-semibold text-xl sm:text-2xl text-charcoal dark:text-cream mb-2 tracking-tight">
-              Ready for uninterrupted autonomous work?
-            </h3>
-            <p className="text-sm text-charcoal-muted dark:text-cream-muted font-sans">
-              Be the first to experience Meridius on macOS. Early access invitations are rolling out weekly.
-            </p>
-          </div>
-
-          <button
-            onClick={onOpenWaitlist}
-            className="cursor-btn-primary px-6 py-3 rounded-full text-xs font-sans flex items-center justify-center gap-2 shrink-0 self-start sm:self-auto shadow-sm"
-          >
-            <span>Join the waitlist</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
         </div>
 
       </div>
