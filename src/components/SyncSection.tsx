@@ -1,6 +1,6 @@
 import React from 'react';
 import { DynamicCompanyBrainArtwork } from './DynamicCompanyBrainArtwork';
-import { Network, Users, Cpu, Compass } from 'lucide-react';
+import { Network, Users, Brain, Compass } from 'lucide-react';
 
 interface SyncSectionProps {
   onOpenWaitlist?: () => void;
@@ -48,7 +48,7 @@ export const SyncSection: React.FC<SyncSectionProps> = () => {
 
           <div className="flex flex-col">
             <div className="w-8 h-8 rounded-xl frosted-glass flex items-center justify-center text-signal mb-3 border border-charcoal/[0.08] dark:border-cream/[0.08] shrink-0">
-              <Cpu className="w-4 h-4" />
+              <Brain className="w-4 h-4" />
             </div>
             <div className="text-xs font-mono text-charcoal-dim dark:text-cream-dim mb-1.5">02 / Shared Knowledge</div>
             <h3 className="font-display font-semibold text-base sm:text-lg text-charcoal dark:text-cream mb-2">
