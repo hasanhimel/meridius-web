@@ -11,6 +11,10 @@ dist-ssr/
 # Vercel
 .vercel/
 
+# Local raw icon assets
+icon/
+
+
 # OS metadata
 .DS_Store
 Thumbs.db

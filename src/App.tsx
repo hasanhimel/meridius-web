@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
+import { MCPSection } from './components/mcp/MCPSection';
 import { ProductSection } from './components/ProductSection';
 import { ComparisonSection } from './components/ComparisonSection';
 import { SyncSection } from './components/SyncSection';
@@ -24,12 +25,17 @@ export function App() {
         setIsAdminRoute(true);
       } else {
         setIsAdminRoute(false);
-        if (path === '/product') {
+        if (path === '/' || path === '') {
+          // Landing/main big logo page at first
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        } else if (path === '/product') {
           setTimeout(() => document.getElementById('product')?.scrollIntoView({ behavior: 'smooth' }), 150);
         } else if (path === '/comparison') {
           setTimeout(() => document.getElementById('comparison')?.scrollIntoView({ behavior: 'smooth' }), 150);
         } else if (path === '/sync') {
           setTimeout(() => document.getElementById('sync')?.scrollIntoView({ behavior: 'smooth' }), 150);
+        } else if (path === '/mcp' || path === '/integrations') {
+          setTimeout(() => document.getElementById('mcp')?.scrollIntoView({ behavior: 'smooth' }), 150);
         }
       }
     };
@@ -50,12 +56,13 @@ export function App() {
           {/* Navigation */}
           <Navbar onOpenWaitlist={() => setIsWaitlistOpen(true)} />
 
-          {/* Main Single-Page Content */}
+          {/* Main Single-Page Content: Landing Hero at first, MCP at very last */}
           <main className="flex-grow">
             <HeroSection onOpenWaitlist={() => setIsWaitlistOpen(true)} />
             <ProductSection />
             <ComparisonSection />
             <SyncSection onOpenWaitlist={() => setIsWaitlistOpen(true)} />
+            <MCPSection onOpenWaitlist={() => setIsWaitlistOpen(true)} />
           </main>
 
           {/* Footer */}

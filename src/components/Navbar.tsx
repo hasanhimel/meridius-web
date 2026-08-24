@@ -1,15 +1,13 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
 import { ThemeToggle } from './ThemeToggle';
+import { NavbarLogoMark } from './NavbarLogoMark';
 
 interface NavbarProps {
   onOpenWaitlist: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlist }) => {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
 
   const navigateTo = (e: React.MouseEvent, path: string, elementId?: string) => {
     e.preventDefault();
@@ -29,13 +27,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlist }) => {
         <a 
           href="/" 
           onClick={(e) => navigateTo(e, '/')}
-          className="flex items-center gap-2.5 sm:gap-3 group"
+          className="flex items-center gap-2.5 sm:gap-3 group select-none"
         >
-          <img 
-            src={isDark ? "/assets/logo/meridius-mark-white.svg" : "/assets/logo/meridius-mark-black.svg"} 
-            alt="Meridius" 
-            className="w-9 h-9 sm:w-10 sm:h-10 object-contain opacity-100 transition-transform group-hover:scale-105 shrink-0"
-          />
+          <NavbarLogoMark size={38} className="w-9 h-9 sm:w-10 sm:h-10" />
           <span className="font-brand font-extrabold text-base sm:text-[18px] tracking-[0.02em] uppercase text-charcoal dark:text-cream transition-colors">
             MERIDIUS
           </span>
@@ -63,6 +57,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlist }) => {
             className="hover:text-charcoal dark:hover:text-cream transition-colors"
           >
             Sync
+          </a>
+          <a 
+            href="/mcp" 
+            onClick={(e) => navigateTo(e, '/mcp', 'mcp')}
+            className="hover:text-charcoal dark:hover:text-cream transition-colors flex items-center gap-1.5"
+          >
+            <span>MCP</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
           </a>
         </nav>
 

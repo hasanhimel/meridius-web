@@ -51,6 +51,16 @@
   background: var(--text-primary);
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
 /* Base typography */
 body {
   background-color: var(--bg-page);
@@ -154,3 +164,46 @@ h1, h2, h3, h4, h5, h6, .font-display {
   background-color: var(--btn-secondary-hover);
   transform: translateY(-1px);
 }
+
+/* ======================================================= */
+/* SMOOTH VELOCITY MARQUEE FOR MCP INTEGRATIONS            */
+/* ======================================================= */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marquee-reverse 35s linear infinite;
+}
+
+@keyframes marquee-slow {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-slow {
+  animation: marquee-slow 65s linear infinite;
+}
+
