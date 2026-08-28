@@ -44,14 +44,13 @@ const SOURCE_MIN_Y = -0.5;
 const SOURCE_WIDTH = 375.1;
 const SOURCE_HEIGHT = 452.0;
 
-// Exact pointer size from SoftwareCursorGlyphMetrics in Swift
-// pointerSize = CGSize(width: 17.09527, height: 20.6)
-export const POINTER_WIDTH = 17.09527;
-export const POINTER_HEIGHT = 20.6;
+// Scaled pointer size for balanced compact elegance
+export const POINTER_WIDTH = 14.5;
+export const POINTER_HEIGHT = 17.47;
 
 // Traced tip (Apex) sits ~6.931% across width and ~0.31% across height
-export const TIP_OFFSET_X = 0.06931 * POINTER_WIDTH; // 1.18487px
-export const TIP_OFFSET_Y = 0.0031 * POINTER_HEIGHT; // 0.06386px
+export const TIP_OFFSET_X = 0.06931 * POINTER_WIDTH; // 1.005px
+export const TIP_OFFSET_Y = 0.0031 * POINTER_HEIGHT; // 0.054px
 
 // Geometric Spine Alignment:
 // Apex tip is at (65.5, 0.9), Crotch joint is at (200.7, 308.1).

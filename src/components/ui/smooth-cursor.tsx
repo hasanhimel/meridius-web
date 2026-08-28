@@ -45,8 +45,8 @@ const DefaultCursorSVG: FC = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={17.09527}
-      height={20.6}
+      width={14.5}
+      height={17.47}
       viewBox={`${SOURCE_MIN_X} ${SOURCE_MIN_Y} ${SOURCE_WIDTH} ${SOURCE_HEIGHT}`}
       style={{ overflow: 'visible' }}
     >
