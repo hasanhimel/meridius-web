@@ -65,6 +65,13 @@ const SPINE_OFFSET_DEG = 113.75936;
 const SCROLL_UP_ANGLE = -90 + SPINE_OFFSET_DEG;
 const SCROLL_DOWN_ANGLE = 90 + SPINE_OFFSET_DEG;
 
+// UI Element Interaction Angles:
+// North-West (-135° in screen space): used when cursor is at UI element's right half (points from bottom-right)
+const UI_HOVER_NW_ANGLE = -135 + SPINE_OFFSET_DEG; // -21.24064°
+
+// North-East (-45° in screen space): used when cursor is at UI element's left half (points from bottom-left)
+const UI_HOVER_NE_ANGLE = -45 + SPINE_OFFSET_DEG; // 68.75936°
+
 // 5 DISTINCT, CONTINUOUS SMOOTH CURVED ENTRY FLIGHT PATHS
 // All start at (860, 900) and converge onto the logo center dot (1445, 770)
 export const ENTRY_MOTION_PATHS: string[] = [
@@ -223,8 +230,8 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
   },
 }) => {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
-  const isAdminPath = typeof window !== 'undefined' && window.location.pathname.toLowerCase().startsWith('/admin');
-  const shouldSkipIntro = skipIntro || isAdminPath;
+  const isLandingPath = typeof window !== 'undefined' && (window.location.pathname === '/' || window.location.pathname === '');
+  const shouldSkipIntro = skipIntro || !isLandingPath;
 
   // Pick a randomized motion flight path on each page load/refresh
   const [activePath] = useState<string>(() => {
@@ -506,7 +513,7 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
     };
   }, [isTouchDevice, shouldSkipIntro, activePath, cursorX, cursorY, scale, getHeroLogoTargetPos, onIntroComplete, rotateToAngle]);
 
-  // 2. INTERACTIVE VISITOR & ADMIN CURSOR TRACKING WITH UI ELEMENT & SHORTEST-ARC SCROLL FLIP
+  // 2. INTERACTIVE VISITOR & ADMIN CURSOR TRACKING WITH DYNAMIC UI HOVER RULES
   useEffect(() => {
     if (isTouchDevice) return;
 
@@ -547,9 +554,6 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
           Math.pow(velocity.current.x, 2) + Math.pow(velocity.current.y, 2)
         );
 
-        cursorX.set(currentPos.x);
-        cursorY.set(currentPos.y);
-
         // If not actively scrolling, handle UI element interaction and movement orientation
         if (!isScrollingRef.current) {
           // Reset scroll facing when user moves mouse freely
@@ -557,43 +561,71 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
 
           // Check for UI Element Awareness under the cursor
           const el = document.elementFromPoint(currentPos.x, currentPos.y);
-          const interactiveEl = el?.closest(
-            'button, a, input, textarea, select, [role="button"], [role="tab"], .frosted-glass-pill, .cursor-btn-primary, .cursor-pointer, [data-interactive], form'
-          ) as HTMLElement | null;
+          const isAnimatedLogo = el?.closest('#hero-animated-logo, canvas');
+          const interactiveEl = (!isAnimatedLogo
+            ? (el?.closest(
+                'button, a, input, textarea, select, [role="button"], [role="tab"], .frosted-glass-pill, .cursor-btn-primary, .cursor-pointer, [data-interactive], form'
+              ) as HTMLElement | null)
+            : null);
 
           if (interactiveEl) {
-            // UI Element Aware: calculate direction to center of the hovered interactive element
+            // UI Element Magnetic Docking Rules:
+            // 1. If cursor is at UI element's right half:
+            //    Take the cursor directly to the UI element's bottom-right, pointing North-West into the element.
+            // 2. If cursor is at UI element's left half:
+            //    Take the cursor directly to the UI element's bottom-left, pointing North-East into the element.
             const rect = interactiveEl.getBoundingClientRect();
-            const targetCenterX = rect.left + rect.width / 2;
-            const targetCenterY = rect.top + rect.height / 2;
-            const dx = targetCenterX - currentPos.x;
-            const dy = targetCenterY - currentPos.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
+            const centerX = rect.left + rect.width / 2;
+            const isRightHalf = currentPos.x >= centerX;
 
-            if (dist > 2) {
-              const elementAngle = Math.atan2(dy, dx) * (180 / Math.PI) + SPINE_OFFSET_DEG;
-              rotateToAngle(elementAngle);
-            }
+            // Position cursor tip slightly INSIDE the UI element's bottom-right or bottom-left
+            const marginX = Math.min(16, Math.max(6, rect.width * 0.16));
+            const marginY = Math.min(10, Math.max(5, rect.height * 0.22));
+
+            const baseDockX = isRightHalf ? (rect.right - marginX) : (rect.left + marginX);
+            const baseDockY = rect.bottom - marginY;
+
+            // Fluid magnetic micro-tracking inside the corner without a rigid barrier
+            const microOffsetX = (currentPos.x - (isRightHalf ? rect.right - marginX : rect.left + marginX)) * 0.25;
+            const microOffsetY = (currentPos.y - (rect.bottom - marginY)) * 0.25;
+
+            const targetDockX = baseDockX + microOffsetX;
+            const targetDockY = baseDockY + microOffsetY;
+
+            cursorX.set(targetDockX);
+            cursorY.set(targetDockY);
+
+            const targetHoverAngle = isRightHalf ? UI_HOVER_NW_ANGLE : UI_HOVER_NE_ANGLE;
+            rotateToAngle(targetHoverAngle);
 
             // Magnetic scale awareness
             const isTextInput =
               interactiveEl.tagName === 'INPUT' ||
               interactiveEl.tagName === 'TEXTAREA';
             scale.set(isTextInput ? 0.92 : 1.16);
-          } else if (speed > 0.1) {
-            // Normal flight velocity orientation
-            const currentAngle =
-              Math.atan2(velocity.current.y, velocity.current.x) * (180 / Math.PI) +
-              SPINE_OFFSET_DEG;
-            rotateToAngle(currentAngle);
-            scale.set(0.95);
+          } else {
+            // Normal free tracking
+            cursorX.set(currentPos.x);
+            cursorY.set(currentPos.y);
 
-            const timeout = setTimeout(() => {
-              scale.set(1);
-            }, 150);
+            if (speed > 0.1) {
+              // Normal flight velocity orientation
+              const currentAngle =
+                Math.atan2(velocity.current.y, velocity.current.x) * (180 / Math.PI) +
+                SPINE_OFFSET_DEG;
+              rotateToAngle(currentAngle);
+              scale.set(0.95);
 
-            return () => clearTimeout(timeout);
+              const timeout = setTimeout(() => {
+                scale.set(1);
+              }, 150);
+
+              return () => clearTimeout(timeout);
+            }
           }
+        } else {
+          cursorX.set(currentPos.x);
+          cursorY.set(currentPos.y);
         }
       }
     };

@@ -23,6 +23,11 @@ export function App() {
   const [isAdminRoute, setIsAdminRoute] = useState(() => {
     return typeof window !== 'undefined' && window.location.pathname.toLowerCase().startsWith('/admin');
   });
+  const [isLandingRoute, setIsLandingRoute] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    const p = window.location.pathname.toLowerCase();
+    return p === '/' || p === '';
+  });
 
   // Automatic visitor and telemetry tracking
   useVisitorTracker();
@@ -30,11 +35,14 @@ export function App() {
   useEffect(() => {
     const checkRoute = () => {
       const path = window.location.pathname.toLowerCase();
+      const isLanding = path === '/' || path === '';
+      setIsLandingRoute(isLanding);
+
       if (path.startsWith('/admin')) {
         setIsAdminRoute(true);
       } else {
         setIsAdminRoute(false);
-        if (path === '/' || path === '') {
+        if (isLanding) {
           // Landing/main big logo page at first
           window.scrollTo({ top: 0, behavior: 'instant' });
         } else if (path === '/product') {
@@ -58,8 +66,10 @@ export function App() {
 
   return (
     <ThemeProvider>
-      {/* Native Meridius Software-Rendered Interactive Cursor (Intro flight active on landing, skipped on /admin) */}
-      <SoftwareCursor skipIntro={isAdminRoute} />
+      {/* Native Meridius Software-Rendered Interactive Cursor:
+          Entry flight motion only plays for root landing page ('https://meridiusai.vercel.app/').
+          For all other endpoints (/admin, /product, /comparison, /sync, /mcp), entry motion is skipped. */}
+      <SoftwareCursor skipIntro={!isLandingRoute} />
 
       {isAdminRoute ? (
         <Suspense fallback={
