@@ -7,10 +7,31 @@ interface WaitlistModalProps {
   onClose: () => void;
 }
 
+const DISPOSABLE_EMAIL_DOMAINS = new Set([
+  'mailinator.com',
+  'guerrillamail.com',
+  'tempmail.com',
+  'throwawaymail.com',
+  '10minutemail.com',
+  'yopmail.com',
+  'sharklasers.com',
+  'getairmail.com',
+  'dispostable.com',
+  'trashmail.com',
+]);
+
+function isDisposableEmail(email: string): boolean {
+  const parts = email.toLowerCase().split('@');
+  if (parts.length !== 2) return false;
+  return DISPOSABLE_EMAIL_DOMAINS.has(parts[1].trim());
+}
+
 export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
+  const [honeypot, setHoneypot] = useState(''); // Anti-bot trap field
+  const [lastSubmitTime, setLastSubmitTime] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -30,13 +51,34 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || isSubmitting) return;
+
+    // 1. Anti-bot honeypot defense (if bot filled the hidden field, silently fake success)
+    if (honeypot.trim().length > 0) {
+      setIsSubmitted(true);
+      return;
+    }
+
+    // 2. Submission cooldown throttle (5 seconds)
+    const now = Date.now();
+    if (now - lastSubmitTime < 5000) {
+      setErrorMsg('Please wait a few seconds before submitting again.');
+      return;
+    }
+    setLastSubmitTime(now);
+
+    // 3. Block disposable spam email domains
+    if (isDisposableEmail(email)) {
+      setErrorMsg('Please use a valid company or personal email address.');
+      return;
+    }
+
     setErrorMsg('');
     setIsSubmitting(true);
 
     const result = await joinWaitlist({
-      email,
-      name: name || undefined,
-      company: company || undefined
+      email: email.trim(),
+      name: name.trim() || undefined,
+      company: company.trim() || undefined
     });
 
     setIsSubmitting(false);
@@ -74,6 +116,20 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-3.5">
+              {/* Invisible Honeypot Field for Spam Bot Protection */}
+              <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, overflow: 'hidden' }}>
+                <label htmlFor="b_company_verification">Leave this field blank</label>
+                <input
+                  type="text"
+                  id="b_company_verification"
+                  name="b_company_verification"
+                  tabIndex={-1}
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  autoComplete="off"
+                />
+              </div>
+
               <div>
                 <label className="block text-xs font-mono text-charcoal-muted dark:text-cream-dim mb-1.5">
                   Work Email <span className="text-emerald-500">*</span>
@@ -81,6 +137,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
                 <input
                   type="email"
                   required
+                  maxLength={254}
                   placeholder="you@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -96,6 +153,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
                   </label>
                   <input
                     type="text"
+                    maxLength={100}
                     placeholder="Jane Doe"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -108,6 +166,7 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose })
                   </label>
                   <input
                     type="text"
+                    maxLength={100}
                     placeholder="Acme · Founder"
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
@@ -7,10 +7,16 @@ import { ProductSection } from './components/ProductSection';
 import { ComparisonSection } from './components/ComparisonSection';
 import { SyncSection } from './components/SyncSection';
 import { Footer } from './components/Footer';
-import { WaitlistModal } from './components/WaitlistModal';
-import { AdminLayout } from './components/admin/AdminLayout';
 import { useVisitorTracker } from './hooks/useVisitorTracker';
 import { SoftwareCursor } from './components/SoftwareCursor';
+
+// Code-split admin and modal components to keep landing page bundle lightweight and secure
+const AdminLayout = lazy(() =>
+  import('./components/admin/AdminLayout').then((m) => ({ default: m.AdminLayout }))
+);
+const WaitlistModal = lazy(() =>
+  import('./components/WaitlistModal').then((m) => ({ default: m.WaitlistModal }))
+);
 
 export function App() {
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
@@ -56,7 +62,13 @@ export function App() {
       <SoftwareCursor skipIntro={isAdminRoute} />
 
       {isAdminRoute ? (
-        <AdminLayout />
+        <Suspense fallback={
+          <div className="min-h-screen bg-cream dark:bg-void flex items-center justify-center">
+            <div className="w-6 h-6 rounded-full border-2 border-charcoal/20 dark:border-cream/20 border-t-charcoal dark:border-t-cream animate-spin" />
+          </div>
+        }>
+          <AdminLayout />
+        </Suspense>
       ) : (
         <div className="min-h-screen bg-cream dark:bg-void text-charcoal dark:text-cream selection:bg-charcoal/15 dark:selection:bg-cream/15 flex flex-col transition-colors duration-200">
           {/* Navigation */}
@@ -75,10 +87,14 @@ export function App() {
           <Footer />
 
           {/* Waitlist Modal */}
-          <WaitlistModal 
-            isOpen={isWaitlistOpen} 
-            onClose={() => setIsWaitlistOpen(false)} 
-          />
+          {isWaitlistOpen && (
+            <Suspense fallback={null}>
+              <WaitlistModal 
+                isOpen={isWaitlistOpen} 
+                onClose={() => setIsWaitlistOpen(false)} 
+              />
+            </Suspense>
+          )}
         </div>
       )}
     </ThemeProvider>

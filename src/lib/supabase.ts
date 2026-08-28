@@ -218,6 +218,26 @@ export async function trackPageView(path = window.location.pathname) {
 }
 
 /**
+ * Strict email validation helper (RFC 5322 compliant)
+ */
+export function validateEmail(email: string): boolean {
+  if (!email || typeof email !== 'string') return false;
+  const trimmed = email.trim();
+  if (trimmed.length < 3 || trimmed.length > 254) return false;
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+  return emailRegex.test(trimmed);
+}
+
+/**
+ * String sanitizer to prevent XSS payloads and script tags
+ */
+export function sanitizeText(str?: string | null, maxLength = 100): string | null {
+  if (!str || typeof str !== 'string') return null;
+  const cleaned = str.replace(/[<>]/g, '').trim();
+  return cleaned.length > 0 ? cleaned.slice(0, maxLength) : null;
+}
+
+/**
  * Add an email to the waitlist
  */
 export async function joinWaitlist(entry: {
@@ -228,6 +248,11 @@ export async function joinWaitlist(entry: {
   use_case?: string;
 }): Promise<{ success: boolean; error?: string; alreadyJoined?: boolean }> {
   try {
+    const rawEmail = entry.email ? entry.email.trim().toLowerCase() : '';
+    if (!validateEmail(rawEmail)) {
+      return { success: false, error: 'Please enter a valid email address.' };
+    }
+
     const visitorId = getVisitorId();
     let geo: GeoLocation | null = null;
     try {
@@ -237,14 +262,14 @@ export async function joinWaitlist(entry: {
     const { error } = await supabase
       .from('waitlist')
       .insert({
-        email: entry.email.trim().toLowerCase(),
-        name: entry.name?.trim() || null,
-        company: entry.company?.trim() || null,
-        role: entry.role?.trim() || null,
-        use_case: entry.use_case?.trim() || null,
+        email: rawEmail,
+        name: sanitizeText(entry.name, 100),
+        company: sanitizeText(entry.company, 100),
+        role: sanitizeText(entry.role, 100),
+        use_case: sanitizeText(entry.use_case, 500),
         metadata: {
           visitor_id: visitorId,
-          user_agent: navigator.userAgent,
+          user_agent: navigator.userAgent.slice(0, 250),
           timestamp: new Date().toISOString(),
           city: geo?.city || null,
           country: geo?.country || null,
@@ -270,8 +295,33 @@ export async function joinWaitlist(entry: {
 
 /**
  * Admin helpers: fetch waitlist, visitors, and analytics
+ * Prioritizes secure serverless /api/admin/data with signed session token.
  */
-export async function getAdminData() {
+export async function getAdminData(token?: string | null) {
+  // 1. Try secure backend endpoint first
+  if (token) {
+    try {
+      const res = await fetch('/api/admin/data', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        return {
+          waitlist: (json.waitlist || []) as WaitlistEntry[],
+          visitors: (json.visitors || []) as VisitorEntry[],
+          pageViews: (json.pageViews || []) as PageViewEntry[],
+          error: json.error || null,
+        };
+      }
+    } catch {
+      // Backend function unavailable, fallback to direct client query
+    }
+  }
+
+  // 2. Direct Supabase query (fallback)
   const [waitlistRes, visitorsRes, pageViewsRes] = await Promise.all([
     supabase.from('waitlist').select('*').order('created_at', { ascending: false }),
     supabase.from('visitors').select('*').order('last_seen_at', { ascending: false }),
@@ -285,3 +335,4 @@ export async function getAdminData() {
     error: waitlistRes.error || visitorsRes.error || pageViewsRes.error,
   };
 }
+

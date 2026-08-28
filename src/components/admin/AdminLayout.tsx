@@ -3,43 +3,91 @@ import { Lock, ArrowRight, Eye, EyeOff, KeyRound, AlertCircle, Sun, Moon } from 
 import { useTheme } from '../../context/ThemeContext';
 import { AdminDashboard } from './AdminDashboard';
 
-const ADMIN_PASSWORD = (import.meta as any).env?.VITE_ADMIN_PASSWORD || 'meridius2026!';
+const TOKEN_KEY = 'meridius_admin_token';
 const SESSION_KEY = 'meridius_admin_session_auth';
 
 export const AdminLayout: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [token, setToken] = useState<string | null>(null);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
 
   const { resolvedTheme, toggleTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
 
   useEffect(() => {
-    const saved = sessionStorage.getItem(SESSION_KEY);
-    if (saved === 'valid') {
+    const savedToken = sessionStorage.getItem(TOKEN_KEY);
+    const savedSession = sessionStorage.getItem(SESSION_KEY);
+    if (savedToken || savedSession === 'valid') {
+      setToken(savedToken);
       setIsAuthenticated(true);
     }
     setChecking(false);
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
+    if (!password || loading) return;
+    setError(null);
+    setLoading(true);
+
+    try {
+      // 1. Try serverless backend verification first
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.token) {
+          sessionStorage.setItem(TOKEN_KEY, data.token);
+          sessionStorage.setItem(SESSION_KEY, 'valid');
+          setToken(data.token);
+          setIsAuthenticated(true);
+          setLoading(false);
+          return;
+        }
+      }
+
+      if (res.status === 429) {
+        setError('Too many attempts. Please wait 1 minute.');
+        setLoading(false);
+        return;
+      }
+
+      // If backend returns 401
+      if (res.status === 401) {
+        setError('Incorrect password');
+        setPassword('');
+        setLoading(false);
+        return;
+      }
+    } catch {
+      // Network/Vite dev fallback
+    }
+
+    // 2. Dev mode fallback if /api/admin/auth is not running locally
+    const fallbackPassword = (import.meta as any).env?.VITE_ADMIN_PASSWORD || 'meridius2026!';
+    if (password === fallbackPassword) {
       sessionStorage.setItem(SESSION_KEY, 'valid');
       setIsAuthenticated(true);
-      setError(false);
     } else {
-      setError(true);
+      setError('Incorrect password');
       setPassword('');
-      setTimeout(() => setError(false), 3000);
     }
+    setLoading(false);
   };
 
   const handleLogout = () => {
+    sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(SESSION_KEY);
     setIsAuthenticated(false);
+    setToken(null);
     setPassword('');
   };
 
@@ -52,7 +100,7 @@ export const AdminLayout: React.FC = () => {
   }
 
   if (isAuthenticated) {
-    return <AdminDashboard onLogout={handleLogout} />;
+    return <AdminDashboard onLogout={handleLogout} token={token} />;
   }
 
   return (
@@ -123,19 +171,26 @@ export const AdminLayout: React.FC = () => {
 
             {error && (
               <div className="flex items-center gap-1.5 text-xs text-rose-500 font-mono mt-2 animate-in fade-in">
-                <AlertCircle className="w-3.5 h-3.5" />
-                <span>Incorrect password</span>
+                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{error}</span>
               </div>
             )}
           </div>
 
           <button
             type="submit"
-            className="cursor-btn-primary w-full py-3 rounded-2xl text-xs font-mono font-semibold flex items-center justify-center gap-2 shadow-sm transition-all mt-2"
+            disabled={loading}
+            className="cursor-btn-primary w-full py-3 rounded-2xl text-xs font-mono font-semibold flex items-center justify-center gap-2 shadow-sm transition-all mt-2 disabled:opacity-60"
           >
-            <Lock className="w-3.5 h-3.5" />
-            <span>Sign In</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            {loading ? (
+              <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+            ) : (
+              <>
+                <Lock className="w-3.5 h-3.5" />
+                <span>Sign In</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </>
+            )}
           </button>
         </form>
 

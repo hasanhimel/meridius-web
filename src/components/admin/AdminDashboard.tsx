@@ -25,11 +25,23 @@ import { useTheme } from '../../context/ThemeContext';
 import { getAdminData, WaitlistEntry, VisitorEntry, PageViewEntry } from '../../lib/supabase';
 import { getCountryFlag } from '../../lib/geo';
 
-interface AdminDashboardProps {
-  onLogout: () => void;
+// CWE-1236 Formula Injection Defense
+function sanitizeCsvCell(value: any): string {
+  if (value === null || value === undefined) return '""';
+  let str = String(value).trim();
+  if (/^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`;
+  }
+  str = str.replace(/"/g, '""');
+  return `"${str}"`;
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
+interface AdminDashboardProps {
+  onLogout: () => void;
+  token?: string | null;
+}
+
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token }) => {
   const { resolvedTheme, toggleTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
 
@@ -50,7 +62,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
   const fetchData = async () => {
     setRefreshing(true);
-    const data = await getAdminData();
+    const data = await getAdminData(token);
     setWaitlist(data.waitlist);
     setVisitors(data.visitors);
     setPageViews(data.pageViews);
@@ -62,7 +74,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
     fetchData();
     const interval = setInterval(fetchData, 30000); // Auto-poll every 30s
     return () => clearInterval(interval);
-  }, []);
+  }, [token]);
 
   // Filtered waitlist
   const filteredWaitlist = useMemo(() => {
@@ -185,13 +197,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   const handleExportWaitlistCSV = () => {
     const headers = ['Email', 'Name', 'Company', 'Role', 'City', 'Country', 'Signed Up Date'];
     const rows = waitlist.map((w) => [
-      `"${w.email}"`,
-      `"${w.name || ''}"`,
-      `"${w.company || ''}"`,
-      `"${w.role || ''}"`,
-      `"${w.metadata?.city || ''}"`,
-      `"${w.metadata?.country || ''}"`,
-      `"${w.created_at ? new Date(w.created_at).toLocaleString() : ''}"`
+      sanitizeCsvCell(w.email),
+      sanitizeCsvCell(w.name || ''),
+      sanitizeCsvCell(w.company || ''),
+      sanitizeCsvCell(w.role || ''),
+      sanitizeCsvCell(w.metadata?.city || ''),
+      sanitizeCsvCell(w.metadata?.country || ''),
+      sanitizeCsvCell(w.created_at ? new Date(w.created_at).toLocaleString() : '')
     ]);
 
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
@@ -222,20 +234,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       'Referrer'
     ];
     const rows = visitors.map((v) => [
-      `"${v.visitor_id}"`,
-      `"${v.total_visits || 1}"`,
-      `"${v.city || ''}"`,
-      `"${v.country || ''}"`,
-      `"${v.country_code || ''}"`,
-      `"${v.region || ''}"`,
-      `"${v.device_type || ''}"`,
-      `"${v.os || ''}"`,
-      `"${v.browser || ''}"`,
-      `"${v.screen_res || ''}"`,
-      `"${v.first_seen_at ? new Date(v.first_seen_at).toLocaleString() : ''}"`,
-      `"${v.last_seen_at ? new Date(v.last_seen_at).toLocaleString() : ''}"`,
-      `"${v.last_path || '/'}"`,
-      `"${v.referrer || 'Direct'}"`
+      sanitizeCsvCell(v.visitor_id),
+      sanitizeCsvCell(v.total_visits || 1),
+      sanitizeCsvCell(v.city || ''),
+      sanitizeCsvCell(v.country || ''),
+      sanitizeCsvCell(v.country_code || ''),
+      sanitizeCsvCell(v.region || ''),
+      sanitizeCsvCell(v.device_type || ''),
+      sanitizeCsvCell(v.os || ''),
+      sanitizeCsvCell(v.browser || ''),
+      sanitizeCsvCell(v.screen_res || ''),
+      sanitizeCsvCell(v.first_seen_at ? new Date(v.first_seen_at).toLocaleString() : ''),
+      sanitizeCsvCell(v.last_seen_at ? new Date(v.last_seen_at).toLocaleString() : ''),
+      sanitizeCsvCell(v.last_path || '/'),
+      sanitizeCsvCell(v.referrer || 'Direct')
     ]);
 
     const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
