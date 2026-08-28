@@ -48,9 +48,22 @@ const SOURCE_HEIGHT = 452.0;
 export const POINTER_WIDTH = 17.09527;
 export const POINTER_HEIGHT = 20.6;
 
-// Traced tip sits ~6.931% across width and ~0.31% across height
+// Traced tip (Apex) sits ~6.931% across width and ~0.31% across height
 export const TIP_OFFSET_X = 0.06931 * POINTER_WIDTH; // 1.18487px
 export const TIP_OFFSET_Y = 0.0031 * POINTER_HEIGHT; // 0.06386px
+
+// Geometric Spine Alignment:
+// Apex tip is at (65.5, 0.9), Crotch joint is at (200.7, 308.1).
+// Vector from Crotch -> Apex in source space: dx = -135.2, dy = -307.2
+// Spine angle = atan2(-307.2, -135.2) = -113.75936°
+// Adding SPINE_OFFSET_DEG to curve tangent aligns BOTH Apex and Crotch on the curve line!
+const SPINE_OFFSET_DEG = 113.75936;
+
+// Fixed orientation angles for scrolling:
+// Upward in screen space (-Y, -90°): -90° + 113.75936° = 23.75936°
+// Downward in screen space (+Y, +90°): 90° + 113.75936° = 203.75936°
+const SCROLL_UP_ANGLE = -90 + SPINE_OFFSET_DEG;
+const SCROLL_DOWN_ANGLE = 90 + SPINE_OFFSET_DEG;
 
 // Continuous Entry Motion Path from cursor-entry-motion.json / cursor-entry-motion.svg
 const ENTRY_MOTION_PATH_D =
@@ -66,13 +79,6 @@ const ENTRY_MOTION_PATH_D =
   'C 878 510, 920 625, 1025 700 ' +
   'C 1110 762, 1215 786, 1320 785 ' +
   'C 1370 785, 1405 778, 1445 770';
-
-// Fixed orientation angles for scrolling:
-// Base unrotated glyph points at -135° (top-left).
-// Upward in screen space (-Y, -90°): -90° + 135° = 45°
-// Downward in screen space (+Y, +90°): 90° + 135° = 225°
-const SCROLL_UP_ANGLE = 45;
-const SCROLL_DOWN_ANGLE = 225;
 
 // Native Meridius Software Cursor Glyph component matching SoftwareCursorGlyphRenderer-new.swift
 export const MeridiusCursorGlyph: React.FC = () => {
@@ -136,6 +142,9 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
   },
 }) => {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [isAdminPath, setIsAdminPath] = useState(() => {
+    return typeof window !== 'undefined' && window.location.pathname.toLowerCase().startsWith('/admin');
+  });
 
   // Motion springs matching SmoothCursor physics for user interaction
   const cursorX = useSpring(0, springConfig);
@@ -163,6 +172,24 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastScrollY = useRef(0);
 
+  // Check admin route & touch capabilities
+  useEffect(() => {
+    const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    setIsTouchDevice(isTouch);
+
+    const checkRoute = () => {
+      const isAdmin = window.location.pathname.toLowerCase().startsWith('/admin');
+      setIsAdminPath(isAdmin);
+      if (isAdmin) {
+        document.body.style.cursor = 'auto';
+      }
+    };
+
+    checkRoute();
+    window.addEventListener('popstate', checkRoute);
+    return () => window.removeEventListener('popstate', checkRoute);
+  }, []);
+
   // Helper to rotate to any target angle via the shortest rotation arc
   const rotateToAngle = useCallback(
     (targetAngle: number) => {
@@ -175,12 +202,6 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
     },
     [rotation]
   );
-
-  // Check touch capabilities
-  useEffect(() => {
-    const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-    setIsTouchDevice(isTouch);
-  }, []);
 
   // Helper to locate hero logo middle dot
   const getHeroLogoTargetPos = useCallback((): Position => {
@@ -198,9 +219,9 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
     };
   }, []);
 
-  // 1. INTRO FLIGHT ANIMATION ALONG EXACT SVG PATH (Zero-Lag Direct Mapping)
+  // 1. INTRO FLIGHT ANIMATION ALONG EXACT SVG PATH (Collinear Apex & Crotch Alignment)
   useEffect(() => {
-    if (isTouchDevice) return;
+    if (isTouchDevice || isAdminPath) return;
 
     const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     pathElement.setAttribute('d', ENTRY_MOTION_PATH_D);
@@ -249,14 +270,15 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
       cursorX.jump(posX);
       cursorY.jump(posY);
 
-      // Tangent velocity heading
+      // Tangent velocity heading along the entry motion curve
       const tangentDx = (ptNext.x - pt.x) * scaleX;
       const tangentDy = (ptNext.y - pt.y) * scaleY;
       const speed = Math.sqrt(tangentDx * tangentDx + tangentDy * tangentDy);
 
-      if (speed > 0.02) {
-        // Base orientation offset for the up-left glyph
-        const currentAngle = Math.atan2(tangentDy, tangentDx) * (180 / Math.PI) + 135;
+      if (speed > 0.005) {
+        // Collinear Alignment: Both the Apex Tip and the Crotch Joint lie on the motion curve line
+        const tangentAngle = Math.atan2(tangentDy, tangentDx) * (180 / Math.PI);
+        const currentAngle = tangentAngle + SPINE_OFFSET_DEG;
         rotateToAngle(currentAngle);
         scale.set(0.96);
       }
@@ -285,11 +307,14 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
     return () => {
       cancelAnimationFrame(animId);
     };
-  }, [isTouchDevice, cursorX, cursorY, scale, getHeroLogoTargetPos, onIntroComplete, rotateToAngle]);
+  }, [isTouchDevice, isAdminPath, cursorX, cursorY, scale, getHeroLogoTargetPos, onIntroComplete, rotateToAngle]);
 
   // 2. INTERACTIVE VISITOR CURSOR TRACKING WITH UI ELEMENT & SCROLL AWARENESS
   useEffect(() => {
-    if (isTouchDevice) return;
+    if (isTouchDevice || isAdminPath) {
+      document.body.style.cursor = 'auto';
+      return;
+    }
 
     lastScrollY.current = window.scrollY;
 
@@ -341,7 +366,7 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
             const dist = Math.sqrt(dx * dx + dy * dy);
 
             if (dist > 2) {
-              const elementAngle = Math.atan2(dy, dx) * (180 / Math.PI) + 135;
+              const elementAngle = Math.atan2(dy, dx) * (180 / Math.PI) + SPINE_OFFSET_DEG;
               rotateToAngle(elementAngle);
             }
 
@@ -353,7 +378,8 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
           } else if (speed > 0.1) {
             // Normal flight velocity orientation
             const currentAngle =
-              Math.atan2(velocity.current.y, velocity.current.x) * (180 / Math.PI) + 135;
+              Math.atan2(velocity.current.y, velocity.current.x) * (180 / Math.PI) +
+              SPINE_OFFSET_DEG;
             rotateToAngle(currentAngle);
             scale.set(0.95);
 
@@ -375,11 +401,11 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
 
       if (e.deltaY > 0) {
-        // Scrolling downward -> apex points downward (225°)
+        // Scrolling downward -> apex points downward
         rotateToAngle(SCROLL_DOWN_ANGLE);
         scale.set(1.08);
       } else {
-        // Scrolling upward -> apex points upward (45°)
+        // Scrolling upward -> apex points upward
         rotateToAngle(SCROLL_UP_ANGLE);
         scale.set(1.08);
       }
@@ -401,11 +427,11 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
 
       if (delta > 0) {
-        // Scrolling downward -> apex points downward (225°)
+        // Scrolling downward -> apex points downward
         rotateToAngle(SCROLL_DOWN_ANGLE);
         scale.set(1.08);
       } else {
-        // Scrolling upward -> apex points upward (45°)
+        // Scrolling upward -> apex points upward
         rotateToAngle(SCROLL_UP_ANGLE);
         scale.set(1.08);
       }
@@ -450,9 +476,9 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
       if (rafId) cancelAnimationFrame(rafId);
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
     };
-  }, [isTouchDevice, cursorX, cursorY, scale, rotateToAngle]);
+  }, [isTouchDevice, isAdminPath, cursorX, cursorY, scale, rotateToAngle]);
 
-  if (isTouchDevice) {
+  if (isTouchDevice || isAdminPath) {
     return null;
   }
 

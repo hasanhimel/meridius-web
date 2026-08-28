@@ -14,7 +14,9 @@ import { SoftwareCursor } from './components/SoftwareCursor';
 
 export function App() {
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
-  const [isAdminRoute, setIsAdminRoute] = useState(false);
+  const [isAdminRoute, setIsAdminRoute] = useState(() => {
+    return typeof window !== 'undefined' && window.location.pathname.toLowerCase().startsWith('/admin');
+  });
 
   // Automatic visitor and telemetry tracking
   useVisitorTracker();
@@ -24,6 +26,7 @@ export function App() {
       const path = window.location.pathname.toLowerCase();
       if (path.startsWith('/admin')) {
         setIsAdminRoute(true);
+        document.body.style.cursor = 'auto';
       } else {
         setIsAdminRoute(false);
         if (path === '/' || path === '') {
@@ -50,8 +53,8 @@ export function App() {
 
   return (
     <ThemeProvider>
-      {/* Native Meridius Software-Rendered Interactive Cursor */}
-      <SoftwareCursor />
+      {/* Native Meridius Software-Rendered Interactive Cursor (disabled on /admin) */}
+      {!isAdminRoute && <SoftwareCursor />}
 
       {isAdminRoute ? (
         <AdminLayout />
