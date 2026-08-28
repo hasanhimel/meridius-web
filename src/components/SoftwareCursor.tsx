@@ -53,10 +53,10 @@ export const TIP_OFFSET_X = 0.06931 * POINTER_WIDTH; // 1.005px
 export const TIP_OFFSET_Y = 0.0031 * POINTER_HEIGHT; // 0.054px
 
 // Geometric Spine Alignment:
-// Apex tip is at (65.5, 0.9), Crotch joint is at (200.7, 308.1).
+// Apex tip is at (65.5, 0.9), Crotch notch joint is at (200.7, 308.1).
 // Vector from Crotch -> Apex in source space: dx = -135.2, dy = -307.2
 // Spine angle = atan2(-307.2, -135.2) = -113.75936°
-// Adding SPINE_OFFSET_DEG to curve tangent aligns BOTH Apex and Crotch on the curve line!
+// Adding SPINE_OFFSET_DEG to chord tangent aligns BOTH Apex and Crotch Notch on the curve line!
 const SPINE_OFFSET_DEG = 113.75936;
 
 // Fixed orientation angles for scrolling:
@@ -65,20 +65,67 @@ const SPINE_OFFSET_DEG = 113.75936;
 const SCROLL_UP_ANGLE = -90 + SPINE_OFFSET_DEG;
 const SCROLL_DOWN_ANGLE = 90 + SPINE_OFFSET_DEG;
 
-// Continuous Entry Motion Path from cursor-entry-motion.json / cursor-entry-motion.svg
-const ENTRY_MOTION_PATH_D =
+// 5 DISTINCT, CONTINUOUS SMOOTH CURVED ENTRY FLIGHT PATHS
+// All start at (860, 900) and converge onto the logo center dot (1445, 770)
+export const ENTRY_MOTION_PATHS: string[] = [
+  // 1. "The Grand Loop" - Classic signature loop with sweeping lower and upper orbitals
   'M 860 900 ' +
-  'C 830 1010, 720 1165, 555 1218 ' +
-  'C 390 1270, 215 1198, 190 1035 ' +
-  'C 160 850, 285 735, 485 702 ' +
-  'C 650 675, 805 660, 970 622 ' +
-  'C 1160 578, 1360 500, 1480 390 ' +
-  'C 1585 294, 1595 176, 1510 105 ' +
-  'C 1415 25, 1245 45, 1125 95 ' +
-  'C 980 155, 900 265, 890 380 ' +
-  'C 878 510, 920 625, 1025 700 ' +
-  'C 1110 762, 1215 786, 1320 785 ' +
-  'C 1370 785, 1405 778, 1445 770';
+    'C 830 1010, 720 1165, 555 1218 ' +
+    'C 390 1270, 215 1198, 190 1035 ' +
+    'C 160 850, 285 735, 485 702 ' +
+    'C 650 675, 805 660, 970 622 ' +
+    'C 1160 578, 1360 500, 1480 390 ' +
+    'C 1585 294, 1595 176, 1510 105 ' +
+    'C 1415 25, 1245 45, 1125 95 ' +
+    'C 980 155, 900 265, 890 380 ' +
+    'C 878 510, 920 625, 1025 700 ' +
+    'C 1110 762, 1215 786, 1320 785 ' +
+    'C 1370 785, 1405 778, 1445 770',
+
+  // 2. "The Infinity Weave" - Smooth figure-8 sweeping across the upper screen and descending into logo
+  'M 860 900 ' +
+    'C 720 950, 420 980, 280 840 ' +
+    'C 160 720, 180 500, 320 380 ' +
+    'C 480 240, 750 310, 950 480 ' +
+    'C 1120 630, 1280 720, 1460 620 ' +
+    'C 1620 530, 1680 340, 1580 210 ' +
+    'C 1480 80, 1260 110, 1150 240 ' +
+    'C 1040 370, 1060 560, 1180 670 ' +
+    'C 1270 750, 1360 775, 1445 770',
+
+  // 3. "The Serpentine Wave" - Fluid undulating wave dipping into the deep left and cresting into logo
+  'M 860 900 ' +
+    'C 980 920, 1120 1040, 1060 1200 ' +
+    'C 990 1340, 780 1380, 580 1310 ' +
+    'C 340 1220, 240 980, 310 760 ' +
+    'C 390 520, 610 380, 850 310 ' +
+    'C 1100 240, 1380 260, 1560 380 ' +
+    'C 1720 490, 1750 710, 1640 850 ' +
+    'C 1530 970, 1350 940, 1280 840 ' +
+    'C 1220 750, 1320 690, 1445 770',
+
+  // 4. "The Spiral Vortex" - Expanding spiral arching over top headline and swooping in from above
+  'M 860 900 ' +
+    'C 680 860, 520 740, 480 560 ' +
+    'C 440 360, 580 180, 780 120 ' +
+    'C 1020 50, 1300 90, 1490 220 ' +
+    'C 1680 350, 1740 580, 1650 780 ' +
+    'C 1560 960, 1320 1080, 1100 1020 ' +
+    'C 920 970, 810 810, 840 650 ' +
+    'C 880 470, 1080 370, 1260 420 ' +
+    'C 1420 470, 1480 620, 1445 770',
+
+  // 5. "The Cosmic Slingshot" - Deep bottom curve accelerating diagonally and carving back down onto logo
+  'M 860 900 ' +
+    'C 760 1050, 600 1220, 420 1250 ' +
+    'C 230 1280, 140 1120, 180 940 ' +
+    'C 240 680, 520 480, 800 360 ' +
+    'C 1100 230, 1420 160, 1620 280 ' +
+    'C 1780 380, 1810 580, 1710 740 ' +
+    'C 1600 900, 1380 960, 1240 880 ' +
+    'C 1120 810, 1130 660, 1240 590 ' +
+    'C 1340 530, 1440 620, 1445 770',
+];
 
 // Native Meridius Software Cursor Glyph component matching SoftwareCursorGlyphRenderer-new.swift
 export const MeridiusCursorGlyph: React.FC = () => {
@@ -145,6 +192,12 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const isAdminPath = typeof window !== 'undefined' && window.location.pathname.toLowerCase().startsWith('/admin');
   const shouldSkipIntro = skipIntro || isAdminPath;
+
+  // Pick a randomized motion flight path on each page load/refresh
+  const [activePath] = useState<string>(() => {
+    const randomIndex = Math.floor(Math.random() * ENTRY_MOTION_PATHS.length);
+    return ENTRY_MOTION_PATHS[randomIndex];
+  });
 
   // Motion springs matching SmoothCursor physics for user interaction
   const cursorX = useSpring(0, springConfig);
@@ -215,16 +268,16 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
     };
   }, []);
 
-  // 1. INTRO FLIGHT ANIMATION ALONG EXACT SVG PATH (Collinear Apex & Crotch Alignment)
-  // Only runs on main visitor pages (skipped on /admin)
+  // 1. RANDOMIZED INTRO FLIGHT ANIMATION ALONG SMOOTH CURVE PATH
+  // Collinear Alignment: Both Tip (Apex) and Concave-Notch (Crotch) are strictly locked on the curve line!
   useEffect(() => {
     if (isTouchDevice || shouldSkipIntro) return;
 
     const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    pathElement.setAttribute('d', ENTRY_MOTION_PATH_D);
+    pathElement.setAttribute('d', activePath);
     const totalLength = pathElement.getTotalLength();
 
-    const ENTRY_DURATION = 4200; // 4.2 seconds smooth flight matching cursor-entry-motion-demo.html
+    const ENTRY_DURATION = 4200; // 4.2 seconds smooth flight
     let animId: number;
     let startTime: number | null = null;
 
@@ -240,6 +293,9 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
     cursorY.jump(initialPos.y * initScaleY);
     lastMousePos.current = { x: initialPos.x * initScaleX, y: initialPos.y * initScaleY };
 
+    // Distance between Apex and Notch in source coordinates: sqrt(135.2^2 + 307.2^2) = 335.63 units
+    const NOTCH_CHORD_DISTANCE_SOURCE = 335.63 * (POINTER_WIDTH / SOURCE_WIDTH) * (2047 / window.innerWidth);
+
     const animateEntry = (now: number) => {
       if (!startTime) startTime = now;
       const elapsed = now - startTime;
@@ -247,8 +303,13 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
       const easedProgress = easeInOut(rawProgress);
 
       const currentDistance = easedProgress * totalLength;
-      const pt = pathElement.getPointAtLength(currentDistance);
-      const ptNext = pathElement.getPointAtLength(Math.min(totalLength, currentDistance + 2));
+      
+      // Leading point on curve (Apex Tip)
+      const ptApex = pathElement.getPointAtLength(currentDistance);
+
+      // Trailing point on curve (Concave-Notch)
+      const trailingDistance = Math.max(0, currentDistance - NOTCH_CHORD_DISTANCE_SOURCE);
+      const ptNotch = pathElement.getPointAtLength(trailingDistance);
 
       const scaleX = window.innerWidth / 2047;
       const scaleY = window.innerHeight / 1535;
@@ -259,23 +320,35 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
       const deltaX = targetLogo.x - endRawX;
       const deltaY = targetLogo.y - endRawY;
 
-      // Screen mapped coordinates converging smoothly on the logo middle dot
-      const posX = pt.x * scaleX + easedProgress * deltaX;
-      const posY = pt.y * scaleY + easedProgress * deltaY;
+      // Screen mapped coordinates for Apex (Tip) - strictly on the curve!
+      const apexX = ptApex.x * scaleX + easedProgress * deltaX;
+      const apexY = ptApex.y * scaleY + easedProgress * deltaY;
 
-      // Direct zero-lag position update during flight
-      cursorX.jump(posX);
-      cursorY.jump(posY);
+      // Screen mapped coordinates for Notch - strictly on the curve!
+      const notchX = ptNotch.x * scaleX + easedProgress * deltaX;
+      const notchY = ptNotch.y * scaleY + easedProgress * deltaY;
 
-      // Tangent velocity heading along the entry motion curve
-      const tangentDx = (ptNext.x - pt.x) * scaleX;
-      const tangentDy = (ptNext.y - pt.y) * scaleY;
-      const speed = Math.sqrt(tangentDx * tangentDx + tangentDy * tangentDy);
+      // Position cursor at Apex Tip on the motion line
+      cursorX.jump(apexX);
+      cursorY.jump(apexY);
 
-      if (speed > 0.005) {
-        // Collinear Alignment: Both the Apex Tip and the Crotch Joint lie on the motion curve line
-        const tangentAngle = Math.atan2(tangentDy, tangentDx) * (180 / Math.PI);
-        const currentAngle = tangentAngle + SPINE_OFFSET_DEG;
+      // Collinear Vector from Notch to Apex along the curve
+      let chordDx = apexX - notchX;
+      let chordDy = apexY - notchY;
+
+      // If at the very start, fallback to forward tangent
+      if (Math.abs(chordDx) < 0.001 && Math.abs(chordDy) < 0.001) {
+        const ptNext = pathElement.getPointAtLength(Math.min(totalLength, currentDistance + 2));
+        chordDx = (ptNext.x - ptApex.x) * scaleX;
+        chordDy = (ptNext.y - ptApex.y) * scaleY;
+      }
+
+      const speed = Math.sqrt(chordDx * chordDx + chordDy * chordDy);
+
+      if (speed > 0.001) {
+        // Collinear Alignment: Chord angle from Notch -> Apex ensures BOTH points lie on the motion line simultaneously!
+        const chordAngle = Math.atan2(chordDy, chordDx) * (180 / Math.PI);
+        const currentAngle = chordAngle + SPINE_OFFSET_DEG;
         rotateToAngle(currentAngle);
         scale.set(0.96);
       }
@@ -304,7 +377,7 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
     return () => {
       cancelAnimationFrame(animId);
     };
-  }, [isTouchDevice, shouldSkipIntro, cursorX, cursorY, scale, getHeroLogoTargetPos, onIntroComplete, rotateToAngle]);
+  }, [isTouchDevice, shouldSkipIntro, activePath, cursorX, cursorY, scale, getHeroLogoTargetPos, onIntroComplete, rotateToAngle]);
 
   // 2. INTERACTIVE VISITOR & ADMIN CURSOR TRACKING WITH UI ELEMENT & SCROLL AWARENESS
   useEffect(() => {
