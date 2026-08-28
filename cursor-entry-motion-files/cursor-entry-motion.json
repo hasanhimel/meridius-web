@@ -1,0 +1,49 @@
+{
+  "name": "cursor-entry-motion",
+  "version": "1.0",
+  "purpose": "Website-entry cursor animation path",
+  "coordinate_system": {
+    "origin": "top-left",
+    "units": "px",
+    "viewBox": [
+      0,
+      0,
+      2047,
+      1535
+    ]
+  },
+  "path": {
+    "format": "SVG path",
+    "direction": "start_to_end",
+    "d": "M 860 900 C 830 1010, 720 1165, 555 1218 C 390 1270, 215 1198, 190 1035 C 160 850, 285 735, 485 702 C 650 675, 805 660, 970 622 C 1160 578, 1360 500, 1480 390 C 1585 294, 1595 176, 1510 105 C 1415 25, 1245 45, 1125 95 C 980 155, 900 265, 890 380 C 878 510, 920 625, 1025 700 C 1110 762, 1215 786, 1320 785 C 1370 785, 1405 778, 1445 770"
+  },
+  "waypoints": [
+    {
+      "id": "start",
+      "x": 860,
+      "y": 900
+    },
+    {
+      "id": "click_logo",
+      "x": 1445,
+      "y": 770
+    }
+  ],
+  "semantic_description": [
+    "Begin at the start point.",
+    "Travel into a broad lower-left loop.",
+    "Return upward through the center.",
+    "Continue into a broad upper-right loop.",
+    "Return toward the center-right.",
+    "Finish at the click-logo endpoint."
+  ],
+  "timing": {
+    "duration_ms": null,
+    "easing": null,
+    "note": "Timing/easing were not present in the sketch and should be chosen by the website implementation."
+  },
+  "implementation_notes": {
+    "recommended": "Use the SVG path directly with SVGGeometryElement.getPointAtLength(), GSAP MotionPath, Framer Motion motion path, or equivalent.",
+    "preserve_geometry": true
+  }
+}

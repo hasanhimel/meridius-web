@@ -10,6 +10,7 @@ import { Footer } from './components/Footer';
 import { WaitlistModal } from './components/WaitlistModal';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { useVisitorTracker } from './hooks/useVisitorTracker';
+import { SoftwareCursor } from './components/SoftwareCursor';
 
 export function App() {
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
@@ -49,6 +50,9 @@ export function App() {
 
   return (
     <ThemeProvider>
+      {/* Native Meridius Software-Rendered Interactive Cursor */}
+      <SoftwareCursor />
+
       {isAdminRoute ? (
         <AdminLayout />
       ) : (

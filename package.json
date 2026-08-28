@@ -16,6 +16,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.4.7",
     "lucide-react": "^1.16.0",
+    "motion": "^13.1.1",
     "ogl": "^1.0.11",
     "postprocessing": "^6.39.4",
     "react": "^19.0.0",

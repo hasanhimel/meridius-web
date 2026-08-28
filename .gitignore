@@ -11,12 +11,17 @@ dist-ssr/
 # Vercel
 .vercel/
 
+# Media / Recordings
+*.mp4
+*.mov
+
 # Local raw icon assets
 icon/
 
-
 # OS metadata
 .DS_Store
+.DS_Store?
+._*
 Thumbs.db
 
 # Environment variables

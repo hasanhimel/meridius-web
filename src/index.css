@@ -207,3 +207,20 @@ h1, h2, h3, h4, h5, h6, .font-display {
   animation: marquee-slow 65s linear infinite;
 }
 
+/* ======================================================= */
+/* MERIDIUS SOFTWARE CURSOR STYLING                       */
+/* ======================================================= */
+@media (hover: hover) and (pointer: fine) {
+  body,
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  [role="button"],
+  .cursor-pointer,
+  .cursor-help {
+    cursor: none !important;
+  }
+}
+

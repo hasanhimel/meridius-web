@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 2047 1535"
+     width="2047" height="1535">
+  <title>Cursor Entry Motion Path</title>
+  <desc>
+    A continuous cursor-entry trajectory reconstructed from the supplied sketch.
+    The cursor begins at the marked start point, loops through the lower-left
+    portion, crosses the center, loops through the upper-right portion, and
+    finishes at the right-side click-logo endpoint.
+  </desc>
+
+  <!-- Semantic motion-path metadata for AI/code generation -->
+  <metadata id="motion-spec">{"name": "cursor-entry-motion", "type": "continuous-cursor-motion-path", "coordinate_system": {"origin": "top-left", "units": "px", "viewBox": "0 0 2047 1535"}, "start": {"x": 860, "y": 900, "label": "start"}, "end": {"x": 1445, "y": 770, "label": "click_logo"}, "direction": "start_to_end", "geometry": "cubic-bezier-svg-path", "source": "vector reconstruction of supplied hand-drawn sketch", "timing": "not specified; apply site-specific duration/easing", "interaction_intent": "animate cursor entering the website and then clicking the logo"}</metadata>
+
+  <path id="cursor-entry-motion"
+        d="M 860 900 C 830 1010, 720 1165, 555 1218 C 390 1270, 215 1198, 190 1035 C 160 850, 285 735, 485 702 C 650 675, 805 660, 970 622 C 1160 578, 1360 500, 1480 390 C 1585 294, 1595 176, 1510 105 C 1415 25, 1245 45, 1125 95 C 980 155, 900 265, 890 380 C 878 510, 920 625, 1025 700 C 1110 762, 1215 786, 1320 785 C 1370 785, 1405 778, 1445 770"
+        fill="none"
+        stroke="#111111"
+        stroke-width="8"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <circle id="start"
+          cx="860" cy="900" r="10"
+          fill="#111111"/>
+  <text x="790" y="870"
+        font-family="Inter, Arial, sans-serif"
+        font-size="42"
+        fill="#111111">start</text>
+
+  <marker id="arrow"
+          viewBox="0 0 20 20"
+          refX="16" refY="10"
+          markerWidth="14" markerHeight="14"
+          orient="auto-start-reverse">
+    <path d="M 0 0 L 20 10 L 0 20 z" fill="#111111"/>
+  </marker>
+
+  <!-- The final segment is visually represented with an arrowhead. -->
+  <path d="M 1320 785 C 1370 785, 1405 778, 1445 770"
+        fill="none"
+        stroke="#111111"
+        stroke-width="8"
+        stroke-linecap="round"
+        marker-end="url(#arrow)"/>
+
+  <text x="1490" y="785"
+        font-family="Inter, Arial, sans-serif"
+        font-size="42"
+        fill="#111111">click the logo</text>
+</svg>
