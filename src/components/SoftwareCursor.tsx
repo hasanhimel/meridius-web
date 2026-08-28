@@ -10,6 +10,7 @@ interface Position {
 
 export interface SoftwareCursorProps {
   onIntroComplete?: () => void;
+  skipIntro?: boolean;
   springConfig?: {
     damping: number;
     stiffness: number;
@@ -134,6 +135,7 @@ export const MeridiusCursorGlyph: React.FC = () => {
 
 export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
   onIntroComplete,
+  skipIntro = false,
   springConfig = {
     damping: 45,
     stiffness: 400,
@@ -142,9 +144,8 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
   },
 }) => {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
-  const [isAdminPath, setIsAdminPath] = useState(() => {
-    return typeof window !== 'undefined' && window.location.pathname.toLowerCase().startsWith('/admin');
-  });
+  const isAdminPath = typeof window !== 'undefined' && window.location.pathname.toLowerCase().startsWith('/admin');
+  const shouldSkipIntro = skipIntro || isAdminPath;
 
   // Motion springs matching SmoothCursor physics for user interaction
   const cursorX = useSpring(0, springConfig);
@@ -166,29 +167,25 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
   const lastUpdateTime = useRef(Date.now());
   const previousAngle = useRef(0);
   const accumulatedRotation = useRef(0);
-  const isIntroActiveRef = useRef(true);
+  const isIntroActiveRef = useRef(!shouldSkipIntro);
   const hasTappedLogoRef = useRef(false);
   const isScrollingRef = useRef(false);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastScrollY = useRef(0);
+  const hasInitializedPosRef = useRef(false);
 
-  // Check admin route & touch capabilities
+  // Check touch capabilities
   useEffect(() => {
     const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     setIsTouchDevice(isTouch);
-
-    const checkRoute = () => {
-      const isAdmin = window.location.pathname.toLowerCase().startsWith('/admin');
-      setIsAdminPath(isAdmin);
-      if (isAdmin) {
-        document.body.style.cursor = 'auto';
-      }
-    };
-
-    checkRoute();
-    window.addEventListener('popstate', checkRoute);
-    return () => window.removeEventListener('popstate', checkRoute);
   }, []);
+
+  // Update intro state if route changes
+  useEffect(() => {
+    if (shouldSkipIntro) {
+      isIntroActiveRef.current = false;
+    }
+  }, [shouldSkipIntro]);
 
   // Helper to rotate to any target angle via the shortest rotation arc
   const rotateToAngle = useCallback(
@@ -220,8 +217,9 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
   }, []);
 
   // 1. INTRO FLIGHT ANIMATION ALONG EXACT SVG PATH (Collinear Apex & Crotch Alignment)
+  // Only runs on main visitor pages (skipped on /admin)
   useEffect(() => {
-    if (isTouchDevice || isAdminPath) return;
+    if (isTouchDevice || shouldSkipIntro) return;
 
     const pathElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     pathElement.setAttribute('d', ENTRY_MOTION_PATH_D);
@@ -307,14 +305,11 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
     return () => {
       cancelAnimationFrame(animId);
     };
-  }, [isTouchDevice, isAdminPath, cursorX, cursorY, scale, getHeroLogoTargetPos, onIntroComplete, rotateToAngle]);
+  }, [isTouchDevice, shouldSkipIntro, cursorX, cursorY, scale, getHeroLogoTargetPos, onIntroComplete, rotateToAngle]);
 
-  // 2. INTERACTIVE VISITOR CURSOR TRACKING WITH UI ELEMENT & SCROLL AWARENESS
+  // 2. INTERACTIVE VISITOR & ADMIN CURSOR TRACKING WITH UI ELEMENT & SCROLL AWARENESS
   useEffect(() => {
-    if (isTouchDevice || isAdminPath) {
-      document.body.style.cursor = 'auto';
-      return;
-    }
+    if (isTouchDevice) return;
 
     lastScrollY.current = window.scrollY;
 
@@ -336,11 +331,19 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
     const smoothMouseMove = (e: MouseEvent) => {
       const currentPos = { x: e.clientX, y: e.clientY };
 
+      // Initialize cursor position on first mouse movement (especially for admin without intro flight)
+      if (!hasInitializedPosRef.current && (shouldSkipIntro || !isIntroActiveRef.current)) {
+        cursorX.jump(currentPos.x);
+        cursorY.jump(currentPos.y);
+        lastMousePos.current = currentPos;
+        hasInitializedPosRef.current = true;
+      }
+
       // Update velocity and track mouse position
       updateVelocity(currentPos);
 
-      // Only take control of position after intro flight has completed
-      if (!isIntroActiveRef.current) {
+      // Take control of position when intro is completed or skipped
+      if (!isIntroActiveRef.current || shouldSkipIntro) {
         const speed = Math.sqrt(
           Math.pow(velocity.current.x, 2) + Math.pow(velocity.current.y, 2)
         );
@@ -476,9 +479,9 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
       if (rafId) cancelAnimationFrame(rafId);
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
     };
-  }, [isTouchDevice, isAdminPath, cursorX, cursorY, scale, rotateToAngle]);
+  }, [isTouchDevice, shouldSkipIntro, cursorX, cursorY, scale, rotateToAngle]);
 
-  if (isTouchDevice || isAdminPath) {
+  if (isTouchDevice) {
     return null;
   }
 

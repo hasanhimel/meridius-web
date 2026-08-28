@@ -26,7 +26,6 @@ export function App() {
       const path = window.location.pathname.toLowerCase();
       if (path.startsWith('/admin')) {
         setIsAdminRoute(true);
-        document.body.style.cursor = 'auto';
       } else {
         setIsAdminRoute(false);
         if (path === '/' || path === '') {
@@ -53,8 +52,8 @@ export function App() {
 
   return (
     <ThemeProvider>
-      {/* Native Meridius Software-Rendered Interactive Cursor (disabled on /admin) */}
-      {!isAdminRoute && <SoftwareCursor />}
+      {/* Native Meridius Software-Rendered Interactive Cursor (Intro flight active on landing, skipped on /admin) */}
+      <SoftwareCursor skipIntro={isAdminRoute} />
 
       {isAdminRoute ? (
         <AdminLayout />
