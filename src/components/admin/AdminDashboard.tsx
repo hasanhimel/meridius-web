@@ -382,9 +382,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
                 Waitlist
               </span>
-              <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
-                <Users className="w-4 h-4" />
-              </div>
+              <Users className="w-5 h-5 text-emerald-500" />
             </div>
             <div className="font-brand font-extrabold text-3xl sm:text-4xl text-charcoal dark:text-cream">
               {metrics.totalWaitlist}
@@ -401,9 +399,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
                 Visitors
               </span>
-              <div className="w-8 h-8 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-500/20">
-                <Globe className="w-4 h-4" />
-              </div>
+              <Globe className="w-5 h-5 text-blue-500" />
             </div>
             <div className="font-brand font-extrabold text-3xl sm:text-4xl text-charcoal dark:text-cream">
               {metrics.totalUniqueVisitors}
@@ -424,9 +420,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
                 Returning
               </span>
-              <div className="w-8 h-8 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
-                <UserCheck className="w-4 h-4" />
-              </div>
+              <UserCheck className="w-5 h-5 text-amber-500" />
             </div>
             <div className="flex items-baseline gap-2">
               <span className="font-brand font-extrabold text-3xl sm:text-4xl text-charcoal dark:text-cream">
@@ -441,15 +435,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
             </div>
           </div>
 
-          {/* Card 4: macOS Share with simple-icons Apple Vector */}
+          {/* Card 4: macOS Share with raw simple-icons Apple Vector */}
           <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group hover:border-charcoal/[0.16] dark:hover:border-cream/[0.16] transition-all">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
                 macOS Share
               </span>
-              <div className="w-8 h-8 rounded-full bg-charcoal/10 dark:bg-cream/10 text-charcoal dark:text-cream flex items-center justify-center border border-charcoal/[0.08] dark:border-cream/[0.08]">
-                <AppleIcon className="w-4 h-4" />
-              </div>
+              <AppleIcon className="w-5 h-5 text-charcoal dark:text-cream" />
             </div>
             <div className="flex items-baseline gap-2">
               <span className="font-brand font-extrabold text-3xl sm:text-4xl text-charcoal dark:text-cream">
@@ -767,12 +759,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
                             </span>
                           </td>
 
-                          {/* Device & OS with Simple-Icons Vector */}
+                          {/* Device & OS with Raw Simple-Icons Vector */}
                           <td className="py-4 px-6 text-charcoal dark:text-cream">
                             <div className="flex items-center gap-2.5">
-                              <div className="w-7 h-7 rounded-xl bg-charcoal/[0.05] dark:bg-cream/[0.08] border border-charcoal/[0.06] dark:border-cream/[0.08] flex items-center justify-center shrink-0">
-                                <DeviceIcon os={visitor.os} deviceType={visitor.device_type} className="w-3.5 h-3.5" />
-                              </div>
+                              <DeviceIcon os={visitor.os} deviceType={visitor.device_type} className="w-4 h-4 shrink-0" />
                               <div className="flex flex-col">
                                 <span className="font-semibold text-charcoal dark:text-cream">{visitor.os || 'Unknown OS'}</span>
                                 <span className="text-[10px] text-charcoal-muted dark:text-cream-dim font-sans">{visitor.device_type || 'Desktop'}</span>
