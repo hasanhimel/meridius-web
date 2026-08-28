@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Users, 
-  Eye, 
   Globe, 
   RotateCw, 
   Search, 
@@ -9,19 +8,16 @@ import {
   Copy, 
   Check, 
   LogOut, 
-  Sun, 
-  Moon, 
-  Laptop, 
-  Smartphone, 
   Activity, 
-  ShieldCheck, 
   TrendingUp,
   Mail,
   UserCheck,
   MapPin,
   Compass
 } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
+import { ThemeToggle } from '../ThemeToggle';
+import { NavbarLogoMark } from '../NavbarLogoMark';
+import { DeviceIcon, AppleIcon } from './DeviceIcon';
 import { getAdminData, WaitlistEntry, VisitorEntry, PageViewEntry } from '../../lib/supabase';
 import { getCountryFlag } from '../../lib/geo';
 
@@ -42,9 +38,6 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token }) => {
-  const { resolvedTheme, toggleTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
-
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
@@ -147,7 +140,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
       ? Math.round((returningVisitors / totalUniqueVisitors) * 100) 
       : 0;
 
-    const macUsers = visitors.filter((v) => v.os === 'macOS').length;
+    const macUsers = visitors.filter((v) => (v.os || '').toLowerCase().includes('mac')).length;
     const macRate = totalUniqueVisitors > 0 
       ? Math.round((macUsers / totalUniqueVisitors) * 100) 
       : 0;
@@ -272,35 +265,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
   };
 
   return (
-    <div className="min-h-screen bg-cream dark:bg-void text-charcoal dark:text-cream font-sans transition-colors duration-200">
+    <div className="min-h-screen bg-cream dark:bg-void text-charcoal dark:text-cream font-sans transition-colors duration-200 selection:bg-charcoal/15 dark:selection:bg-cream/15">
       
       {/* Top Navbar */}
-      <header className="sticky top-0 z-30 border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-cream/80 dark:bg-void/80 backdrop-blur-md">
+      <header className="sticky top-0 z-30 border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-cream/80 dark:bg-void/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           
           {/* Logo & Console Title */}
           <div className="flex items-center gap-3">
-            <a href="/" className="flex items-center gap-2 group">
-              <img
-                src={isDark ? '/assets/logo/meridius-mark-white.svg' : '/assets/logo/meridius-mark-black.svg'}
-                alt="Meridius"
-                className="w-5 h-5 object-contain"
-              />
-              <span className="font-display font-semibold text-sm tracking-wider">MERIDIUS</span>
+            <a href="/" className="flex items-center gap-2.5 sm:gap-3 group select-none">
+              <NavbarLogoMark size={36} className="w-8 h-8 sm:w-9 sm:h-9" />
+              <span className="font-brand font-extrabold text-base sm:text-[18px] tracking-[0.02em] uppercase text-charcoal dark:text-cream transition-colors">
+                MERIDIUS
+              </span>
             </a>
             <span className="text-charcoal-muted dark:text-cream-dim text-xs">/</span>
-            <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-charcoal/[0.05] dark:bg-cream/[0.08] text-xs font-mono font-medium text-charcoal dark:text-cream">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              <span>Admin</span>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full frosted-glass-pill text-xs font-mono font-medium text-charcoal dark:text-cream border border-charcoal/[0.06] dark:border-cream/[0.08]">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Admin Console</span>
             </div>
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Live Indicator */}
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-mono text-emerald-600 dark:text-emerald-400">
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full frosted-glass-pill text-[11px] font-mono text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 bg-emerald-500/10">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Live</span>
+              <span>Live Telemetry</span>
             </div>
 
             {/* Refresh Button */}
@@ -308,24 +299,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
               onClick={fetchData}
               disabled={refreshing}
               className="p-2 rounded-full frosted-glass-pill hover:bg-charcoal/5 dark:hover:bg-cream/10 transition-colors text-charcoal dark:text-cream"
-              title="Refresh"
+              title="Refresh Data"
             >
               <RotateCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             </button>
 
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full frosted-glass-pill hover:bg-charcoal/5 dark:hover:bg-cream/10 transition-colors text-charcoal dark:text-cream"
-              title="Toggle Theme"
-            >
-              {isDark ? <Sun className="w-4 h-4 text-cream" /> : <Moon className="w-4 h-4 text-charcoal" />}
-            </button>
+            {/* Main Website Theme Toggle */}
+            <ThemeToggle />
 
             {/* Logout */}
             <button
               onClick={onLogout}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-charcoal/10 dark:bg-cream/10 hover:bg-rose-500/10 hover:text-rose-500 transition-colors text-xs font-mono font-medium"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full frosted-glass-pill hover:bg-rose-500/10 hover:text-rose-500 transition-colors text-xs font-mono font-medium"
+              title="Logout"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Logout</span>
@@ -338,14 +324,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
       {/* Main Content Body */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
         
-        {/* Top Header & Actions */}
+        {/* Top Header & Export Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="font-display font-semibold text-2xl sm:text-3xl tracking-tight text-charcoal dark:text-cream">
-              Overview
+            <h1 className="font-brand font-extrabold text-2xl sm:text-3xl tracking-[0.01em] uppercase text-charcoal dark:text-cream">
+              SYSTEM OVERVIEW
             </h1>
             <p className="text-xs sm:text-sm text-charcoal-muted dark:text-cream-dim mt-1 font-mono">
-              Live telemetry and waitlist activity.
+              Live visitor analytics, device telemetry, and waitlist applicant tracking.
             </p>
           </div>
 
@@ -364,7 +350,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
                 <button
                   onClick={handleExportWaitlistCSV}
                   disabled={waitlist.length === 0}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-full cursor-btn-primary text-xs font-mono font-medium shadow-sm disabled:opacity-50"
+                  className="cursor-btn-primary px-4 py-2 rounded-full text-xs font-mono font-medium shadow-sm flex items-center gap-1.5 disabled:opacity-50"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Export CSV</span>
@@ -376,7 +362,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
               <button
                 onClick={handleExportVisitorsCSV}
                 disabled={visitors.length === 0}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full cursor-btn-primary text-xs font-mono font-medium shadow-sm disabled:opacity-50"
+                className="cursor-btn-primary px-4 py-2 rounded-full text-xs font-mono font-medium shadow-sm flex items-center gap-1.5 disabled:opacity-50"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Export CSV</span>
@@ -391,16 +377,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           
           {/* Card 1: Waitlist Registrations */}
-          <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group">
+          <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group hover:border-charcoal/[0.16] dark:hover:border-cream/[0.16] transition-all">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
                 Waitlist
               </span>
-              <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
                 <Users className="w-4 h-4" />
               </div>
             </div>
-            <div className="font-display font-semibold text-3xl sm:text-4xl text-charcoal dark:text-cream">
+            <div className="font-brand font-extrabold text-3xl sm:text-4xl text-charcoal dark:text-cream">
               {metrics.totalWaitlist}
             </div>
             <div className="flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 mt-2">
@@ -410,16 +396,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
           </div>
 
           {/* Card 2: Unique Visitors */}
-          <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group">
+          <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group hover:border-charcoal/[0.16] dark:hover:border-cream/[0.16] transition-all">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
                 Visitors
               </span>
-              <div className="w-8 h-8 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-500/20">
                 <Globe className="w-4 h-4" />
               </div>
             </div>
-            <div className="font-display font-semibold text-3xl sm:text-4xl text-charcoal dark:text-cream">
+            <div className="font-brand font-extrabold text-3xl sm:text-4xl text-charcoal dark:text-cream">
               {metrics.totalUniqueVisitors}
             </div>
             <div className="text-[11px] font-mono text-charcoal-muted dark:text-cream-dim mt-2 flex items-center gap-1">
@@ -433,17 +419,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
           </div>
 
           {/* Card 3: Returning Visitors */}
-          <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group">
+          <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group hover:border-charcoal/[0.16] dark:hover:border-cream/[0.16] transition-all">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
                 Returning
               </span>
-              <div className="w-8 h-8 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20">
                 <UserCheck className="w-4 h-4" />
               </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="font-display font-semibold text-3xl sm:text-4xl text-charcoal dark:text-cream">
+              <span className="font-brand font-extrabold text-3xl sm:text-4xl text-charcoal dark:text-cream">
                 {metrics.returningVisitors}
               </span>
               <span className="text-xs font-mono font-semibold text-amber-600 dark:text-amber-400">
@@ -451,78 +437,83 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
               </span>
             </div>
             <div className="text-[11px] font-mono text-charcoal-muted dark:text-cream-dim mt-2">
-              <span>Repeat visitors (2+)</span>
+              {metrics.avgVisits} visits per user
             </div>
           </div>
 
-          {/* Card 4: Total Pageviews */}
-          <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group">
+          {/* Card 4: macOS Share with simple-icons Apple Vector */}
+          <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group hover:border-charcoal/[0.16] dark:hover:border-cream/[0.16] transition-all">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
-                Page Views
+                macOS Share
               </span>
-              <div className="w-8 h-8 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-                <Eye className="w-4 h-4" />
+              <div className="w-8 h-8 rounded-full bg-charcoal/10 dark:bg-cream/10 text-charcoal dark:text-cream flex items-center justify-center border border-charcoal/[0.08] dark:border-cream/[0.08]">
+                <AppleIcon className="w-4 h-4" />
               </div>
             </div>
-            <div className="font-display font-semibold text-3xl sm:text-4xl text-charcoal dark:text-cream">
-              {metrics.totalPageViews}
+            <div className="flex items-baseline gap-2">
+              <span className="font-brand font-extrabold text-3xl sm:text-4xl text-charcoal dark:text-cream">
+                {metrics.macRate}%
+              </span>
+              <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim">
+                ({metrics.macUsers} users)
+              </span>
             </div>
-            <div className="text-[11px] font-mono text-charcoal-muted dark:text-cream-dim mt-2 flex items-center gap-1.5">
-              {metrics.topCountry ? (
-                <span>
-                  Top: {metrics.topCountry.flag} {metrics.topCountry.name} ({metrics.topCountry.count})
-                </span>
-              ) : (
-                <>
-                  <Laptop className="w-3 h-3" />
-                  <span>{metrics.macRate}% macOS</span>
-                </>
-              )}
+            <div className="text-[11px] font-mono text-charcoal-muted dark:text-cream-dim mt-2">
+              Target Mac audience
             </div>
           </div>
 
         </div>
 
         {/* ============================================================ */}
-        {/* Navigation Tabs */}
+        {/* TAB NAVIGATION */}
         {/* ============================================================ */}
-        <div className="flex items-center gap-2 border-b border-charcoal/[0.08] dark:border-cream/[0.08] pb-3 overflow-x-auto">
+        <div className="flex items-center gap-2 p-1.5 rounded-full frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] w-fit">
+          
           <button
             onClick={() => setActiveTab('waitlist')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-medium whitespace-nowrap transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono transition-all ${
               activeTab === 'waitlist'
-                ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal shadow-sm'
+                ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal font-semibold shadow-sm'
                 : 'text-charcoal-muted dark:text-cream-dim hover:text-charcoal dark:hover:text-cream'
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            <span>Waitlist ({waitlist.length})</span>
+            <span>Waitlist</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-charcoal/[0.1] dark:bg-cream/[0.2] text-[10px]">
+              {waitlist.length}
+            </span>
           </button>
 
           <button
             onClick={() => setActiveTab('visitors')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-medium whitespace-nowrap transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono transition-all ${
               activeTab === 'visitors'
-                ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal shadow-sm'
+                ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal font-semibold shadow-sm'
                 : 'text-charcoal-muted dark:text-cream-dim hover:text-charcoal dark:hover:text-cream'
             }`}
           >
             <Globe className="w-3.5 h-3.5" />
-            <span>Visitors ({visitors.length})</span>
+            <span>Visitors & Devices</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-charcoal/[0.1] dark:bg-cream/[0.2] text-[10px]">
+              {visitors.length}
+            </span>
           </button>
 
           <button
             onClick={() => setActiveTab('feed')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-medium whitespace-nowrap transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono transition-all ${
               activeTab === 'feed'
-                ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal shadow-sm'
+                ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal font-semibold shadow-sm'
                 : 'text-charcoal-muted dark:text-cream-dim hover:text-charcoal dark:hover:text-cream'
             }`}
           >
             <Activity className="w-3.5 h-3.5" />
-            <span>Live Feed ({pageViews.length})</span>
+            <span>Activity Feed</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           </button>
+
         </div>
 
         {/* ============================================================ */}
@@ -531,13 +522,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
         {activeTab === 'waitlist' && (
           <div className="rounded-3xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] overflow-hidden">
             
-            {/* Search Header */}
-            <div className="p-4 sm:p-6 border-b border-charcoal/[0.08] dark:border-cream/[0.08] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            {/* Table Search & Title */}
+            <div className="p-4 sm:p-6 border-b border-charcoal/[0.08] dark:border-cream/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="relative flex-1 max-w-md">
                 <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal-muted dark:text-cream-dim" />
                 <input
                   type="text"
-                  placeholder="Search waitlist..."
+                  placeholder="Search applicants by name, email, company, or city..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 rounded-full frosted-glass-pill text-xs font-mono text-charcoal dark:text-cream placeholder-charcoal-muted/60 dark:placeholder-cream-muted/60 focus:outline-none"
@@ -545,28 +536,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
               </div>
 
               <div className="text-xs font-mono text-charcoal-muted dark:text-cream-dim">
-                {filteredWaitlist.length} {filteredWaitlist.length === 1 ? 'applicant' : 'applicants'}
+                Showing {filteredWaitlist.length} of {waitlist.length} applicants
               </div>
             </div>
 
-            {/* Table */}
+            {/* Waitlist Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs font-mono border-collapse">
                 <thead>
                   <tr className="border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-charcoal/[0.02] dark:bg-cream/[0.02] text-charcoal-muted dark:text-cream-dim">
                     <th className="py-3.5 px-6 font-medium">#</th>
                     <th className="py-3.5 px-6 font-medium">Email</th>
-                    <th className="py-3.5 px-6 font-medium">Name</th>
-                    <th className="py-3.5 px-6 font-medium">Company & Role</th>
+                    <th className="py-3.5 px-6 font-medium">Applicant</th>
+                    <th className="py-3.5 px-6 font-medium">Role & Company</th>
                     <th className="py-3.5 px-6 font-medium">Location</th>
                     <th className="py-3.5 px-6 font-medium">Date</th>
-                    <th className="py-3.5 px-6 font-medium text-right"></th>
+                    <th className="py-3.5 px-6 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-charcoal/[0.06] dark:divide-cream/[0.06]">
                   {filteredWaitlist.length > 0 ? (
                     filteredWaitlist.map((item, idx) => (
-                      <tr
+                      <tr 
                         key={item.id || idx}
                         className="hover:bg-charcoal/[0.02] dark:hover:bg-cream/[0.02] transition-colors"
                       >
@@ -576,25 +567,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
                         <td className="py-4 px-6 font-semibold text-charcoal dark:text-cream">
                           {item.email}
                         </td>
-                        <td className="py-4 px-6 text-charcoal-muted dark:text-cream-muted">
-                          {item.name || '—'}
+                        <td className="py-4 px-6 text-charcoal dark:text-cream">
+                          {item.name || <span className="text-charcoal-muted dark:text-cream-dim">—</span>}
                         </td>
-                        <td className="py-4 px-6 text-charcoal-muted dark:text-cream-muted">
-                          {item.company || item.role ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-charcoal/[0.05] dark:bg-cream/[0.08]">
-                              {item.company || ''} {item.role ? `· ${item.role}` : ''}
-                            </span>
+                        <td className="py-4 px-6">
+                          {item.role || item.company ? (
+                            <div>
+                              <span className="font-medium text-charcoal dark:text-cream">{item.role || 'Member'}</span>
+                              {item.company && (
+                                <span className="text-charcoal-muted dark:text-cream-dim"> @ {item.company}</span>
+                              )}
+                            </div>
                           ) : (
-                            '—'
+                            <span className="text-charcoal-muted dark:text-cream-dim">—</span>
                           )}
                         </td>
-                        <td className="py-4 px-6 text-charcoal dark:text-cream">
+                        <td className="py-4 px-6">
                           {item.metadata?.city || item.metadata?.country ? (
                             <div className="flex items-center gap-1.5">
-                              <span>{getCountryFlag(item.metadata?.country_code)}</span>
-                              <span>
-                                {[item.metadata?.city, item.metadata?.country].filter(Boolean).join(', ')}
-                              </span>
+                              <span>{getCountryFlag(item.metadata.country_code || null)}</span>
+                              <span>{[item.metadata.city, item.metadata.country].filter(Boolean).join(', ')}</span>
                             </div>
                           ) : (
                             <span className="text-charcoal-muted dark:text-cream-dim">—</span>
@@ -633,7 +625,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
         )}
 
         {/* ============================================================ */}
-        {/* TAB 2: VISITORS */}
+        {/* TAB 2: VISITORS & DEVICES */}
         {/* ============================================================ */}
         {activeTab === 'visitors' && (
           <div className="rounded-3xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] overflow-hidden">
@@ -685,7 +677,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
 
             </div>
 
-            {/* Visitors Table */}
+            {/* Visitors Table with Simple-Icons Device Icons */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs font-mono border-collapse">
                 <thead>
@@ -693,11 +685,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
                     <th className="py-3.5 px-6 font-medium">Visitor ID</th>
                     <th className="py-3.5 px-6 font-medium">Location</th>
                     <th className="py-3.5 px-6 font-medium">Visits</th>
-                    <th className="py-3.5 px-6 font-medium">Device</th>
+                    <th className="py-3.5 px-6 font-medium">Device & OS</th>
                     <th className="py-3.5 px-6 font-medium">Browser</th>
                     <th className="py-3.5 px-6 font-medium">First Seen</th>
                     <th className="py-3.5 px-6 font-medium">Last Active</th>
-                    <th className="py-3.5 px-6 font-medium">Last Page</th>
+                    <th className="py-3.5 px-6 font-medium">Last Route</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-charcoal/[0.06] dark:divide-cream/[0.06]">
@@ -765,9 +757,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
                             <span
                               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-semibold ${
                                 visitor.total_visits > 3
-                                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
                                   : visitor.total_visits > 1
-                                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
                                   : 'bg-charcoal/[0.05] dark:bg-cream/[0.08] text-charcoal-muted dark:text-cream-dim'
                               }`}
                             >
@@ -775,15 +767,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
                             </span>
                           </td>
 
-                          {/* Device & OS */}
+                          {/* Device & OS with Simple-Icons Vector */}
                           <td className="py-4 px-6 text-charcoal dark:text-cream">
-                            <div className="flex items-center gap-1.5">
-                              {visitor.device_type === 'Mobile' ? (
-                                <Smartphone className="w-3.5 h-3.5 text-charcoal-muted dark:text-cream-dim" />
-                              ) : (
-                                <Laptop className="w-3.5 h-3.5 text-charcoal-muted dark:text-cream-dim" />
-                              )}
-                              <span>{visitor.os || 'Unknown'}</span>
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-7 h-7 rounded-xl bg-charcoal/[0.05] dark:bg-cream/[0.08] border border-charcoal/[0.06] dark:border-cream/[0.08] flex items-center justify-center shrink-0">
+                                <DeviceIcon os={visitor.os} deviceType={visitor.device_type} className="w-3.5 h-3.5" />
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="font-semibold text-charcoal dark:text-cream">{visitor.os || 'Unknown OS'}</span>
+                                <span className="text-[10px] text-charcoal-muted dark:text-cream-dim font-sans">{visitor.device_type || 'Desktop'}</span>
+                              </div>
                             </div>
                           </td>
 
@@ -829,8 +822,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
         {activeTab === 'feed' && (
           <div className="rounded-3xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] overflow-hidden p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display font-semibold text-base text-charcoal dark:text-cream">
-                Recent Activity
+              <h3 className="font-brand font-extrabold text-base tracking-[0.01em] uppercase text-charcoal dark:text-cream">
+                RECENT ACTIVITY
               </h3>
               <div className="text-xs font-mono text-charcoal-muted dark:text-cream-dim flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -860,7 +853,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
 
                         {/* Location Tag on Live Feed */}
                         {hasGeo && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-charcoal/[0.05] dark:bg-cream/[0.08] text-charcoal dark:text-cream text-[11px]">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-charcoal/[0.05] dark:bg-cream/[0.08] text-charcoal dark:text-cream text-[11px] border border-charcoal/[0.06] dark:border-cream/[0.08]">
                             <span>{flag}</span>
                             <span>{[pv.city, pv.country_code || pv.country].filter(Boolean).join(', ')}</span>
                           </span>
