@@ -584,7 +584,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
                             <span className="text-charcoal-muted dark:text-cream-dim">—</span>
                           )}
                         </td>
-                        <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim">
+                        <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim whitespace-nowrap">
                           {formatDate(item.created_at)}
                         </td>
                         <td className="py-4 px-6 text-right">
@@ -674,14 +674,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
               <table className="w-full text-left text-xs font-mono border-collapse">
                 <thead>
                   <tr className="border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-charcoal/[0.02] dark:bg-cream/[0.02] text-charcoal-muted dark:text-cream-dim">
-                    <th className="py-3.5 px-6 font-medium">Visitor ID</th>
-                    <th className="py-3.5 px-6 font-medium">Location</th>
-                    <th className="py-3.5 px-6 font-medium">Visits</th>
-                    <th className="py-3.5 px-6 font-medium">Device & OS</th>
-                    <th className="py-3.5 px-6 font-medium">Browser</th>
-                    <th className="py-3.5 px-6 font-medium">First Seen</th>
-                    <th className="py-3.5 px-6 font-medium">Last Active</th>
-                    <th className="py-3.5 px-6 font-medium">Last Route</th>
+                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Visitor ID</th>
+                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Location</th>
+                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Visits</th>
+                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Device</th>
+                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Browser</th>
+                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">First Seen</th>
+                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Last Active</th>
+                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Last Route</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-charcoal/[0.06] dark:divide-cream/[0.06]">
@@ -696,7 +696,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
                           className="hover:bg-charcoal/[0.02] dark:hover:bg-cream/[0.02] transition-colors"
                         >
                           {/* Visitor ID & Copy */}
-                          <td className="py-4 px-6 font-semibold text-charcoal dark:text-cream">
+                          <td className="py-4 px-6 font-semibold text-charcoal dark:text-cream whitespace-nowrap">
                             <div className="flex items-center gap-1.5">
                               <span className="px-2 py-0.5 rounded bg-charcoal/5 dark:bg-cream/10 font-mono">
                                 {visitor.visitor_id.slice(0, 10)}...
@@ -716,7 +716,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
                           </td>
 
                           {/* Location */}
-                          <td className="py-4 px-6">
+                          <td className="py-4 px-6 whitespace-nowrap">
                             {hasLocation ? (
                               <div className="flex items-start gap-2.5">
                                 <span className="text-base leading-none mt-0.5" title={visitor.country || 'Location'}>
@@ -745,7 +745,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
                           </td>
 
                           {/* Total Visits Badge */}
-                          <td className="py-4 px-6">
+                          <td className="py-4 px-6 whitespace-nowrap">
                             <span
                               className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-semibold ${
                                 visitor.total_visits > 3
@@ -759,8 +759,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
                             </span>
                           </td>
 
-                          {/* Device & OS with Raw Simple-Icons Vector */}
-                          <td className="py-4 px-6 text-charcoal dark:text-cream">
+                          {/* Device with Raw Simple-Icons Vector */}
+                          <td className="py-4 px-6 text-charcoal dark:text-cream whitespace-nowrap">
                             <div className="flex items-center gap-2.5">
                               <DeviceIcon os={visitor.os} deviceType={visitor.device_type} className="w-4 h-4 shrink-0" />
                               <div className="flex flex-col">
@@ -771,22 +771,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
                           </td>
 
                           {/* Browser */}
-                          <td className="py-4 px-6 text-charcoal-muted dark:text-cream-muted">
+                          <td className="py-4 px-6 text-charcoal-muted dark:text-cream-muted whitespace-nowrap">
                             {visitor.browser || '—'}
                           </td>
 
-                          {/* First Seen */}
-                          <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim">
+                          {/* First Seen (Single Line) */}
+                          <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim whitespace-nowrap">
                             {formatDate(visitor.first_seen_at)}
                           </td>
 
-                          {/* Last Active */}
-                          <td className="py-4 px-6 text-charcoal dark:text-cream">
+                          {/* Last Active (Single Line) */}
+                          <td className="py-4 px-6 text-charcoal dark:text-cream whitespace-nowrap">
                             {formatDate(visitor.last_seen_at)}
                           </td>
 
                           {/* Last Route */}
-                          <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim font-mono">
+                          <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim font-mono whitespace-nowrap">
                             {visitor.last_path || '/'}
                           </td>
                         </tr>
