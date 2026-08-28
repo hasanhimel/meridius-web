@@ -18,8 +18,8 @@ export interface SoftwareCursorProps {
   };
 }
 
-// Exact raw Bézier path from SoftwareCursorGlyphRenderer-new.swift
-// Mapped from bounding box (minX: 39.5, minY: -0.5, width: 375.1, height: 452.0)
+// Exact raw Bézier path from SoftwareCursorGlyphRenderer-new.swift (lines 274–330)
+// Source bounding box: minX: 39.5, minY: -0.5, width: 375.1, height: 452.0
 const CURSOR_SVG_PATH =
   'M 65.5 0.9 ' +
   'C 55.0 3.6, 46.5 10.6, 42.2 19.8 ' +
@@ -37,18 +37,20 @@ const CURSOR_SVG_PATH =
   'C 160.8 59.9, 89.2 4.8, 86.5 3.5 ' +
   'C 81.0 0.8, 70.7 -0.5, 65.5 0.9 Z';
 
-// Source geometry constants from SoftwareCursorGlyphRenderer-new.swift
+// Source geometry constants from SoftwareCursorGlyphMetrics in Swift
 const SOURCE_MIN_X = 39.5;
 const SOURCE_MIN_Y = -0.5;
 const SOURCE_WIDTH = 375.1;
 const SOURCE_HEIGHT = 452.0;
 
-// Exact pointer size from SoftwareCursorGlyphMetrics in Swift
-// pointerSize = CGSize(width: 17.09527, height: 20.6)
+// Exact pointer dimensions from SoftwareCursorGlyphMetrics.pointerSize (line 54)
+// CGSize(width: 17.09527, height: 20.6)
 export const POINTER_WIDTH = 17.09527;
 export const POINTER_HEIGHT = 20.6;
 
-// Traced tip sits ~6.931% across width and ~0.31% across height
+// Exact tip anchor offset from SoftwareCursorGlyphRenderer.drawPointer (line 207)
+// tipOffsetX = 0.06931 * pointerWidth = 1.18487px
+// tipOffsetY = 0.0031 * pointerHeight = 0.06386px
 export const TIP_OFFSET_X = 0.06931 * POINTER_WIDTH; // 1.18487px
 export const TIP_OFFSET_Y = 0.0031 * POINTER_HEIGHT; // 0.06386px
 
@@ -74,7 +76,7 @@ const ENTRY_MOTION_PATH_D =
 const SCROLL_UP_ANGLE = 45;
 const SCROLL_DOWN_ANGLE = 225;
 
-// Native Meridius Software Cursor Glyph component matching SoftwareCursorGlyphRenderer-new.swift
+// Native Meridius Software Cursor Glyph component matching SoftwareCursorGlyphRenderer-new.swift 1:1
 export const MeridiusCursorGlyph: React.FC = () => {
   return (
     <div
@@ -88,17 +90,26 @@ export const MeridiusCursorGlyph: React.FC = () => {
         backfaceVisibility: 'hidden',
       }}
     >
-      {/* Dynamic ambient fog wake matching Swift drawFog */}
+      {/* 
+        Dynamic ambient fog wake matching Swift drawFog (lines 138-192):
+        radius = 33px, warm grey 4-stop radial gradient with soft mix blend
+      */}
       <div
-        className="absolute -top-3 -left-3 w-10 h-10 rounded-full pointer-events-none opacity-25 mix-blend-screen"
+        className="absolute -top-3.5 -left-3.5 w-12 h-12 rounded-full pointer-events-none opacity-30 mix-blend-screen"
         style={{
           background:
-            'radial-gradient(circle, rgba(97, 92, 89, 0.35) 0%, rgba(110, 105, 102, 0.18) 50%, transparent 75%)',
-          filter: 'blur(3px)',
+            'radial-gradient(circle, rgba(97, 92, 89, 0.40) 0%, rgba(110, 105, 102, 0.28) 50%, rgba(117, 112, 110, 0.11) 82%, transparent 100%)',
+          filter: 'blur(3.5px)',
         }}
       />
 
-      {/* Razor-sharp Retina Vector rendering across Safari, Chrome, Firefox */}
+      {/* 
+        Razor-sharp Retina Vector rendering:
+        - Fill: NSColor(calibratedRed: 0.12, green: 0.12, blue: 0.14, alpha: 1.0) -> #1f1f24
+        - Stroke: NSColor(calibratedWhite: 1.0, alpha: 0.96) -> rgba(255, 255, 255, 0.96)
+        - LineWidth: 1.4pt -> 30.73 vector units
+        - DropShadow: blurRadius 3.5, dy 1.8px, alpha 0.28 + secondary alpha 0.12
+      */}
       <svg
         viewBox={`${SOURCE_MIN_X} ${SOURCE_MIN_Y} ${SOURCE_WIDTH} ${SOURCE_HEIGHT}`}
         width={POINTER_WIDTH}
@@ -106,8 +117,10 @@ export const MeridiusCursorGlyph: React.FC = () => {
         className="w-full h-full block"
         style={{
           overflow: 'visible',
-          filter: 'drop-shadow(0px 1.8px 2.2px rgba(0, 0, 0, 0.28)) drop-shadow(0px 0.8px 1px rgba(0, 0, 0, 0.12))',
-          WebkitFilter: 'drop-shadow(0px 1.8px 2.2px rgba(0, 0, 0, 0.28)) drop-shadow(0px 0.8px 1px rgba(0, 0, 0, 0.12))',
+          filter:
+            'drop-shadow(0px 1.8px 3.5px rgba(0, 0, 0, 0.28)) drop-shadow(0px 0.9px 1.2px rgba(0, 0, 0, 0.12))',
+          WebkitFilter:
+            'drop-shadow(0px 1.8px 3.5px rgba(0, 0, 0, 0.28)) drop-shadow(0px 0.9px 1.2px rgba(0, 0, 0, 0.12))',
           shapeRendering: 'geometricPrecision',
         }}
       >
@@ -425,8 +438,9 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
       });
     };
 
+    // Click deformation matching line 224: scaleBy(x: 1 - pulse * 0.04, y: 1 + pulse * 0.02)
     const handleMouseDown = () => {
-      scale.set(0.85); // Crisp tactile click depression
+      scale.set(0.85); // Crisp tactile click compression
     };
 
     const handleMouseUp = () => {
