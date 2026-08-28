@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 1970 1760"
+     width="1970" height="1760">
+  <title>Cursor Scroll Apex-Flip Motion Path</title>
+  <desc>
+    Two motion paths for a custom cursor that flips its apex (pointer tip) between
+    up and down on scroll-direction change, instead of rotating 180deg in place.
+    Left panel: scrolling down, apex flips from up to down (hooks right).
+    Right panel: scrolling up, apex flips from down to up (hooks left, mirrored).
+    Both were digitized from a hand-drawn sketch by tracing and skeletonizing the
+    ink, then fit with a smooth Catmull-Rom-derived cubic-bezier curve.
+  </desc>
+
+  <!-- Semantic motion-path metadata for AI/code generation -->
+  <metadata id="motion-spec">{"name":"cursor-scroll-apex-flip-motion","type":"cursor-apex-flip-motion-path","rule":"apex points up while scrolling up, down while scrolling down; flips via a curved tip trajectory (not in-place rotation) that starts and ends on the same vertical line","coordinate_system":{"origin":"cursor's current on-screen position at moment of scroll-direction change","units":"normalized, y:0-to-1 = full flip travel, scale to any px size"},"motions":{"scroll_down_flip":{"start":{"x":0,"y":0,"apex_facing":"up","rotation_deg":0},"end":{"x":0,"y":1,"apex_facing":"down","rotation_deg":180},"hook_side":"right","path_d":"M 0.0000 0.0000 C 0.0133 -0.0290, 0.0200 -0.0616, 0.0398 -0.0871 C 0.0596 -0.1126, 0.0851 -0.1377, 0.1186 -0.1531 C 0.1520 -0.1684, 0.1970 -0.1776, 0.2404 -0.1792 C 0.2838 -0.1808, 0.3396 -0.1743, 0.3791 -0.1627 C 0.4187 -0.1511, 0.4500 -0.1299, 0.4776 -0.1096 C 0.5052 -0.0893, 0.5235 -0.0703, 0.5449 -0.0409 C 0.5664 -0.0114, 0.5929 0.0324, 0.6063 0.0672 C 0.6196 0.1020, 0.6224 0.1415, 0.6250 0.1679 C 0.6276 0.1944, 0.6265 0.2047, 0.6218 0.2261 C 0.6172 0.2475, 0.6155 0.2653, 0.5971 0.2966 C 0.5787 0.3280, 0.5411 0.3810, 0.5115 0.4143 C 0.4819 0.4476, 0.4716 0.4574, 0.4194 0.4963 C 0.3673 0.5351, 0.2530 0.6053, 0.1987 0.6474 C 0.1444 0.6895, 0.1197 0.7162, 0.0938 0.7491 C 0.0680 0.7819, 0.0591 0.8029, 0.0435 0.8448 C 0.0278 0.8866, 0.0145 0.9483, 0.0000 1.0000"},"scroll_up_flip":{"start":{"x":0,"y":1,"apex_facing":"down","rotation_deg":180},"end":{"x":0,"y":0,"apex_facing":"up","rotation_deg":0},"hook_side":"left","path_d":"M -0.0000 1.0000 C -0.0145 0.9483, -0.0278 0.8866, -0.0435 0.8448 C -0.0591 0.8029, -0.0680 0.7819, -0.0938 0.7491 C -0.1197 0.7162, -0.1444 0.6895, -0.1987 0.6474 C -0.2530 0.6053, -0.3673 0.5351, -0.4194 0.4963 C -0.4716 0.4574, -0.4819 0.4476, -0.5115 0.4143 C -0.5411 0.3810, -0.5787 0.3280, -0.5971 0.2966 C -0.6155 0.2653, -0.6172 0.2475, -0.6218 0.2261 C -0.6265 0.2047, -0.6276 0.1944, -0.6250 0.1679 C -0.6224 0.1415, -0.6196 0.1020, -0.6063 0.0672 C -0.5929 0.0324, -0.5664 -0.0114, -0.5449 -0.0409 C -0.5235 -0.0703, -0.5052 -0.0893, -0.4776 -0.1096 C -0.4500 -0.1299, -0.4187 -0.1511, -0.3791 -0.1627 C -0.3396 -0.1743, -0.2838 -0.1808, -0.2404 -0.1792 C -0.1970 -0.1776, -0.1520 -0.1684, -0.1186 -0.1531 C -0.0851 -0.1377, -0.0596 -0.1126, -0.0398 -0.0871 C -0.0200 -0.0616, -0.0133 -0.0290, -0.0000 0.0000"}},"rotation":{"driven_by":"progress t (0-1), independent of path tangent","scroll_down_flip":"rotation_deg = t * 180","scroll_up_flip":"rotation_deg = 180 - t * 180"},"max_bulge_ratio":0.625,"source":"traced + skeletonized from supplied hand-drawn sketch, smoothed via Catmull-Rom-to-bezier fit"}</metadata>
+
+  <defs>
+    <marker id="arrowDown" viewBox="0 0 20 20" refX="10" refY="16" markerWidth="12" markerHeight="12" orient="auto">
+      <path d="M 2 2 L 18 2 L 10 18 z" fill="#111111"/>
+    </marker>
+    <marker id="arrowUp" viewBox="0 0 20 20" refX="10" refY="4" markerWidth="12" markerHeight="12" orient="auto">
+      <path d="M 2 18 L 18 18 L 10 2 z" fill="#111111"/>
+    </marker>
+  </defs>
+
+  <style>
+    text { font-family: Inter, Arial, sans-serif; fill: #111111; }
+    .panel-title { font-size: 40px; font-weight: 600; }
+    .label { font-size: 34px; }
+    .sub { font-size: 26px; fill: #555555; }
+  </style>
+
+  <!-- ================= PANEL A — scroll down: apex up -> apex down ================= -->
+  <g transform="translate(40,100)">
+    <text x="0" y="-24" class="panel-title">Scroll DOWN — apex flips ↓</text>
+
+    <path d="M 113.5 325.6 C 128.0 293.9, 135.4 258.4, 157.0 230.5 C 178.6 202.6, 206.5 175.2, 243.0 158.5 C 279.5 141.8, 328.6 131.8, 376.0 130.0 C 423.4 128.2, 484.3 135.3, 527.5 148.0 C 570.7 160.7, 604.8 183.8, 635.0 206.0 C 665.2 228.2, 685.1 248.8, 708.5 281.0 C 731.9 313.2, 760.9 361.0, 775.5 399.0 C 790.1 437.0, 793.2 480.1, 796.0 509.0 C 798.8 537.9, 797.6 549.1, 792.5 572.5 C 787.4 595.9, 785.6 615.2, 765.5 649.5 C 745.4 683.8, 704.3 741.7, 672.0 778.0 C 639.7 814.3, 628.4 825.1, 571.5 867.5 C 514.6 909.9, 389.8 986.5, 330.5 1032.5 C 271.2 1078.5, 244.2 1107.6, 216.0 1143.5 C 187.8 1179.4, 178.1 1202.3, 161.0 1248.0 C 143.9 1293.7, 129.4 1361.0, 113.5 1417.5"
+          fill="none" stroke="#111111" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"
+          marker-end="url(#arrowDown)"/>
+
+    <!-- apex-up glyph at start -->
+    <path d="M 113.5 292 L 128 322 L 99 322 Z" fill="#111111"/>
+    <circle cx="113.5" cy="325.6" r="7" fill="#111111"/>
+    <text x="150" y="300" class="label">start</text>
+    <text x="150" y="336" class="sub">apex ↑ · 0°</text>
+
+    <text x="150" y="1400" class="label">end</text>
+    <text x="150" y="1436" class="sub">apex ↓ · 180°</text>
+  </g>
+
+  <!-- ================= PANEL B — scroll up: apex down -> apex up ================= -->
+  <g transform="translate(1020,100)">
+    <text x="0" y="-24" class="panel-title">Scroll UP — apex flips ↑</text>
+
+    <path d="M 792.5 1417.5 C 776.6 1361.0, 762.1 1293.7, 745.0 1248.0 C 727.9 1202.3, 718.2 1179.4, 690.0 1143.5 C 661.8 1107.6, 634.8 1078.5, 575.5 1032.5 C 516.2 986.5, 391.4 909.9, 334.5 867.5 C 277.6 825.1, 266.3 814.3, 234.0 778.0 C 201.7 741.7, 160.6 683.8, 140.5 649.5 C 120.4 615.2, 118.6 595.9, 113.5 572.5 C 108.4 549.1, 107.2 537.9, 110.0 509.0 C 112.8 480.1, 115.9 437.0, 130.5 399.0 C 145.1 361.0, 174.1 313.2, 197.5 281.0 C 220.9 248.8, 240.8 228.2, 271.0 206.0 C 301.2 183.8, 335.3 160.7, 378.5 148.0 C 421.7 135.3, 482.6 128.2, 530.0 130.0 C 577.4 131.8, 626.5 141.8, 663.0 158.5 C 699.5 175.2, 727.4 202.6, 749.0 230.5 C 770.6 258.4, 778.0 293.9, 792.5 325.6"
+          fill="none" stroke="#111111" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"
+          marker-end="url(#arrowUp)"/>
+
+    <!-- apex-down glyph at start (bottom) -->
+    <path d="M 792.5 1451 L 807 1421 L 778 1421 Z" fill="#111111"/>
+    <circle cx="792.5" cy="1417.5" r="7" fill="#111111"/>
+    <text x="608" y="1400" class="label" text-anchor="end">start</text>
+    <text x="608" y="1436" class="sub" text-anchor="end">apex ↓ · 180°</text>
+
+    <text x="608" y="300" class="label" text-anchor="end">end</text>
+    <text x="608" y="336" class="sub" text-anchor="end">apex ↑ · 0°</text>
+  </g>
+
+  <text x="40" y="1720" class="sub">Both paths share the same vertical anchor line and mirror each other — placed back-to-back they form one continuous closed loop (see demo HTML).</text>
+</svg>

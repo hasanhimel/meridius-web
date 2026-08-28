@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Cursor Scroll Apex-Flip Motion Demo</title>
+<style>
+  html,body { height:100%; margin:0; background:#f5f3ee; }
+  .stage { width:100%; height:100%; display:grid; place-items:center; overflow:hidden; }
+  svg { width:min(92vw, 620px); height:auto; }
+  #cursor { filter: drop-shadow(0 3px 8px rgba(0,0,0,.18)); }
+</style>
+</head>
+<body>
+<div class="stage">
+<svg id="scene" viewBox="0 0 1624.93 1547.5" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 812.5 325.6 C 827.0 293.9, 834.4 258.4, 855.9 230.5 C 877.5 202.6, 905.4 175.2, 941.9 158.5 C 978.4 141.8, 1027.5 131.8, 1074.9 130.0 C 1122.3 128.2, 1183.3 135.3, 1226.4 148.0 C 1269.6 160.7, 1303.8 183.8, 1333.9 206.0 C 1364.1 228.2, 1384.0 248.8, 1407.4 281.0 C 1430.8 313.2, 1459.8 361.0, 1474.4 399.0 C 1489.0 437.0, 1492.1 480.1, 1494.9 509.0 C 1497.8 537.9, 1496.5 549.1, 1491.4 572.5 C 1486.3 595.9, 1484.5 615.2, 1464.4 649.5 C 1444.3 683.8, 1403.3 741.7, 1370.9 778.0 C 1338.6 814.3, 1327.3 825.1, 1270.4 867.5 C 1213.5 909.9, 1088.7 986.5, 1029.4 1032.5 C 970.2 1078.5, 943.2 1107.6, 914.9 1143.5 C 886.7 1179.4, 877.0 1202.3, 859.9 1248.0 C 842.9 1293.7, 828.3 1361.0, 812.5 1417.5 C 796.6 1361.0, 782.1 1293.7, 765.0 1248.0 C 747.9 1202.3, 738.2 1179.4, 710.0 1143.5 C 681.8 1107.6, 654.8 1078.5, 595.5 1032.5 C 536.2 986.5, 411.4 909.9, 354.5 867.5 C 297.6 825.1, 286.3 814.3, 254.0 778.0 C 221.7 741.7, 180.6 683.8, 160.5 649.5 C 140.4 615.2, 138.6 595.9, 133.5 572.5 C 128.4 549.1, 127.2 537.9, 130.0 509.0 C 132.8 480.1, 135.9 437.0, 150.5 399.0 C 165.1 361.0, 194.1 313.2, 217.5 281.0 C 240.9 248.8, 260.8 228.2, 291.0 206.0 C 321.2 183.8, 355.3 160.7, 398.5 148.0 C 441.7 135.3, 502.6 128.2, 550.0 130.0 C 597.4 131.8, 646.5 141.8, 683.0 158.5 C 719.5 175.2, 747.4 202.6, 769.0 230.5 C 790.6 258.4, 798.0 293.9, 812.5 325.6 Z"
+        fill="none" stroke="#111" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" opacity=".18"/>
+  <circle id="cursor" cx="812.5" cy="325.6" r="18" fill="#111"/>
+</svg>
+</div>
+<script>
+const svg = document.getElementById('scene');
+const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+path.setAttribute('d', document.querySelector('#scene path').getAttribute('d'));
+const length = path.getTotalLength();
+const half = length / 2; // top->bottom (scroll-down flip) and bottom->top (scroll-up flip)
+const cursor = document.getElementById('cursor');
+
+const flipDuration = 900;   // ms — one apex flip. Slowed down for legibility; use ~150-280ms in production.
+const dwell = 550;          // ms — pause at each resting orientation before the next flip.
+
+function easeInOut(t) {
+  return t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2;
+}
+
+// phases loop forever: dwell(apex up) -> flip down -> dwell(apex down) -> flip up -> repeat
+const phases = [
+  { type: 'dwell', at: 0,    duration: dwell },
+  { type: 'move',  from: 0,    to: half,   duration: flipDuration },
+  { type: 'dwell', at: half, duration: dwell },
+  { type: 'move',  from: half, to: length, duration: flipDuration },
+];
+
+let phaseIndex = 0;
+let phaseStart = performance.now();
+
+function setPoint(len) {
+  const p = path.getPointAtLength(len % length);
+  cursor.setAttribute('cx', p.x);
+  cursor.setAttribute('cy', p.y);
+}
+
+function frame(now) {
+  const phase = phases[phaseIndex];
+  const elapsed = now - phaseStart;
+
+  if (phase.type === 'dwell') {
+    setPoint(phase.at);
+    if (elapsed >= phase.duration) {
+      phaseIndex = (phaseIndex + 1) % phases.length;
+      phaseStart = now;
+    }
+  } else {
+    const t = Math.min(elapsed / phase.duration, 1);
+    setPoint(phase.from + easeInOut(t) * (phase.to - phase.from));
+    if (t >= 1) {
+      phaseIndex = (phaseIndex + 1) % phases.length;
+      phaseStart = now;
+    }
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

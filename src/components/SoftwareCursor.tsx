@@ -127,6 +127,39 @@ export const ENTRY_MOTION_PATHS: string[] = [
     'C 1340 530, 1440 620, 1445 770',
 ];
 
+// SHORTEST-ARC QUESTION-MARK CURVES:
+// 1. Down-Right: for clockwise turns towards South (bulges right)
+const SCROLL_DOWN_RIGHT_PATH =
+  'M 0.000 0.000 ' +
+  'C 0.000 -0.350, 0.400 -0.550, 0.700 -0.450 ' +
+  'C 1.050 -0.300, 1.150 0.250, 0.950 0.500 ' +
+  'C 0.750 0.750, 0.300 0.850, 0.100 0.920 ' +
+  'C 0.020 0.950, 0.000 0.980, 0.000 1.000';
+
+// 2. Down-Left: for counter-clockwise turns towards South (e.g. from North-West, bulges left)
+const SCROLL_DOWN_LEFT_PATH =
+  'M 0.000 0.000 ' +
+  'C 0.000 -0.350, -0.400 -0.550, -0.700 -0.450 ' +
+  'C -1.050 -0.300, -1.150 0.250, -0.950 0.500 ' +
+  'C -0.750 0.750, -0.300 0.850, -0.100 0.920 ' +
+  'C -0.020 0.950, 0.000 0.980, 0.000 1.000';
+
+// 3. Up-Left: for counter-clockwise turns towards North (bulges left)
+const SCROLL_UP_LEFT_PATH =
+  'M 0.000 1.000 ' +
+  'C 0.000 1.350, -0.400 1.550, -0.700 1.450 ' +
+  'C -1.050 1.300, -1.150 0.750, -0.950 0.500 ' +
+  'C -0.750 0.250, -0.300 0.150, -0.100 0.080 ' +
+  'C -0.020 0.050, 0.000 0.020, 0.000 0.000';
+
+// 4. Up-Right: for clockwise turns towards North (bulges right)
+const SCROLL_UP_RIGHT_PATH =
+  'M 0.000 1.000 ' +
+  'C 0.000 1.350, 0.400 1.550, 0.700 1.450 ' +
+  'C 1.050 1.300, 1.150 0.750, 0.950 0.500 ' +
+  'C 0.750 0.250, 0.300 0.150, 0.100 0.080 ' +
+  'C 0.020 0.050, 0.000 0.020, 0.000 0.000';
+
 // Native Meridius Software Cursor Glyph component matching SoftwareCursorGlyphRenderer-new.swift
 export const MeridiusCursorGlyph: React.FC = () => {
   return (
@@ -202,6 +235,8 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
   // Motion springs matching SmoothCursor physics for user interaction
   const cursorX = useSpring(0, springConfig);
   const cursorY = useSpring(0, springConfig);
+  const flipOffsetX = useSpring(0, { damping: 24, stiffness: 380 });
+  const flipOffsetY = useSpring(0, { damping: 24, stiffness: 380 });
   const rotation = useSpring(0, {
     ...springConfig,
     damping: 55,
@@ -225,6 +260,8 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastScrollY = useRef(0);
   const hasInitializedPosRef = useRef(false);
+  const currentScrollFacingRef = useRef<'up' | 'down' | 'none'>('none');
+  const flipAnimRafRef = useRef<number | null>(null);
 
   // Check touch capabilities
   useEffect(() => {
@@ -250,6 +287,96 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
       previousAngle.current = targetAngle;
     },
     [rotation]
+  );
+
+  // Shortest-Angular-Distance Question-Mark Flip Motion:
+  // Automatically chooses between Left or Right curved detour based on whichever takes
+  // the shortest rotation angle (always <= 180deg) to point in the scroll direction.
+  const triggerApexScrollFlip = useCallback(
+    (direction: 'down' | 'up') => {
+      if (currentScrollFacingRef.current === direction) return;
+
+      const startRotation = previousAngle.current;
+      const targetAngle = direction === 'down' ? SCROLL_DOWN_ANGLE : SCROLL_UP_ANGLE;
+
+      // Calculate shortest angular difference (in range [-180, 180])
+      let angleDiff = targetAngle - startRotation;
+      while (angleDiff > 180) angleDiff -= 360;
+      while (angleDiff < -180) angleDiff += 360;
+
+      // If already pointing within 8 degrees of target, no need to flip
+      if (Math.abs(angleDiff) < 8) {
+        currentScrollFacingRef.current = direction;
+        return;
+      }
+
+      currentScrollFacingRef.current = direction;
+
+      if (flipAnimRafRef.current) {
+        cancelAnimationFrame(flipAnimRafRef.current);
+      }
+
+      // Pick curve detour matching shortest angular turn direction:
+      // Clockwise (angleDiff > 0) -> Right bulge
+      // Counter-Clockwise (angleDiff < 0) -> Left bulge
+      const isDown = direction === 'down';
+      let pathD: string;
+
+      if (isDown) {
+        const isClockwise = angleDiff >= 0;
+        pathD = isClockwise ? SCROLL_DOWN_RIGHT_PATH : SCROLL_DOWN_LEFT_PATH;
+      } else {
+        const isCounterClockwise = angleDiff <= 0;
+        pathD = isCounterClockwise ? SCROLL_UP_LEFT_PATH : SCROLL_UP_RIGHT_PATH;
+      }
+
+      const flipSvgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      flipSvgPath.setAttribute('d', pathD);
+      const totalFlipLength = flipSvgPath.getTotalLength();
+
+      const FLIP_TRAVEL_PX = 26.0; // Vertical distance between start and end in px
+      const FLIP_DURATION = 280; // 280ms snappy organic curved flight
+      const flipStartTime = performance.now();
+
+      const easeInOut = (t: number) => {
+        return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      };
+
+      const animateFlip = (now: number) => {
+        const elapsed = now - flipStartTime;
+        const rawT = Math.min(1, elapsed / FLIP_DURATION);
+        const easedT = easeInOut(rawT);
+
+        const currentDist = easedT * totalFlipLength;
+        const point = flipSvgPath.getPointAtLength(currentDist);
+
+        // Screen translation offsets (starts and ends precisely at 0 on the vertical axis)
+        const dx = point.x * FLIP_TRAVEL_PX;
+        const dy = isDown
+          ? (point.y - easedT) * FLIP_TRAVEL_PX
+          : (point.y - (1 - easedT)) * FLIP_TRAVEL_PX;
+
+        flipOffsetX.set(dx);
+        flipOffsetY.set(dy);
+
+        // Smooth rotation through the shortest angle arc
+        const currentRotation = startRotation + easedT * angleDiff;
+        rotateToAngle(currentRotation);
+
+        if (rawT < 1) {
+          flipAnimRafRef.current = requestAnimationFrame(animateFlip);
+        } else {
+          // Flip complete: apex rests perfectly on the vertical line pointing in the scroll direction
+          flipOffsetX.set(0);
+          flipOffsetY.set(0);
+          rotateToAngle(targetAngle);
+          flipAnimRafRef.current = null;
+        }
+      };
+
+      flipAnimRafRef.current = requestAnimationFrame(animateFlip);
+    },
+    [flipOffsetX, flipOffsetY, rotateToAngle]
   );
 
   // Helper to locate hero logo middle dot
@@ -379,7 +506,7 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
     };
   }, [isTouchDevice, shouldSkipIntro, activePath, cursorX, cursorY, scale, getHeroLogoTargetPos, onIntroComplete, rotateToAngle]);
 
-  // 2. INTERACTIVE VISITOR & ADMIN CURSOR TRACKING WITH UI ELEMENT & SCROLL AWARENESS
+  // 2. INTERACTIVE VISITOR & ADMIN CURSOR TRACKING WITH UI ELEMENT & SHORTEST-ARC SCROLL FLIP
   useEffect(() => {
     if (isTouchDevice) return;
 
@@ -425,6 +552,9 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
 
         // If not actively scrolling, handle UI element interaction and movement orientation
         if (!isScrollingRef.current) {
+          // Reset scroll facing when user moves mouse freely
+          currentScrollFacingRef.current = 'none';
+
           // Check for UI Element Awareness under the cursor
           const el = document.elementFromPoint(currentPos.x, currentPos.y);
           const interactiveEl = el?.closest(
@@ -468,7 +598,7 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
       }
     };
 
-    // SCROLLING AWARENESS: Apex pointer points strictly UP when scrolling up, DOWN when scrolling down
+    // SCROLLING AWARENESS WITH SHORTEST-ARC QUESTION-MARK FLIP:
     const handleWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaY) < 1) return;
 
@@ -476,19 +606,19 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
 
       if (e.deltaY > 0) {
-        // Scrolling downward -> apex points downward
-        rotateToAngle(SCROLL_DOWN_ANGLE);
+        // Scrolling downward -> trigger shortest-arc down-flip
+        triggerApexScrollFlip('down');
         scale.set(1.08);
       } else {
-        // Scrolling upward -> apex points upward
-        rotateToAngle(SCROLL_UP_ANGLE);
+        // Scrolling upward -> trigger shortest-arc up-flip
+        triggerApexScrollFlip('up');
         scale.set(1.08);
       }
 
       scrollTimeoutRef.current = setTimeout(() => {
         isScrollingRef.current = false;
         scale.set(1);
-      }, 200);
+      }, 300);
     };
 
     const handleScroll = () => {
@@ -502,19 +632,19 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
 
       if (delta > 0) {
-        // Scrolling downward -> apex points downward
-        rotateToAngle(SCROLL_DOWN_ANGLE);
+        // Scrolling downward -> trigger shortest-arc down-flip
+        triggerApexScrollFlip('down');
         scale.set(1.08);
       } else {
-        // Scrolling upward -> apex points upward
-        rotateToAngle(SCROLL_UP_ANGLE);
+        // Scrolling upward -> trigger shortest-arc up-flip
+        triggerApexScrollFlip('up');
         scale.set(1.08);
       }
 
       scrollTimeoutRef.current = setTimeout(() => {
         isScrollingRef.current = false;
         scale.set(1);
-      }, 200);
+      }, 300);
     };
 
     let rafId: number;
@@ -550,8 +680,9 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
       document.body.style.cursor = 'auto';
       if (rafId) cancelAnimationFrame(rafId);
       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+      if (flipAnimRafRef.current) cancelAnimationFrame(flipAnimRafRef.current);
     };
-  }, [isTouchDevice, shouldSkipIntro, cursorX, cursorY, scale, rotateToAngle]);
+  }, [isTouchDevice, shouldSkipIntro, cursorX, cursorY, scale, rotateToAngle, triggerApexScrollFlip]);
 
   if (isTouchDevice) {
     return null;
@@ -563,6 +694,8 @@ export const SoftwareCursor: React.FC<SoftwareCursorProps> = ({
         position: 'fixed',
         left: cursorX,
         top: cursorY,
+        x: flipOffsetX,
+        y: flipOffsetY,
         translateX: `-${TIP_OFFSET_X}px`,
         translateY: `-${TIP_OFFSET_Y}px`,
         transformOrigin: `${TIP_OFFSET_X}px ${TIP_OFFSET_Y}px`,

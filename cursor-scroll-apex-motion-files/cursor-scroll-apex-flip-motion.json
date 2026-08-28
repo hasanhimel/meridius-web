@@ -1,0 +1,77 @@
+{
+  "name": "cursor-scroll-apex-flip-motion",
+  "version": "1.0",
+  "purpose": "Motion path for the website's custom cursor when it flips its apex (pointer tip) between up and down in response to scroll direction, instead of rotating 180deg in place around its own center.",
+
+  "rule": {
+    "base_behavior": "When scrolling upward, the cursor's apex pointer faces upward. When scrolling downward, the cursor's apex pointer faces downward. Whichever rotation the cursor is currently at, it keeps following this rule on every scroll-direction change.",
+    "problem_with_naive_180_rotation": "Rotating the cursor 180deg in place (apex pinned to the shape's own center) reads as sloppy/mechanical.",
+    "solution": "Instead of rotating in place, the apex TIP travels along a short curved detour path while the shape rotates 180deg over the same duration. The tip starts and ends on the same vertical line (the cursor's current x-position on screen), but swings out sideways mid-transition, tracing a hook/question-mark-shaped arc, matching the attached hand sketch.",
+    "source": "Digitized (traced + smoothed) from the user's hand-drawn reference sketch. Not freehand-approximated by eye — extracted from the actual ink pixels via image skeletonization, then fit with a smooth Catmull-Rom-derived cubic-bezier curve."
+  },
+
+  "coordinate_system": {
+    "type": "relative, scale-free, anchored to the cursor's current on-screen position",
+    "origin": "the cursor's apex position at the moment the scroll-direction change is detected — i.e. (0,0) is wherever the cursor already is, not a fixed page coordinate",
+    "units": "normalized (dimensionless). y is scaled so the full vertical travel (start to end) = 1.0. Multiply both x and y by whatever pixel distance you want the flip to travel (e.g. 48-96px for a small cursor icon) to get real px offsets.",
+    "axes": "+x = right, +y = down (standard screen/SVG convention)",
+    "note": "This is intentionally NOT tied to absolute page pixels, because the flip can happen at any scroll position / any cursor location on screen."
+  },
+
+  "motions": {
+    "scroll_down_flip": {
+      "description": "Apex currently pointing UP, user starts scrolling down -> apex flips to point DOWN.",
+      "start": { "x": 0, "y": 0, "apex_facing": "up", "rotation_deg": 0 },
+      "end":   { "x": 0, "y": 1, "apex_facing": "down", "rotation_deg": 180 },
+      "hook_side": "right (positive x bulge)",
+      "path_normalized_svg_d": "M 0.0000 0.0000 C 0.0133 -0.0290, 0.0200 -0.0616, 0.0398 -0.0871 C 0.0596 -0.1126, 0.0851 -0.1377, 0.1186 -0.1531 C 0.1520 -0.1684, 0.1970 -0.1776, 0.2404 -0.1792 C 0.2838 -0.1808, 0.3396 -0.1743, 0.3791 -0.1627 C 0.4187 -0.1511, 0.4500 -0.1299, 0.4776 -0.1096 C 0.5052 -0.0893, 0.5235 -0.0703, 0.5449 -0.0409 C 0.5664 -0.0114, 0.5929 0.0324, 0.6063 0.0672 C 0.6196 0.1020, 0.6224 0.1415, 0.6250 0.1679 C 0.6276 0.1944, 0.6265 0.2047, 0.6218 0.2261 C 0.6172 0.2475, 0.6155 0.2653, 0.5971 0.2966 C 0.5787 0.3280, 0.5411 0.3810, 0.5115 0.4143 C 0.4819 0.4476, 0.4716 0.4574, 0.4194 0.4963 C 0.3673 0.5351, 0.2530 0.6053, 0.1987 0.6474 C 0.1444 0.6895, 0.1197 0.7162, 0.0938 0.7491 C 0.0680 0.7819, 0.0591 0.8029, 0.0435 0.8448 C 0.0278 0.8866, 0.0145 0.9483, 0.0000 1.0000"
+    },
+    "scroll_up_flip": {
+      "description": "Apex currently pointing DOWN, user starts scrolling up -> apex flips to point UP. Mirror image of scroll_down_flip about the shared vertical line, so consecutive flips alternate sides instead of retracing the same arc.",
+      "start": { "x": 0, "y": 1, "apex_facing": "down", "rotation_deg": 180 },
+      "end":   { "x": 0, "y": 0, "apex_facing": "up", "rotation_deg": 0 },
+      "hook_side": "left (negative x bulge)",
+      "path_normalized_svg_d": "M -0.0000 1.0000 C -0.0145 0.9483, -0.0278 0.8866, -0.0435 0.8448 C -0.0591 0.8029, -0.0680 0.7819, -0.0938 0.7491 C -0.1197 0.7162, -0.1444 0.6895, -0.1987 0.6474 C -0.2530 0.6053, -0.3673 0.5351, -0.4194 0.4963 C -0.4716 0.4574, -0.4819 0.4476, -0.5115 0.4143 C -0.5411 0.3810, -0.5787 0.3280, -0.5971 0.2966 C -0.6155 0.2653, -0.6172 0.2475, -0.6218 0.2261 C -0.6265 0.2047, -0.6276 0.1944, -0.6250 0.1679 C -0.6224 0.1415, -0.6196 0.1020, -0.6063 0.0672 C -0.5929 0.0324, -0.5664 -0.0114, -0.5449 -0.0409 C -0.5235 -0.0703, -0.5052 -0.0893, -0.4776 -0.1096 C -0.4500 -0.1299, -0.4187 -0.1511, -0.3791 -0.1627 C -0.3396 -0.1743, -0.2838 -0.1808, -0.2404 -0.1792 C -0.1970 -0.1776, -0.1520 -0.1684, -0.1186 -0.1531 C -0.0851 -0.1377, -0.0596 -0.1126, -0.0398 -0.0871 C -0.0200 -0.0616, -0.0133 -0.0290, -0.0000 0.0000"
+    }
+  },
+
+  "geometry_notes": {
+    "max_bulge": 0.625,
+    "max_bulge_meaning": "The tip swings out sideways by ~62.5% of the total vertical travel distance at the widest point of the hook, before curving back to land on the same vertical line it started on.",
+    "shape_family": "single question-mark-glyph hook per flip; the two flips (down-flip + up-flip) placed back-to-back form one continuous closed loop, alternating right-hook / left-hook. See cursor-scroll-apex-flip-motion.svg for both panels and the demo HTML for the continuous loop."
+  },
+
+  "rotation": {
+    "driven_by": "same progress value t (0 to 1) as the position animation, NOT the path tangent angle",
+    "scroll_down_flip_rotation": "rotation_deg = t * 180  (0deg = apex up, at t=0  ->  180deg = apex down, at t=1)",
+    "scroll_up_flip_rotation": "rotation_deg = 180 - t * 180  (180deg = apex down, at t=0  ->  0deg = apex up, at t=1)",
+    "implementation": "Apply translate(dx, dy) using the path position at progress t, AND rotate(rotation_deg) around the icon's own tip/apex point, both driven by the same eased t. The curved translation is what prevents the 'rotating in place' sloppiness; the rotation supplies the actual 180deg flip."
+  },
+
+  "timing": {
+    "duration_ms": null,
+    "easing": "ease-in-out recommended (matches the smooth, non-linear feel of the hand-drawn arc)",
+    "note": "Not specified in the sketch. Should be tuned in the website implementation — short enough (150-280ms) to feel responsive to a scroll-direction change, not so short the curve reads as a straight line."
+  },
+
+  "trigger_logic": {
+    "event": "scroll direction change (down->up or up->down), not every scroll tick",
+    "guard": "ignore if the cursor's apex already matches the new scroll direction (don't replay the flip on every wheel event, only on an actual direction reversal)",
+    "interruption": "if the direction reverses again mid-flip, prefer easing from the cursor's current live position/rotation into the *other* motion rather than snapping, to avoid visual popping"
+  },
+
+  "open_decisions": [
+    "🔶 scroll_up_flip is currently modeled as a horizontal mirror of scroll_down_flip (alternating hook sides). An alternative is to literally time-reverse the exact same path (retrace backward) instead of mirroring — simpler to implement (one path, reverse playback) but will look more repetitive over many flips. Pick one for production.",
+    "🔶 hook side assignment (down-flip = right, up-flip = left) is arbitrary — matches the single sketch provided, which only showed one direction. Flip the assignment if it reads better against the actual site layout/cursor iconography.",
+    "🔶 duration_ms and easing curve are unset — needs to be chosen against the actual cursor icon size and scroll-listener throttling on the site."
+  ],
+
+  "implementation_notes": {
+    "recommended": "Use the normalized SVG path 'd' strings directly with SVGGeometryElement.getPointAtLength(), GSAP MotionPath, Framer Motion motion path, or equivalent — scaled by your chosen flip-travel-distance in px and translated to the cursor's live screen position.",
+    "preserve_geometry": true,
+    "see_also": [
+      "cursor-scroll-apex-flip-motion.svg — two-panel documentation drawing (down-flip / up-flip) with this same JSON embedded as inline <metadata>",
+      "cursor-scroll-apex-flip-motion-demo.html — minimal line + dot simulation, dot travels the continuous closed loop formed by both flips back-to-back"
+    ]
+  }
+}
