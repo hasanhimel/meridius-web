@@ -19,17 +19,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return stored;
       }
     }
-    return 'system';
+    return 'dark'; // Default theme is Dark
   });
 
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
     const root = document.documentElement;
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
     const updateResolvedTheme = () => {
-      let isDark = false;
+      let isDark = true;
       if (theme === 'system') {
         isDark = mediaQuery.matches;
       } else {
