@@ -47,9 +47,9 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
 
   // Meridius Brain Circular Center
   const brainCx = 450;
-  const brainCy = 290;
+  const brainCy = 260;
   const brainRadius = 34;
-  const convergencePointY = brainCy - brainRadius; // 256
+  const convergencePointY = brainCy - brainRadius; // 226
 
   // Theme-tailored stroke & glow colors
   const primaryStroke = isDark ? 'rgba(245, 245, 238, 0.85)' : 'rgba(43, 43, 42, 0.85)';
@@ -68,9 +68,9 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
       </div>
 
       {/* SVG Canvas with Moving Dynamic Data Particles Along Lines */}
-      <div className="relative w-full aspect-[900/380] max-w-4xl mx-auto flex items-center justify-center my-2">
+      <div className="relative w-full aspect-[900/395] max-w-4xl mx-auto flex items-center justify-center my-2">
         <svg
-          viewBox="0 0 900 380"
+          viewBox="0 0 900 395"
           className="w-full h-full overflow-visible select-none"
         >
           <defs>
@@ -253,20 +253,20 @@ export const DynamicCompanyBrainArtwork: React.FC<{ className?: string }> = ({ c
               className="select-none pointer-events-none"
             />
 
-            {/* Brain Title Below Circle */}
+            {/* Brain Title Below Circle - Placed in the exact golden ratio sweet spot */}
             <text
               x={brainCx}
-              y={brainCy + 48}
+              y={brainCy + 72}
               textAnchor="middle"
-              className="fill-charcoal dark:fill-cream font-display font-semibold text-[12px]"
+              className="fill-charcoal dark:fill-cream font-display font-semibold text-[13px]"
             >
               Meridius Company Brain
             </text>
             <text
               x={brainCx}
-              y={brainCy + 62}
+              y={brainCy + 88}
               textAnchor="middle"
-              className="fill-charcoal-muted dark:fill-cream-dim font-mono text-[8.5px]"
+              className="fill-charcoal-muted dark:fill-cream-dim font-mono text-[9px]"
             >
               Continuously Acquiring & Synthesizing Context
             </text>
