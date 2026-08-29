@@ -61,10 +61,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenWaitlist }) => {
           <a 
             href="/mcp" 
             onClick={(e) => navigateTo(e, '/mcp', 'mcp')}
-            className="hover:text-charcoal dark:hover:text-cream transition-colors flex items-center gap-1.5"
+            className="hover:text-charcoal dark:hover:text-cream transition-colors"
           >
-            <span>MCP</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            MCP
           </a>
         </nav>
 
