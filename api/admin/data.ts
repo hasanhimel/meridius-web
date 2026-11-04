@@ -19,6 +19,23 @@ function getServiceClient(url: string, serviceRoleKey: string): SupabaseClient {
   return cachedClient.client;
 }
 
+type QueryResult = { data: unknown[] | null; error: { message: string; code?: string } | null };
+
+/**
+ * Supabase occasionally rejects a request with "JWT issued at future" when its
+ * gateway's clock runs a moment ahead of the database's (seen once, right after
+ * the project was restored). The request itself is fine, so retry it a couple
+ * of times after a short pause before reporting an error.
+ */
+export async function withClockRetry<T extends QueryResult>(run: () => PromiseLike<T>, attempts = 3, pauseMs = 400): Promise<T> {
+  let result = await run();
+  for (let i = 1; i < attempts && result.error && /issued at future|PGRST303/i.test(`${result.error.code ?? ''} ${result.error.message}`); i++) {
+    await new Promise((r) => setTimeout(r, pauseMs * i));
+    result = await run();
+  }
+  return result;
+}
+
 export default async function handler(
   req: IncomingMessage & { headers: Record<string, string | string[] | undefined> },
   res: ServerResponse
@@ -63,9 +80,9 @@ export default async function handler(
   try {
     const supabaseAdmin = getServiceClient(config.supabaseUrl, config.supabaseServiceRoleKey);
     const [waitlistRes, visitorsRes, pageViewsRes] = await Promise.all([
-      supabaseAdmin.from('waitlist').select('*').order('created_at', { ascending: false }),
-      supabaseAdmin.from('visitors').select('*').order('last_seen_at', { ascending: false }),
-      supabaseAdmin.from('page_views').select('*').order('created_at', { ascending: false }).limit(200),
+      withClockRetry(() => supabaseAdmin.from('waitlist').select('*').order('created_at', { ascending: false })),
+      withClockRetry(() => supabaseAdmin.from('visitors').select('*').order('last_seen_at', { ascending: false })),
+      withClockRetry(() => supabaseAdmin.from('page_views').select('*').order('created_at', { ascending: false }).limit(200)),
     ]);
 
     res.statusCode = 200;

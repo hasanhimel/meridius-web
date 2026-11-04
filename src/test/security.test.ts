@@ -404,3 +404,22 @@ describe('Vercel functions load as native ES modules', () => {
     for (const spec of relativeImports) expect(spec, spec).toMatch(/\.js$/);
   });
 });
+
+describe('withClockRetry', () => {
+  it('retries a query that Supabase rejects for clock skew, then returns the good result', async () => {
+    const { withClockRetry } = await import('../../api/admin/data');
+    const skew = { data: null, error: { code: 'PGRST303', message: 'JWT issued at future' } };
+    const ok = { data: [1, 2], error: null };
+    const run = vi.fn().mockResolvedValueOnce(skew).mockResolvedValueOnce(ok);
+    expect(await withClockRetry(run, 3, 1)).toBe(ok);
+    expect(run).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not retry other errors', async () => {
+    const { withClockRetry } = await import('../../api/admin/data');
+    const denied = { data: null, error: { code: '42501', message: 'permission denied' } };
+    const run = vi.fn().mockResolvedValue(denied);
+    expect(await withClockRetry(run, 3, 1)).toBe(denied);
+    expect(run).toHaveBeenCalledTimes(1);
+  });
+});
