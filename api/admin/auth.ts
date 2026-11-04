@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import crypto from 'crypto';
-import { getAdminAuthConfig } from './_config.js';
+import { getAdminAuthConfig, describeAdminConfigProblems } from './_config.js';
 
 // In-memory rate limiting map for brute-force protection (per serverless instance)
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
@@ -93,6 +93,7 @@ export default async function handler(
   // Fail closed: never authenticate against a default password or derived secret.
   const config = getAdminAuthConfig();
   if (!config) {
+    console.error(`[admin] not configured: ${describeAdminConfigProblems().join('; ')}`);
     res.statusCode = 503;
     res.end(JSON.stringify({ error: 'Admin console is not configured' }));
     return;

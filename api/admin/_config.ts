@@ -51,3 +51,22 @@ export function getAdminDataConfig(env: Env = process.env): AdminDataConfig | nu
 
   return { ...auth, supabaseUrl, supabaseServiceRoleKey };
 }
+
+/**
+ * Names (never values) of the settings that keep the admin from running, for
+ * the server log. Empty when everything is in place.
+ */
+export function describeAdminConfigProblems(env: Env = process.env): string[] {
+  const problems: string[] = [];
+  const adminPassword = read(env, 'ADMIN_PASSWORD');
+  const sessionSecret = read(env, 'SESSION_SECRET');
+  if (!adminPassword) problems.push('ADMIN_PASSWORD is missing');
+  if (!sessionSecret) problems.push('SESSION_SECRET is missing');
+  else {
+    if (sessionSecret.length < MIN_SESSION_SECRET_LENGTH) problems.push(`SESSION_SECRET is shorter than ${MIN_SESSION_SECRET_LENGTH} characters`);
+    if (adminPassword && sessionSecret.includes(adminPassword)) problems.push('SESSION_SECRET contains ADMIN_PASSWORD');
+  }
+  if (!read(env, 'SUPABASE_URL') && !read(env, 'VITE_SUPABASE_URL')) problems.push('SUPABASE_URL is missing');
+  if (!read(env, 'SUPABASE_SERVICE_ROLE_KEY')) problems.push('SUPABASE_SERVICE_ROLE_KEY is missing');
+  return problems;
+}

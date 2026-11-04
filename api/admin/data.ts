@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { verifyAdminToken } from './auth.js';
-import { getAdminDataConfig } from './_config.js';
+import { getAdminDataConfig, describeAdminConfigProblems } from './_config.js';
 
 // Cached per serverless instance, keyed by URL + key so a config change is picked up.
 let cachedClient: { cacheKey: string; client: SupabaseClient } | null = null;
@@ -44,6 +44,7 @@ export default async function handler(
   // Fail closed: no default password, derived secret or anon-key fallback.
   const config = getAdminDataConfig();
   if (!config) {
+    console.error(`[admin] not configured: ${describeAdminConfigProblems().join('; ')}`);
     res.statusCode = 503;
     res.end(JSON.stringify({ error: 'Supabase is not connected on the server: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY' }));
     return;
