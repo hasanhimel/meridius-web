@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { LogoMark } from './brand/LogoMark';
+import { NavMark } from './brand/NavMark';
 import { nav } from './content';
 import { setupReveals, startSmoothScroll, scrollToId, ScrollTrigger } from './motion';
 import { Hero } from './sections/Hero';
-import { How } from './sections/How';
-import { Recall } from './sections/Recall';
-import { Calm } from './sections/Calm';
+import { Capabilities } from './sections/Capabilities';
+import { OwnDisplay } from './sections/OwnDisplay';
+import { Companion } from './sections/Companion';
 import { Privacy } from './sections/Privacy';
 import { Faq } from './sections/Faq';
 import { Closing } from './sections/Closing';
@@ -14,15 +14,16 @@ import './site.css';
 
 /** Old paths from the previous site, mapped to the new sections. */
 const ROUTE_ANCHORS: Record<string, string> = {
-  '/product': 'how',
-  '/how-it-works': 'how',
+  '/product': 'capabilities',
+  '/capabilities': 'capabilities',
+  '/how-it-works': 'display',
   '/comparison': 'faq',
   '/sync': 'faq',
   '/vision': 'faq',
-  '/mcp': 'calm',
-  '/integrations': 'calm',
+  '/mcp': 'companion',
+  '/integrations': 'companion',
   '/privacy': 'privacy',
-  '/recall': 'recall',
+  '/recall': 'capabilities',
   '/faq': 'faq',
   '/access': 'access',
 };
@@ -87,7 +88,7 @@ export function Landing() {
               scrollToId('top', 0);
             }}
           >
-            <LogoMark size={24} ripple />
+            <NavMark size={30} ripple />
             Meridius
           </a>
           <nav aria-label="Sections">
@@ -107,9 +108,9 @@ export function Landing() {
 
       <main id="top">
         <Hero onRequest={requestAccess} />
-        <How />
-        <Recall />
-        <Calm />
+        <Capabilities />
+        <OwnDisplay />
+        <Companion />
         <Privacy />
         <Faq />
         <Closing ref={emailRef} />

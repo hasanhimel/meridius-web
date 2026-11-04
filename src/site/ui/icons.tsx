@@ -1,5 +1,3 @@
-import type { CSSProperties } from 'react';
-
 /** Small line icons used across the site. All inherit currentColor. */
 
 type P = { className?: string };
@@ -77,15 +75,6 @@ export function LockIcon({ className }: P) {
     <svg className={className} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true">
       <rect x="4" y="9" width="12" height="8.5" rx="2" />
       <path d="M7 9V6.5a3 3 0 0 1 6 0V9" />
-    </svg>
-  );
-}
-
-/** The agent's pointer, drawn in the brand blue. */
-export function CursorIcon({ className, style }: P & { style?: CSSProperties }) {
-  return (
-    <svg className={className} style={style} viewBox="0 0 20 20" aria-hidden="true">
-      <path d="M4.5 2.5v14l3.8-3.6 2.6 5.6 2.4-1.1-2.6-5.5 5.3-.3z" fill="currentColor" stroke="#fff" strokeWidth="1.3" strokeLinejoin="round" />
     </svg>
   );
 }

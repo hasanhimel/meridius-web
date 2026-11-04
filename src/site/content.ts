@@ -9,8 +9,8 @@
  */
 
 export const nav = [
-  { label: 'How it works', href: '#how' },
-  { label: 'Recall', href: '#recall' },
+  { label: 'Capabilities', href: '#capabilities' },
+  { label: 'How it works', href: '#display' },
   { label: 'Privacy', href: '#privacy' },
   { label: 'FAQ', href: '#faq' },
 ];
@@ -23,17 +23,20 @@ export const hero = {
   secondary: 'Book a call',
 };
 
-export const how = {
-  heading: ['How Meridius helps', 'every day'],
-  notice: {
-    title: ['Meridius', 'notices', 'what you commit to'],
-    body: 'It reads your screen and listens when you allow it, so the deadline you scrolled past in a channel is not forgotten.',
-  },
-  act: {
-    title: ['When it’s time, Meridius', 'does the work'],
-    body: 'It gathers files, drafts and fills in forms in a display of its own, then asks before anything important.',
-  },
-};
+export const capabilities = {
+  heading: ['Everything it does,', 'in one loop'],
+  sentence: 'Meridius watches, remembers, prepares, acts and checks its work. Pick a step to see it.',
+  items: [
+    { id: 'observe', title: 'Observe', body: 'Sees your screen and hears your calls, with your permission. No API needed.' },
+    { id: 'remember', title: 'Remember', body: 'Turns scattered mentions into one commitment, with every source kept.' },
+    { id: 'recall', title: 'Recall', body: 'Ask about anything you’ve seen, in plain words.' },
+    { id: 'prepare', title: 'Prepare', body: 'Gathers what you’ll need before you ask, then checks with you.' },
+    { id: 'act', title: 'Act', body: 'Does the work across browser, terminal and Mac apps in its own display.' },
+    { id: 'verify', title: 'Verify', body: 'Proves the job is done: the file exists, the checks pass, the receipt is saved.' },
+  ],
+} as const;
+
+export type CapabilityId = (typeof capabilities.items)[number]['id'];
 
 export interface Moment {
   time: string;
@@ -42,8 +45,6 @@ export interface Moment {
 }
 
 export const recall = {
-  heading: ['Ask about anything', 'you’ve seen'],
-  sentence: 'A private timeline of your screen and audio, searchable in plain words.',
   questions: [
     {
       q: 'What was I looking at yesterday around 3 PM?',
@@ -73,13 +74,24 @@ export const recall = {
   ] as { q: string; answer: string; moments: Moment[] }[],
 };
 
-export const calm = {
-  heading: ['Built to stay', 'out of your way'],
-  sentence: 'Meridius works next to you, never on top of you.',
+export const display = {
+  heading: ['It works next to you,', 'not on top of you'],
+  sentence: 'Meridius works in a virtual display of its own. Try typing on your side while it works on its side.',
+  you: 'Notes for Thursday: ask about the design review, book the flight for the 21st, ',
+  points: [
+    { lead: 'Your cursor stays yours.', body: 'It never moves your pointer, types into your window or steals focus.' },
+    { lead: 'A display of its own.', body: 'Apps it needs open in a virtual display, not behind your work.' },
+    { lead: 'Watch, or don’t.', body: 'A floating mirror shows what it’s doing. Close it and the work carries on.' },
+  ],
+};
+
+export const companion = {
+  heading: ['A companion,', 'not a chat box'],
+  sentence: 'Talk to it, get answers as interfaces, and run it on the model you choose.',
   cards: [
-    { lead: 'Its own display.', body: 'It works in a virtual display, so your cursor, keyboard and focus stay yours.' },
-    { lead: 'Asks first.', body: 'Nothing is sent, submitted or deleted without your OK.' },
-    { lead: 'Checks its work.', body: 'Every task ends with proof: the file exists, the tests pass, the receipt is saved.' },
+    { lead: 'Just say it.', body: 'Speak naturally. It already knows the deadline, the files and who asked.' },
+    { lead: 'Answers as interfaces.', body: 'A plan comes back as a checklist, not 600 words of chat.' },
+    { lead: 'Your model, your call.', body: 'Run a free local model, or a hosted one when a task needs it. Your Claude, ChatGPT and Gemini chats count as context too.' },
   ],
   apps: 'Sees any app on your screen. Connects to these for more.',
 };

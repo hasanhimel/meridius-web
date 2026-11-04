@@ -1,16 +1,30 @@
+import { useState } from 'react';
 import { privacy } from '../content';
 import { LockIcon } from '../ui/icons';
 
-function Settings() {
+function Toggle({ on, label, onChange }: { on: boolean; label: string; onChange: () => void }) {
   return (
-    <div className="m-settings" role="img" aria-label="Meridius privacy settings: stored on this Mac, system audio on, microphone off, three apps excluded, local model">
+    <button type="button" role="switch" aria-checked={on} aria-label={label} className="m-toggle" data-on={on || undefined} onClick={onChange} />
+  );
+}
+
+/** A working settings panel: the switches switch, and pausing says so. */
+function Settings() {
+  const [audio, setAudio] = useState(true);
+  const [mic, setMic] = useState(false);
+  const [paused, setPaused] = useState(false);
+  return (
+    <div className="m-settings">
       <div className="m-win__bar" aria-hidden="true">
         <i />
         <i />
         <i />
         <span>Privacy</span>
+        <span className="m-settings__state" data-paused={paused}>
+          {paused ? 'Paused' : 'Observing'}
+        </span>
       </div>
-      <div className="m-settings__body" aria-hidden="true">
+      <div className="m-settings__body">
         <div className="m-setting">
           <LockIcon className="m-apple" />
           Storage
@@ -18,11 +32,11 @@ function Settings() {
         </div>
         <div className="m-setting">
           System audio
-          <span className="m-toggle" data-on />
+          <Toggle on={audio} label="System audio" onChange={() => setAudio((v) => !v)} />
         </div>
         <div className="m-setting">
           Microphone
-          <span className="m-toggle" />
+          <Toggle on={mic} label="Microphone" onChange={() => setMic((v) => !v)} />
         </div>
         <div className="m-setting">
           Never capture
@@ -37,8 +51,10 @@ function Settings() {
           <span>Local · Gemma</span>
         </div>
         <div className="m-setting">
-          Pause observing
-          <span>For 1 hour</span>
+          Observing
+          <button type="button" className="m-pause" data-paused={paused} onClick={() => setPaused((v) => !v)}>
+            {paused ? 'Resume' : 'Pause for 1 hour'}
+          </button>
         </div>
       </div>
     </div>

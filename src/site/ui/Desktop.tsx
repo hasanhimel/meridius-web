@@ -1,7 +1,67 @@
-import { forwardRef } from 'react';
+import { forwardRef, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { LogoMark } from '../brand/LogoMark';
-import { CursorIcon, DocIcon } from './icons';
+import { CheckIcon, DocIcon } from './icons';
+import { Cursor, type CursorHandle } from './Cursor';
+import { gsap } from '../motion';
 import { AppMark } from './apps';
+
+const RECEIPTS = ['Pathao · BDT 240', 'Figma · $15.00', 'Star Kabab · BDT 860'];
+
+/**
+ * The floating mirror of Meridius's own display: its cursor ticks off
+ * receipts one by one, on a loop, while the visitor's screen stays still.
+ */
+function MirrorLoop() {
+  const [done, setDone] = useState(0);
+  const cursor = useRef<CursorHandle>(null);
+  const box = useRef<HTMLDivElement>(null);
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
+
+  useLayoutEffect(() => {
+    const c = cursor.current!;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDone(RECEIPTS.length);
+      return;
+    }
+    const tl = gsap.timeline({ repeat: -1, paused: true, delay: 2.4 });
+    tl.call(() => setDone(0), [], 0);
+    c.set(40, 92);
+    tl.set(c.el, { left: '40%', top: '92%' }, 0);
+    tl.to({}, { duration: 0.4 });
+    RECEIPTS.forEach((_, i) => {
+      c.moveTo(tl, 90, 19 + i * 31, 0.75);
+      c.click(tl);
+      tl.call(() => setDone(i + 1));
+      tl.to({}, { duration: 0.3 });
+    });
+    c.moveTo(tl, 40, 92, 0.8);
+    tl.to({}, { duration: 1.6 });
+    tlRef.current = tl;
+    return () => {
+      tl.kill();
+    };
+  }, []);
+
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? tlRef.current?.play() : tlRef.current?.pause()));
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div ref={box} className="m-mirror__screen">
+      {RECEIPTS.map((r, i) => (
+        <div key={r} className="m-mirror__row" data-on={done > i}>
+          <span>{r}</span>
+          <i>{done > i ? <CheckIcon /> : null}</i>
+        </div>
+      ))}
+      <Cursor ref={cursor} x={40} y={92} />
+    </div>
+  );
+}
 
 /**
  * The hero's product shot: a Mac desktop where Meridius has just noticed a
@@ -100,26 +160,17 @@ export const Desktop = forwardRef<HTMLDivElement>(function Desktop(_, ref) {
           </div>
         </div>
 
-        <div className="m-mirror" style={{ right: '2.4em', bottom: '5.8em' }} data-pop>
+        <div className="m-mirror" style={{ right: '2.2em', bottom: '5.6em' }} data-pop>
           <div className="m-mirror__head">
             <LogoMark size={11} />
             <b>Its own display</b>
             <span style={{ marginLeft: 'auto' }}>Filing receipts</span>
           </div>
-          <div className="m-mirror__screen">
-            <div className="m-mirror__doc">
-              <i />
-              <i />
-              <i style={{ width: '80%' }} />
-              <i />
-              <i style={{ width: '60%' }} />
-            </div>
-            <CursorIcon className="m-cursor" style={{ left: '62%', top: '48%' }} />
-          </div>
+          <MirrorLoop />
         </div>
 
         <div className="m-dock">
-          <span>
+          <span className="m-appmark m-dock__app">
             <LogoMark size={26} />
           </span>
           {(['gmail', 'slack', 'docs', 'notion', 'calendar'] as const).map((id) => (

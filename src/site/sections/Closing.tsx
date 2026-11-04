@@ -2,7 +2,8 @@ import { forwardRef, useState, type FormEvent } from 'react';
 import { closing } from '../content';
 import { joinWaitlist, validateEmail } from '../../lib/supabase';
 import { BOOK_CALL_URL } from '../../config';
-import { LogoMark } from '../brand/LogoMark';
+import { AppIcon } from '../brand/AppIcon';
+import { CursorGlyph } from '../ui/Cursor';
 import { SparkIcon } from '../ui/icons';
 
 const DISPOSABLE = new Set([
@@ -109,11 +110,16 @@ export const Closing = forwardRef<HTMLInputElement>(function Closing(_, inputRef
           </p>
         </div>
         <div className="m-icon-float" aria-hidden="true">
-          <span className="m-appicon m-appicon--a" data-float>
-            <LogoMark size={92} />
+          <span className="m-float m-float--a">
+            <AppIcon size={176} />
           </span>
-          <span className="m-appicon m-appicon--b" data-float>
-            <SparkIcon />
+          <span className="m-float m-float--b">
+            <AppIcon size={112} lit>
+              <SparkIcon />
+            </AppIcon>
+          </span>
+          <span className="m-float m-float--c">
+            <CursorGlyph />
           </span>
         </div>
       </div>

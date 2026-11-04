@@ -3,8 +3,8 @@ import { LOGO_DOTS, type LogoDot } from '../../data/logoDots';
 /**
  * Geometry of the Meridius mark: 127 dots on an isometric lattice inside a
  * pointy-top hexagon, read as a cube (top / left / right faces) with a bold M
- * on the two lower faces. Shared by the SVG mark and the dither shader so the
- * site never drifts from the real logo.
+ * on the two lower faces. Shared by every rendering of the mark so the site never
+ * drifts from the real logo.
  */
 
 export type Face = 'top' | 'left' | 'right';
@@ -34,6 +34,3 @@ export const SHADED_DOTS: ShadedDot[] = LOGO_DOTS.map((dot) => {
 });
 
 export const MAX_DIST = Math.max(...SHADED_DOTS.map((d) => d.dist));
-
-/** Opacity per face for the small (non-M) dots on a dark ground. */
-export const FACE_ALPHA: Record<Face, number> = { top: 0.92, left: 0.62, right: 0.36 };

@@ -1,4 +1,4 @@
-import { LogoMark } from '../brand/LogoMark';
+import { AppIcon } from '../brand/AppIcon';
 import { BOOK_CALL_URL, CONTACT_EMAIL } from '../../config';
 
 export function Footer({ onRequest }: { onRequest: () => void }) {
@@ -9,7 +9,7 @@ export function Footer({ onRequest }: { onRequest: () => void }) {
         <div className="m-footer__top">
           <div>
             <span className="m-footer__brand">
-              <LogoMark size={24} />
+              <AppIcon size={26} />
               Meridius
             </span>
             <p className="m-footer__about">The Mac companion that remembers what matters and does the work.</p>
@@ -17,8 +17,8 @@ export function Footer({ onRequest }: { onRequest: () => void }) {
           <nav aria-label="Product">
             <h3>Product</h3>
             <ul>
-              <li><a href="#how">How it works</a></li>
-              <li><a href="#recall">Recall</a></li>
+              <li><a href="#capabilities">Capabilities</a></li>
+              <li><a href="#display">How it works</a></li>
               <li><a href="#privacy">Privacy</a></li>
               <li><a href="#faq">FAQ</a></li>
             </ul>
