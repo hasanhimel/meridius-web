@@ -4,7 +4,7 @@ import { ChevronIcon } from '../ui/icons';
 export function Faq() {
   return (
     <section id="faq" className="m-section m-wrap m-faq" data-section aria-labelledby="faq-title">
-      <h2 id="faq-title" className="m-h2" data-reveal>
+      <h2 id="faq-title" className="m-h2" data-reveal="words">
         {faq.heading}
       </h2>
       <div data-reveal>

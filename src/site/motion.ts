@@ -53,42 +53,103 @@ export function scrollToId(id: string, offset = -68) {
   }
 }
 
+/** Wraps each word of an element's text in a span, keeping inner elements. */
+function splitWords(el: HTMLElement): HTMLElement[] {
+  if (el.dataset.split) return Array.from(el.querySelectorAll<HTMLElement>('.m-word'));
+  el.dataset.split = '1';
+  const words: HTMLElement[] = [];
+  const walk = (node: Node) => {
+    Array.from(node.childNodes).forEach((child) => {
+      if (child.nodeType === Node.TEXT_NODE) {
+        const parts = (child.textContent ?? '').split(/(\s+)/);
+        const frag = document.createDocumentFragment();
+        parts.forEach((part) => {
+          if (!part) return;
+          if (/^\s+$/.test(part)) frag.appendChild(document.createTextNode(part));
+          else {
+            const span = document.createElement('span');
+            span.className = 'm-word';
+            span.textContent = part;
+            frag.appendChild(span);
+            words.push(span);
+          }
+        });
+        child.parentNode?.replaceChild(frag, child);
+      } else if (child.nodeType === Node.ELEMENT_NODE) walk(child);
+    });
+  };
+  walk(el);
+  return words;
+}
+
 /**
- * Entrances: within each [data-section], elements marked [data-reveal] rise
- * 24px and fade in once, staggered 80ms in document order, when the section
- * enters the viewport. Driven by IntersectionObserver so it fires however the
- * page gets there (wheel, keyboard, anchor jump). Content above the fold on
- * load is never hidden, and nothing is hidden under reduced motion.
+ * Entrances, in the manner of a calm product page:
+ *  - [data-reveal="words"]: a heading's words fade up out of a light blur,
+ *    one after another.
+ *  - [data-reveal]: a block rises 20px out of an 8px blur.
+ *  - [data-reveal="pop"]: a UI card rises and settles from 96% scale.
+ * Each element reveals when it enters the viewport; elements entering
+ * together are staggered. Content above the fold on load is left alone, and
+ * nothing is hidden under reduced motion.
  */
 export function setupReveals(root: HTMLElement) {
   const mm = gsap.matchMedia();
   mm.add(MOTION_OK, () => {
-    const sections = gsap.utils.toArray<HTMLElement>('[data-section]', root);
-    const pending = new Map<Element, HTMLElement[]>();
-    sections.forEach((section) => {
-      const items = gsap.utils.toArray<HTMLElement>('[data-reveal]', section);
-      if (!items.length) return;
-      if (section.getBoundingClientRect().top < window.innerHeight * 0.9) return;
-      gsap.set(items, { opacity: 0, y: 24 });
-      pending.set(section, items);
+    const all = gsap.utils.toArray<HTMLElement>('[data-reveal]', root);
+    const fold = window.innerHeight * 0.92;
+    const pending = all.filter((el) => el.getBoundingClientRect().top > fold);
+    const words = new Map<HTMLElement, HTMLElement[]>();
+
+    pending.forEach((el) => {
+      const kind = el.dataset.reveal;
+      if (kind === 'words') {
+        const w = splitWords(el);
+        words.set(el, w);
+        gsap.set(w, { opacity: 0, y: 10, filter: 'blur(6px)' });
+      } else if (kind === 'pop') {
+        gsap.set(el, { opacity: 0, y: 40, scale: 0.96, filter: 'blur(8px)', transformOrigin: '50% 100%' });
+      } else {
+        gsap.set(el, { opacity: 0, y: 20, filter: 'blur(8px)' });
+      }
     });
+
+    let queue: HTMLElement[] = [];
+    let raf = 0;
+    const flush = () => {
+      raf = 0;
+      const batch = queue.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top || a.getBoundingClientRect().left - b.getBoundingClientRect().left);
+      queue = [];
+      batch.forEach((el, i) => {
+        const delay = i * 0.1;
+        const w = words.get(el);
+        if (w) {
+          gsap.to(w, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.7, ease: 'power3.out', stagger: 0.045, delay, clearProps: 'filter' });
+        } else if (el.dataset.reveal === 'pop') {
+          gsap.to(el, { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', duration: 1.1, ease: 'expo.out', delay, clearProps: 'filter,transform' });
+        } else {
+          gsap.to(el, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.9, ease: 'expo.out', delay, clearProps: 'filter,transform' });
+        }
+      });
+    };
+
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
-          const items = pending.get(entry.target);
-          if (!items) return;
-          pending.delete(entry.target);
           io.unobserve(entry.target);
-          gsap.to(items, { opacity: 1, y: 0, duration: 0.8, ease: 'expo.out', stagger: 0.08, overwrite: true });
+          queue.push(entry.target as HTMLElement);
         });
+        if (queue.length && !raf) raf = requestAnimationFrame(flush);
       },
-      { rootMargin: '0px 0px -18% 0px', threshold: 0 }
+      { rootMargin: '0px 0px -12% 0px', threshold: 0 }
     );
-    pending.forEach((_, section) => io.observe(section));
+    pending.forEach((el) => io.observe(el));
+
     return () => {
       io.disconnect();
-      pending.forEach((items) => gsap.set(items, { clearProps: 'opacity,transform' }));
+      cancelAnimationFrame(raf);
+      gsap.set(pending, { clearProps: 'opacity,transform,filter' });
+      words.forEach((w) => gsap.set(w, { clearProps: 'opacity,transform,filter' }));
     };
   });
   return () => mm.revert();

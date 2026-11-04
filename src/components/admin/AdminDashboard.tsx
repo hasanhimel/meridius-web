@@ -1,878 +1,391 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Users, 
-  Globe, 
-  RotateCw, 
-  Search, 
-  Download, 
-  Copy, 
-  Check, 
-  LogOut, 
-  Activity, 
-  TrendingUp,
-  Mail,
-  UserCheck,
-  MapPin,
-  Compass
-} from 'lucide-react';
-import { ThemeToggle } from '../ThemeToggle';
-import { NavbarLogoMark } from '../NavbarLogoMark';
-import { DeviceIcon, AppleIcon } from './DeviceIcon';
-import { getAdminData, WaitlistEntry, VisitorEntry, PageViewEntry } from '../../lib/supabase';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { NavMark } from '../../site/brand/NavMark';
+import { DeviceIcon } from './DeviceIcon';
+import { getAdminData, type PageViewEntry, type VisitorEntry, type WaitlistEntry } from '../../lib/supabase';
 import { getCountryFlag } from '../../lib/geo';
 
-// CWE-1236 Formula Injection Defense
-function sanitizeCsvCell(value: any): string {
+/** CWE-1236: neutralise spreadsheet formulas before a value lands in a CSV. */
+export function sanitizeCsvCell(value: unknown): string {
   if (value === null || value === undefined) return '""';
   let str = String(value).trim();
-  if (/^[=+\-@\t\r]/.test(str)) {
-    str = `'${str}`;
-  }
-  str = str.replace(/"/g, '""');
-  return `"${str}"`;
+  if (/^[=+\-@\t\r]/.test(str)) str = `'${str}`;
+  return `"${str.replace(/"/g, '""')}"`;
 }
 
-interface AdminDashboardProps {
-  onLogout: () => void;
-  token?: string | null;
+function downloadCsv(name: string, headers: string[], rows: unknown[][]) {
+  const csv = [headers.map(sanitizeCsvCell).join(','), ...rows.map((r) => r.map(sanitizeCsvCell).join(','))].join('\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${name}_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token }) => {
+const when = (iso?: string) =>
+  iso ? new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—';
+
+function ago(iso?: string) {
+  if (!iso) return '—';
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return 'just now';
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
+}
+
+const codeOf = (v: { country_code?: string | null; country?: string | null }) =>
+  v.country_code?.toUpperCase() || (v.country ? v.country.slice(0, 2).toUpperCase() : 'UNKNOWN');
+
+type Tab = 'waitlist' | 'visitors' | 'feed';
+
+function useCopy() {
+  const [copied, setCopied] = useState<string | null>(null);
+  const copy = (key: string, text: string) => {
+    navigator.clipboard?.writeText(text).then(() => {
+      setCopied(key);
+      window.setTimeout(() => setCopied((c) => (c === key ? null : c)), 1600);
+    });
+  };
+  return { copied, copy };
+}
+
+/**
+ * The admin console, in the site's own look: who asked for early access,
+ * who visited and from where, and a live feed of page views. Data comes only
+ * from /api/admin/data, which reads with the service-role key on the server.
+ */
+export function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => void }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [updated, setUpdated] = useState<Date | null>(null);
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
   const [visitors, setVisitors] = useState<VisitorEntry[]>([]);
   const [pageViews, setPageViews] = useState<PageViewEntry[]>([]);
-  
-  const [activeTab, setActiveTab] = useState<'waitlist' | 'visitors' | 'feed'>('waitlist');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [visitorSearchQuery, setVisitorSearchQuery] = useState('');
-  const [selectedCountryFilter, setSelectedCountryFilter] = useState<string>('ALL');
-  
-  const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
-  const [copiedVisitorId, setCopiedVisitorId] = useState<string | null>(null);
-  const [copiedAll, setCopiedAll] = useState(false);
+  const [tab, setTab] = useState<Tab>('waitlist');
+  const [query, setQuery] = useState('');
+  const [country, setCountry] = useState('ALL');
+  const { copied, copy } = useCopy();
 
-  const fetchData = async () => {
+  const load = useCallback(async () => {
     setRefreshing(true);
     const data = await getAdminData(token);
     if (data.unauthorized) {
       onLogout();
       return;
     }
-    setWaitlist(data.waitlist);
-    setVisitors(data.visitors);
-    setPageViews(data.pageViews);
+    setError(data.error);
+    if (!data.error || data.waitlist.length || data.visitors.length) {
+      setWaitlist(data.waitlist);
+      setVisitors(data.visitors);
+      setPageViews(data.pageViews);
+    }
+    setUpdated(new Date());
     setLoading(false);
     setRefreshing(false);
-  };
+  }, [token, onLogout]);
 
   useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 30000); // Auto-poll every 30s
-    return () => clearInterval(interval);
-  }, [token]);
+    load();
+    const id = window.setInterval(load, 30000);
+    return () => window.clearInterval(id);
+  }, [load]);
 
-  // Filtered waitlist
-  const filteredWaitlist = useMemo(() => {
-    if (!searchQuery.trim()) return waitlist;
-    const q = searchQuery.toLowerCase();
-    return waitlist.filter(
-      (w) =>
-        w.email.toLowerCase().includes(q) ||
-        w.name?.toLowerCase().includes(q) ||
-        w.company?.toLowerCase().includes(q) ||
-        w.role?.toLowerCase().includes(q) ||
-        w.metadata?.city?.toLowerCase().includes(q) ||
-        w.metadata?.country?.toLowerCase().includes(q)
-    );
-  }, [waitlist, searchQuery]);
-
-  // Country Breakdown for Visitors
-  const countryBreakdown = useMemo(() => {
-    const counts: Record<string, { count: number; name: string; flag: string }> = {};
-    
+  const countries = useMemo(() => {
+    const map = new Map<string, { code: string; name: string; flag: string; count: number }>();
     visitors.forEach((v) => {
-      const code = v.country_code?.toUpperCase() || (v.country ? v.country.slice(0, 2).toUpperCase() : 'UNKNOWN');
-      const name = v.country || 'Unknown Location';
-      const flag = v.flag_emoji || getCountryFlag(code !== 'UNKNOWN' ? code : null);
-
-      if (!counts[code]) {
-        counts[code] = { count: 0, name, flag };
-      }
-      counts[code].count += 1;
+      const code = codeOf(v);
+      const row = map.get(code) ?? { code, name: v.country || 'Unknown', flag: v.flag_emoji || getCountryFlag(code === 'UNKNOWN' ? null : code), count: 0 };
+      row.count += 1;
+      map.set(code, row);
     });
-
-    return Object.entries(counts)
-      .map(([code, info]) => ({ code, ...info }))
-      .sort((a, b) => b.count - a.count);
+    return [...map.values()].sort((a, b) => b.count - a.count);
   }, [visitors]);
 
-  // Filtered visitors
-  const filteredVisitors = useMemo(() => {
-    return visitors.filter((v) => {
-      // Country chip filter
-      if (selectedCountryFilter !== 'ALL') {
-        const vCode = v.country_code?.toUpperCase() || (v.country ? v.country.slice(0, 2).toUpperCase() : 'UNKNOWN');
-        if (vCode !== selectedCountryFilter) return false;
-      }
-
-      // Search query filter
-      if (!visitorSearchQuery.trim()) return true;
-      const q = visitorSearchQuery.toLowerCase();
-      return (
-        v.visitor_id.toLowerCase().includes(q) ||
-        v.city?.toLowerCase().includes(q) ||
-        v.country?.toLowerCase().includes(q) ||
-        v.country_code?.toLowerCase().includes(q) ||
-        v.region?.toLowerCase().includes(q) ||
-        v.os?.toLowerCase().includes(q) ||
-        v.browser?.toLowerCase().includes(q) ||
-        v.last_path?.toLowerCase().includes(q) ||
-        v.device_type?.toLowerCase().includes(q)
-      );
-    });
-  }, [visitors, visitorSearchQuery, selectedCountryFilter]);
-
-  // Analytics Metrics
   const metrics = useMemo(() => {
-    const totalWaitlist = waitlist.length;
-    const totalPageViews = pageViews.length;
-    const totalUniqueVisitors = visitors.length;
-    const returningVisitors = visitors.filter((v) => v.total_visits > 1).length;
-    const returnRate = totalUniqueVisitors > 0 
-      ? Math.round((returningVisitors / totalUniqueVisitors) * 100) 
-      : 0;
-
-    const macUsers = visitors.filter((v) => (v.os || '').toLowerCase().includes('mac')).length;
-    const macRate = totalUniqueVisitors > 0 
-      ? Math.round((macUsers / totalUniqueVisitors) * 100) 
-      : 0;
-
-    const totalVisitsSum = visitors.reduce((sum, v) => sum + (v.total_visits || 1), 0);
-    const avgVisits = totalUniqueVisitors > 0 
-      ? (totalVisitsSum / totalUniqueVisitors).toFixed(1) 
-      : '0';
-
-    const validCountries = countryBreakdown.filter((c) => c.code !== 'UNKNOWN');
-    const totalCountriesCount = validCountries.length;
-    const topCountry = validCountries[0] || null;
-
+    const unique = visitors.length;
+    const returning = visitors.filter((v) => (v.total_visits || 1) > 1).length;
+    const mac = visitors.filter((v) => (v.os || '').toLowerCase().includes('mac')).length;
+    const today = new Date().toDateString();
+    const joinedToday = waitlist.filter((w) => w.created_at && new Date(w.created_at).toDateString() === today).length;
+    const known = countries.filter((c) => c.code !== 'UNKNOWN');
     return {
-      totalWaitlist,
-      totalPageViews,
-      totalUniqueVisitors,
-      returningVisitors,
-      returnRate,
-      macUsers,
-      macRate,
-      avgVisits,
-      totalCountriesCount,
-      topCountry
+      waitlist: waitlist.length,
+      joinedToday,
+      unique,
+      returnRate: unique ? Math.round((returning / unique) * 100) : 0,
+      macRate: unique ? Math.round((mac / unique) * 100) : 0,
+      conversion: unique ? ((waitlist.length / unique) * 100).toFixed(1) : '0.0',
+      countries: known.length,
+      top: known[0] ?? null,
     };
-  }, [waitlist, visitors, pageViews, countryBreakdown]);
+  }, [waitlist, visitors, countries]);
 
-  const handleCopyEmail = (email: string) => {
-    navigator.clipboard.writeText(email);
-    setCopiedEmail(email);
-    setTimeout(() => setCopiedEmail(null), 2000);
+  const q = query.trim().toLowerCase();
+  const shownWaitlist = useMemo(
+    () =>
+      !q
+        ? waitlist
+        : waitlist.filter((w) =>
+            [w.email, w.name, w.company, w.role, w.use_case, w.metadata?.city, w.metadata?.country].some((f) => f?.toLowerCase().includes(q))
+          ),
+    [waitlist, q]
+  );
+  const shownVisitors = useMemo(
+    () =>
+      visitors.filter(
+        (v) =>
+          (country === 'ALL' || codeOf(v) === country) &&
+          (!q || [v.visitor_id, v.city, v.country, v.region, v.os, v.browser, v.last_path, v.referrer].some((f) => f?.toLowerCase().includes(q)))
+      ),
+    [visitors, country, q]
+  );
+  const shownFeed = useMemo(
+    () => (!q ? pageViews : pageViews.filter((p) => [p.path, p.city, p.country, p.referrer, p.visitor_id].some((f) => f?.toLowerCase().includes(q)))),
+    [pageViews, q]
+  );
+
+  const exportCsv = () => {
+    if (tab === 'waitlist') {
+      downloadCsv(
+        'meridius_waitlist',
+        ['Email', 'Name', 'Company', 'Role', 'Use case', 'City', 'Country', 'Joined'],
+        waitlist.map((w) => [w.email, w.name, w.company, w.role, w.use_case, w.metadata?.city, w.metadata?.country, w.created_at])
+      );
+    } else if (tab === 'visitors') {
+      downloadCsv(
+        'meridius_visitors',
+        ['Visitor', 'Visits', 'City', 'Region', 'Country', 'Device', 'OS', 'Browser', 'Screen', 'First seen', 'Last seen', 'Last path', 'Referrer'],
+        visitors.map((v) => [v.visitor_id, v.total_visits, v.city, v.region, v.country, v.device_type, v.os, v.browser, v.screen_res, v.first_seen_at, v.last_seen_at, v.last_path, v.referrer])
+      );
+    } else {
+      downloadCsv(
+        'meridius_page_views',
+        ['Time', 'Path', 'Visitor', 'Session', 'City', 'Country', 'Referrer'],
+        pageViews.map((p) => [p.created_at, p.path, p.visitor_id, p.session_id, p.city, p.country, p.referrer])
+      );
+    }
   };
 
-  const handleCopyVisitorId = (id: string) => {
-    navigator.clipboard.writeText(id);
-    setCopiedVisitorId(id);
-    setTimeout(() => setCopiedVisitorId(null), 2000);
-  };
-
-  const handleCopyAllEmails = () => {
-    const allEmails = waitlist.map((w) => w.email).join(', ');
-    navigator.clipboard.writeText(allEmails);
-    setCopiedAll(true);
-    setTimeout(() => setCopiedAll(false), 2000);
-  };
-
-  const handleExportWaitlistCSV = () => {
-    const headers = ['Email', 'Name', 'Company', 'Role', 'City', 'Country', 'Signed Up Date'];
-    const rows = waitlist.map((w) => [
-      sanitizeCsvCell(w.email),
-      sanitizeCsvCell(w.name || ''),
-      sanitizeCsvCell(w.company || ''),
-      sanitizeCsvCell(w.role || ''),
-      sanitizeCsvCell(w.metadata?.city || ''),
-      sanitizeCsvCell(w.metadata?.country || ''),
-      sanitizeCsvCell(w.created_at ? new Date(w.created_at).toLocaleString() : '')
-    ]);
-
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `meridius_waitlist_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleExportVisitorsCSV = () => {
-    const headers = [
-      'Visitor ID',
-      'Total Visits',
-      'City',
-      'Country',
-      'Country Code',
-      'Region',
-      'Device Type',
-      'OS',
-      'Browser',
-      'Screen Resolution',
-      'First Seen',
-      'Last Active',
-      'Last Route',
-      'Referrer'
-    ];
-    const rows = visitors.map((v) => [
-      sanitizeCsvCell(v.visitor_id),
-      sanitizeCsvCell(v.total_visits || 1),
-      sanitizeCsvCell(v.city || ''),
-      sanitizeCsvCell(v.country || ''),
-      sanitizeCsvCell(v.country_code || ''),
-      sanitizeCsvCell(v.region || ''),
-      sanitizeCsvCell(v.device_type || ''),
-      sanitizeCsvCell(v.os || ''),
-      sanitizeCsvCell(v.browser || ''),
-      sanitizeCsvCell(v.screen_res || ''),
-      sanitizeCsvCell(v.first_seen_at ? new Date(v.first_seen_at).toLocaleString() : ''),
-      sanitizeCsvCell(v.last_seen_at ? new Date(v.last_seen_at).toLocaleString() : ''),
-      sanitizeCsvCell(v.last_path || '/'),
-      sanitizeCsvCell(v.referrer || 'Direct')
-    ]);
-
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `meridius_visitors_geo_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const formatDate = (isoStr?: string) => {
-    if (!isoStr) return '—';
-    const d = new Date(isoStr);
-    return d.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  const tabs: { id: Tab; label: string; count: number }[] = [
+    { id: 'waitlist', label: 'Waitlist', count: waitlist.length },
+    { id: 'visitors', label: 'Visitors', count: visitors.length },
+    { id: 'feed', label: 'Live feed', count: pageViews.length },
+  ];
 
   return (
-    <div className="min-h-screen bg-cream dark:bg-void text-charcoal dark:text-cream font-sans transition-colors duration-200 selection:bg-charcoal/15 dark:selection:bg-cream/15">
-      
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-30 border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-cream/80 dark:bg-void/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          
-          {/* Logo & Console Title */}
-          <div className="flex items-center gap-3">
-            <a href="/" className="flex items-center gap-2.5 sm:gap-3 group select-none">
-              <NavbarLogoMark size={36} className="w-8 h-8 sm:w-9 sm:h-9" />
-              <span className="font-brand font-extrabold text-base sm:text-[18px] tracking-[0.02em] uppercase text-charcoal dark:text-cream transition-colors">
-                MERIDIUS
-              </span>
-            </a>
-            <span className="text-charcoal-muted dark:text-cream-dim text-xs">/</span>
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full frosted-glass-pill text-xs font-mono font-medium text-charcoal dark:text-cream border border-charcoal/[0.06] dark:border-cream/[0.08]">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Admin Console</span>
-            </div>
-          </div>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Live Indicator */}
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full frosted-glass-pill text-[11px] font-mono text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 bg-emerald-500/10">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Live Telemetry</span>
-            </div>
-
-            {/* Refresh Button */}
-            <button
-              onClick={fetchData}
-              disabled={refreshing}
-              className="p-2 rounded-full frosted-glass-pill hover:bg-charcoal/5 dark:hover:bg-cream/10 transition-colors text-charcoal dark:text-cream"
-              title="Refresh Data"
-            >
-              <RotateCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+    <div className="a-root">
+      <header className="a-nav">
+        <div className="a-wrap a-nav__inner">
+          <a href="/" className="a-brand">
+            <NavMark size={26} tone="dark" />
+            Meridius
+            <span className="a-brand__tag">Admin</span>
+          </a>
+          <div className="a-nav__actions">
+            <span className="a-updated">{updated ? `Updated ${updated.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : ''}</span>
+            <button type="button" className="a-btn" onClick={load} disabled={refreshing} aria-label="Refresh">
+              <svg viewBox="0 0 16 16" className={refreshing ? 'a-rotate' : undefined} aria-hidden="true">
+                <path d="M13.5 8a5.5 5.5 0 1 1-1.7-4M13.5 2.5v3h-3" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Refresh
             </button>
-
-            {/* Main Website Theme Toggle */}
-            <ThemeToggle />
-
-            {/* Logout */}
-            <button
-              onClick={onLogout}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full frosted-glass-pill hover:bg-rose-500/10 hover:text-rose-500 transition-colors text-xs font-mono font-medium"
-              title="Logout"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Logout</span>
+            <button type="button" className="a-btn" onClick={onLogout}>
+              Sign out
             </button>
           </div>
-
         </div>
       </header>
 
-      {/* Main Content Body */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
-        
-        {/* Top Header & Export Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <main className="a-wrap a-main">
+        <div className="a-head">
           <div>
-            <h1 className="font-brand font-extrabold text-2xl sm:text-3xl tracking-[0.01em] uppercase text-charcoal dark:text-cream">
-              SYSTEM OVERVIEW
-            </h1>
-            <p className="text-xs sm:text-sm text-charcoal-muted dark:text-cream-dim mt-1 font-mono">
-              Live visitor analytics, device telemetry, and waitlist applicant tracking.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            {activeTab === 'waitlist' && (
-              <>
-                <button
-                  onClick={handleCopyAllEmails}
-                  disabled={waitlist.length === 0}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-full frosted-glass-pill text-xs font-mono font-medium text-charcoal dark:text-cream hover:bg-charcoal/5 dark:hover:bg-cream/10 transition-colors disabled:opacity-50"
-                >
-                  {copiedAll ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Mail className="w-3.5 h-3.5" />}
-                  <span>{copiedAll ? 'Copied' : 'Copy emails'}</span>
-                </button>
-
-                <button
-                  onClick={handleExportWaitlistCSV}
-                  disabled={waitlist.length === 0}
-                  className="cursor-btn-primary px-4 py-2 rounded-full text-xs font-mono font-medium shadow-sm flex items-center gap-1.5 disabled:opacity-50"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Export CSV</span>
-                </button>
-              </>
-            )}
-
-            {activeTab === 'visitors' && (
-              <button
-                onClick={handleExportVisitorsCSV}
-                disabled={visitors.length === 0}
-                className="cursor-btn-primary px-4 py-2 rounded-full text-xs font-mono font-medium shadow-sm flex items-center gap-1.5 disabled:opacity-50"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Export CSV</span>
-              </button>
-            )}
+            <h1>Overview</h1>
+            <p>Early-access requests and site traffic. Refreshes every 30 seconds.</p>
           </div>
         </div>
 
-        {/* ============================================================ */}
-        {/* 4 Metric Cards */}
-        {/* ============================================================ */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          
-          {/* Card 1: Waitlist Registrations */}
-          <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group hover:border-charcoal/[0.16] dark:hover:border-cream/[0.16] transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
-                Waitlist
-              </span>
-              <Users className="w-5 h-5 text-emerald-500" />
-            </div>
-            <div className="font-brand font-extrabold text-3xl sm:text-4xl text-charcoal dark:text-cream">
-              {metrics.totalWaitlist}
-            </div>
-            <div className="flex items-center gap-1 text-[11px] font-mono text-emerald-600 dark:text-emerald-400 mt-2">
-              <TrendingUp className="w-3 h-3" />
-              <span>Total signups</span>
-            </div>
+        {error ? (
+          <div className="a-alert" role="alert">
+            <b>Couldn’t load everything.</b> {error}
           </div>
+        ) : null}
 
-          {/* Card 2: Unique Visitors */}
-          <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group hover:border-charcoal/[0.16] dark:hover:border-cream/[0.16] transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
-                Visitors
-              </span>
-              <Globe className="w-5 h-5 text-blue-500" />
-            </div>
-            <div className="font-brand font-extrabold text-3xl sm:text-4xl text-charcoal dark:text-cream">
-              {metrics.totalUniqueVisitors}
-            </div>
-            <div className="text-[11px] font-mono text-charcoal-muted dark:text-cream-dim mt-2 flex items-center gap-1">
-              <MapPin className="w-3 h-3 text-blue-500" />
-              <span>
-                {metrics.totalCountriesCount > 0 
-                  ? `${metrics.totalCountriesCount} ${metrics.totalCountriesCount === 1 ? 'country' : 'countries'}`
-                  : `${metrics.avgVisits} avg visits`}
-              </span>
-            </div>
-          </div>
-
-          {/* Card 3: Returning Visitors */}
-          <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group hover:border-charcoal/[0.16] dark:hover:border-cream/[0.16] transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
-                Returning
-              </span>
-              <UserCheck className="w-5 h-5 text-amber-500" />
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-brand font-extrabold text-3xl sm:text-4xl text-charcoal dark:text-cream">
-                {metrics.returningVisitors}
-              </span>
-              <span className="text-xs font-mono font-semibold text-amber-600 dark:text-amber-400">
-                ({metrics.returnRate}%)
-              </span>
-            </div>
-            <div className="text-[11px] font-mono text-charcoal-muted dark:text-cream-dim mt-2">
-              {metrics.avgVisits} visits per user
-            </div>
-          </div>
-
-          {/* Card 4: macOS Share with raw simple-icons Apple Vector */}
-          <div className="rounded-3xl frosted-glass p-6 border border-charcoal/[0.08] dark:border-cream/[0.08] relative overflow-hidden group hover:border-charcoal/[0.16] dark:hover:border-cream/[0.16] transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim uppercase tracking-wider">
-                macOS Share
-              </span>
-              <AppleIcon className="w-5 h-5 text-charcoal dark:text-cream" />
-            </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-brand font-extrabold text-3xl sm:text-4xl text-charcoal dark:text-cream">
-                {metrics.macRate}%
-              </span>
-              <span className="text-xs font-mono text-charcoal-muted dark:text-cream-dim">
-                ({metrics.macUsers} users)
-              </span>
-            </div>
-            <div className="text-[11px] font-mono text-charcoal-muted dark:text-cream-dim mt-2">
-              Target Mac audience
-            </div>
-          </div>
-
-        </div>
-
-        {/* ============================================================ */}
-        {/* TAB NAVIGATION */}
-        {/* ============================================================ */}
-        <div className="flex items-center gap-2 p-1.5 rounded-full frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] w-fit">
-          
-          <button
-            onClick={() => setActiveTab('waitlist')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono transition-all ${
-              activeTab === 'waitlist'
-                ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal font-semibold shadow-sm'
-                : 'text-charcoal-muted dark:text-cream-dim hover:text-charcoal dark:hover:text-cream'
-            }`}
-          >
-            <Users className="w-3.5 h-3.5" />
+        <section className="a-metrics" aria-label="Key numbers">
+          <article className="a-metric a-metric--blue">
             <span>Waitlist</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-charcoal/[0.1] dark:bg-cream/[0.2] text-[10px]">
-              {waitlist.length}
-            </span>
-          </button>
+            <b>{loading ? '—' : metrics.waitlist}</b>
+            <small>{metrics.joinedToday ? `+${metrics.joinedToday} today` : 'No new sign-ups today'}</small>
+          </article>
+          <article className="a-metric">
+            <span>Unique visitors</span>
+            <b>{loading ? '—' : metrics.unique}</b>
+            <small>{metrics.returnRate}% came back</small>
+          </article>
+          <article className="a-metric">
+            <span>Visitor → waitlist</span>
+            <b>{loading ? '—' : `${metrics.conversion}%`}</b>
+            <small>{metrics.macRate}% on a Mac</small>
+          </article>
+          <article className="a-metric">
+            <span>Countries</span>
+            <b>{loading ? '—' : metrics.countries}</b>
+            <small>{metrics.top ? `Most from ${metrics.top.flag} ${metrics.top.name}` : 'No location data yet'}</small>
+          </article>
+        </section>
 
-          <button
-            onClick={() => setActiveTab('visitors')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono transition-all ${
-              activeTab === 'visitors'
-                ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal font-semibold shadow-sm'
-                : 'text-charcoal-muted dark:text-cream-dim hover:text-charcoal dark:hover:text-cream'
-            }`}
-          >
-            <Globe className="w-3.5 h-3.5" />
-            <span>Visitors & Devices</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-charcoal/[0.1] dark:bg-cream/[0.2] text-[10px]">
-              {visitors.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('feed')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono transition-all ${
-              activeTab === 'feed'
-                ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal font-semibold shadow-sm'
-                : 'text-charcoal-muted dark:text-cream-dim hover:text-charcoal dark:hover:text-cream'
-            }`}
-          >
-            <Activity className="w-3.5 h-3.5" />
-            <span>Activity Feed</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          </button>
-
-        </div>
-
-        {/* ============================================================ */}
-        {/* TAB 1: WAITLIST */}
-        {/* ============================================================ */}
-        {activeTab === 'waitlist' && (
-          <div className="rounded-3xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] overflow-hidden">
-            
-            {/* Table Search & Title */}
-            <div className="p-4 sm:p-6 border-b border-charcoal/[0.08] dark:border-cream/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="relative flex-1 max-w-md">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal-muted dark:text-cream-dim" />
-                <input
-                  type="text"
-                  placeholder="Search applicants by name, email, company, or city..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-full frosted-glass-pill text-xs font-mono text-charcoal dark:text-cream placeholder-charcoal-muted/60 dark:placeholder-cream-muted/60 focus:outline-none"
-                />
-              </div>
-
-              <div className="text-xs font-mono text-charcoal-muted dark:text-cream-dim">
-                Showing {filteredWaitlist.length} of {waitlist.length} applicants
-              </div>
+        <section className="a-panel">
+          <div className="a-toolbar">
+            <div className="a-tabs" role="tablist" aria-label="Data">
+              {tabs.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === t.id}
+                  onClick={() => {
+                    setTab(t.id);
+                    setQuery('');
+                  }}
+                >
+                  {t.label}
+                  <span>{t.count}</span>
+                </button>
+              ))}
             </div>
+            <div className="a-toolbar__right">
+              <input className="a-search" type="search" placeholder="Search" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search" />
+              {tab === 'waitlist' ? (
+                <button type="button" className="a-btn" onClick={() => copy('all', waitlist.map((w) => w.email).join(', '))} disabled={!waitlist.length}>
+                  {copied === 'all' ? 'Copied' : 'Copy emails'}
+                </button>
+              ) : null}
+              <button type="button" className="a-btn a-btn--blue" onClick={exportCsv}>
+                Export CSV
+              </button>
+            </div>
+          </div>
 
-            {/* Waitlist Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs font-mono border-collapse">
-                <thead>
-                  <tr className="border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-charcoal/[0.02] dark:bg-cream/[0.02] text-charcoal-muted dark:text-cream-dim">
-                    <th className="py-3.5 px-6 font-medium">#</th>
-                    <th className="py-3.5 px-6 font-medium">Email</th>
-                    <th className="py-3.5 px-6 font-medium">Applicant</th>
-                    <th className="py-3.5 px-6 font-medium">Role & Company</th>
-                    <th className="py-3.5 px-6 font-medium">Location</th>
-                    <th className="py-3.5 px-6 font-medium">Date</th>
-                    <th className="py-3.5 px-6 font-medium text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-charcoal/[0.06] dark:divide-cream/[0.06]">
-                  {filteredWaitlist.length > 0 ? (
-                    filteredWaitlist.map((item, idx) => (
-                      <tr 
-                        key={item.id || idx}
-                        className="hover:bg-charcoal/[0.02] dark:hover:bg-cream/[0.02] transition-colors"
-                      >
-                        <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim">
-                          {idx + 1}
-                        </td>
-                        <td className="py-4 px-6 font-semibold text-charcoal dark:text-cream">
-                          {item.email}
-                        </td>
-                        <td className="py-4 px-6 text-charcoal dark:text-cream">
-                          {item.name || <span className="text-charcoal-muted dark:text-cream-dim">—</span>}
-                        </td>
-                        <td className="py-4 px-6">
-                          {item.role || item.company ? (
-                            <div>
-                              <span className="font-medium text-charcoal dark:text-cream">{item.role || 'Member'}</span>
-                              {item.company && (
-                                <span className="text-charcoal-muted dark:text-cream-dim"> @ {item.company}</span>
-                              )}
-                            </div>
-                          ) : (
-                            <span className="text-charcoal-muted dark:text-cream-dim">—</span>
-                          )}
-                        </td>
-                        <td className="py-4 px-6">
-                          {item.metadata?.city || item.metadata?.country ? (
-                            <div className="flex items-center gap-1.5">
-                              <span>{getCountryFlag(item.metadata.country_code || null)}</span>
-                              <span>{[item.metadata.city, item.metadata.country].filter(Boolean).join(', ')}</span>
-                            </div>
-                          ) : (
-                            <span className="text-charcoal-muted dark:text-cream-dim">—</span>
-                          )}
-                        </td>
-                        <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim whitespace-nowrap">
-                          {formatDate(item.created_at)}
-                        </td>
-                        <td className="py-4 px-6 text-right">
-                          <button
-                            onClick={() => handleCopyEmail(item.email)}
-                            className="p-1.5 rounded-lg hover:bg-charcoal/10 dark:hover:bg-cream/10 transition-colors text-charcoal dark:text-cream"
-                            title="Copy email"
-                          >
-                            {copiedEmail === item.email ? (
-                              <Check className="w-3.5 h-3.5 text-emerald-500" />
-                            ) : (
-                              <Copy className="w-3.5 h-3.5" />
-                            )}
+          {tab === 'visitors' && countries.length > 1 ? (
+            <div className="a-chips" role="group" aria-label="Filter by country">
+              <button type="button" aria-pressed={country === 'ALL'} onClick={() => setCountry('ALL')}>
+                All <span>{visitors.length}</span>
+              </button>
+              {countries.map((c) => (
+                <button key={c.code} type="button" aria-pressed={country === c.code} onClick={() => setCountry(c.code)}>
+                  {c.flag} {c.name} <span>{c.count}</span>
+                </button>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="a-table-wrap">
+            {loading ? (
+              <p className="a-empty">Loading…</p>
+            ) : tab === 'waitlist' ? (
+              shownWaitlist.length ? (
+                <table className="a-table">
+                  <thead>
+                    <tr>
+                      <th>Email</th>
+                      <th>Name</th>
+                      <th>Use case</th>
+                      <th>Location</th>
+                      <th>Joined</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {shownWaitlist.map((w) => (
+                      <tr key={w.id ?? w.email}>
+                        <td>
+                          <button type="button" className="a-copy" onClick={() => copy(w.email, w.email)} title="Copy email">
+                            {w.email}
+                            <em>{copied === w.email ? 'Copied' : 'Copy'}</em>
                           </button>
                         </td>
+                        <td>{[w.name, w.company].filter(Boolean).join(' · ') || <span className="a-dim">—</span>}</td>
+                        <td className="a-wrap-cell">{w.use_case || <span className="a-dim">—</span>}</td>
+                        <td>
+                          {w.metadata?.country ? `${getCountryFlag(w.metadata?.country_code)} ${[w.metadata?.city, w.metadata?.country].filter(Boolean).join(', ')}` : <span className="a-dim">—</span>}
+                        </td>
+                        <td className="a-nowrap">{when(w.created_at)}</td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={7} className="py-12 text-center text-charcoal-muted dark:text-cream-dim">
-                        {loading ? 'Loading waitlist...' : 'No waitlist applicants found.'}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-          </div>
-        )}
-
-        {/* ============================================================ */}
-        {/* TAB 2: VISITORS & DEVICES */}
-        {/* ============================================================ */}
-        {activeTab === 'visitors' && (
-          <div className="rounded-3xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] overflow-hidden">
-            
-            {/* Header & Controls */}
-            <div className="p-4 sm:p-6 border-b border-charcoal/[0.08] dark:border-cream/[0.08] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-              
-              {/* Search Box */}
-              <div className="relative flex-1 max-w-md">
-                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-charcoal-muted dark:text-cream-dim" />
-                <input
-                  type="text"
-                  placeholder="Search visitors by city, OS, browser, or ID..."
-                  value={visitorSearchQuery}
-                  onChange={(e) => setVisitorSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-full frosted-glass-pill text-xs font-mono text-charcoal dark:text-cream placeholder-charcoal-muted/60 dark:placeholder-cream-muted/60 focus:outline-none"
-                />
-              </div>
-
-              {/* Country Filter Chips */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
-                <button
-                  onClick={() => setSelectedCountryFilter('ALL')}
-                  className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all shrink-0 ${
-                    selectedCountryFilter === 'ALL'
-                      ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal font-semibold shadow-sm'
-                      : 'bg-charcoal/[0.04] dark:bg-cream/[0.06] text-charcoal-muted dark:text-cream-dim hover:bg-charcoal/10 dark:hover:bg-cream/10'
-                  }`}
-                >
-                  All ({visitors.length})
-                </button>
-
-                {countryBreakdown.map((item) => (
-                  <button
-                    key={item.code}
-                    onClick={() => setSelectedCountryFilter(item.code)}
-                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-mono transition-all shrink-0 ${
-                      selectedCountryFilter === item.code
-                        ? 'bg-charcoal text-cream dark:bg-cream dark:text-charcoal font-semibold shadow-sm'
-                        : 'bg-charcoal/[0.04] dark:bg-cream/[0.06] text-charcoal-muted dark:text-cream-dim hover:bg-charcoal/10 dark:hover:bg-cream/10'
-                    }`}
-                  >
-                    <span>{item.flag}</span>
-                    <span>{item.code === 'UNKNOWN' ? 'Unknown' : item.name}</span>
-                    <span className="opacity-60 text-[10px]">({item.count})</span>
-                  </button>
-                ))}
-              </div>
-
-            </div>
-
-            {/* Visitors Table with Simple-Icons Device Icons */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs font-mono border-collapse">
-                <thead>
-                  <tr className="border-b border-charcoal/[0.08] dark:border-cream/[0.08] bg-charcoal/[0.02] dark:bg-cream/[0.02] text-charcoal-muted dark:text-cream-dim">
-                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Visitor ID</th>
-                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Location</th>
-                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Visits</th>
-                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Device</th>
-                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Browser</th>
-                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">First Seen</th>
-                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Last Active</th>
-                    <th className="py-3.5 px-6 font-medium whitespace-nowrap">Last Route</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-charcoal/[0.06] dark:divide-cream/[0.06]">
-                  {filteredVisitors.length > 0 ? (
-                    filteredVisitors.map((visitor) => {
-                      const flag = visitor.flag_emoji || getCountryFlag(visitor.country_code);
-                      const hasLocation = Boolean(visitor.city || visitor.country);
-
-                      return (
-                        <tr
-                          key={visitor.visitor_id}
-                          className="hover:bg-charcoal/[0.02] dark:hover:bg-cream/[0.02] transition-colors"
-                        >
-                          {/* Visitor ID & Copy */}
-                          <td className="py-4 px-6 font-semibold text-charcoal dark:text-cream whitespace-nowrap">
-                            <div className="flex items-center gap-1.5">
-                              <span className="px-2 py-0.5 rounded bg-charcoal/5 dark:bg-cream/10 font-mono">
-                                {visitor.visitor_id.slice(0, 10)}...
-                              </span>
-                              <button
-                                onClick={() => handleCopyVisitorId(visitor.visitor_id)}
-                                className="p-1 rounded hover:bg-charcoal/10 dark:hover:bg-cream/10 transition-colors text-charcoal-muted dark:text-cream-dim"
-                                title="Copy ID"
-                              >
-                                {copiedVisitorId === visitor.visitor_id ? (
-                                  <Check className="w-3 h-3 text-emerald-500" />
-                                ) : (
-                                  <Copy className="w-3 h-3" />
-                                )}
-                              </button>
-                            </div>
-                          </td>
-
-                          {/* Location */}
-                          <td className="py-4 px-6 whitespace-nowrap">
-                            {hasLocation ? (
-                              <div className="flex items-start gap-2.5">
-                                <span className="text-base leading-none mt-0.5" title={visitor.country || 'Location'}>
-                                  {flag}
-                                </span>
-                                <div>
-                                  <div className="font-semibold text-charcoal dark:text-cream flex items-center gap-1.5">
-                                    <span>{visitor.city || visitor.country}</span>
-                                    {visitor.country_code && (
-                                      <span className="text-[10px] uppercase px-1.5 py-0.2 rounded bg-charcoal/[0.06] dark:bg-cream/[0.1] text-charcoal-muted dark:text-cream-dim">
-                                        {visitor.country_code}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="text-[11px] text-charcoal-muted dark:text-cream-dim">
-                                    {[visitor.region && visitor.region.length > 2 ? visitor.region : null, visitor.country].filter(Boolean).join(', ')}
-                                  </div>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-charcoal/[0.04] dark:bg-cream/[0.06] text-charcoal-muted dark:text-cream-dim text-[11px]">
-                                <Compass className="w-3 h-3 opacity-60" />
-                                <span>Pending</span>
-                              </div>
-                            )}
-                          </td>
-
-                          {/* Total Visits Badge */}
-                          <td className="py-4 px-6 whitespace-nowrap">
-                            <span
-                              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-semibold ${
-                                visitor.total_visits > 3
-                                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-                                  : visitor.total_visits > 1
-                                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
-                                  : 'bg-charcoal/[0.05] dark:bg-cream/[0.08] text-charcoal-muted dark:text-cream-dim'
-                              }`}
-                            >
-                              {visitor.total_visits} {visitor.total_visits === 1 ? 'visit' : 'visits'}
-                            </span>
-                          </td>
-
-                          {/* Device with Raw Simple-Icons Vector */}
-                          <td className="py-4 px-6 text-charcoal dark:text-cream whitespace-nowrap">
-                            <div className="flex items-center gap-2.5">
-                              <DeviceIcon os={visitor.os} deviceType={visitor.device_type} className="w-4 h-4 shrink-0" />
-                              <div className="flex flex-col">
-                                <span className="font-semibold text-charcoal dark:text-cream">{visitor.os || 'Unknown OS'}</span>
-                                <span className="text-[10px] text-charcoal-muted dark:text-cream-dim font-sans">{visitor.device_type || 'Desktop'}</span>
-                              </div>
-                            </div>
-                          </td>
-
-                          {/* Browser */}
-                          <td className="py-4 px-6 text-charcoal-muted dark:text-cream-muted whitespace-nowrap">
-                            {visitor.browser || '—'}
-                          </td>
-
-                          {/* First Seen (Single Line) */}
-                          <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim whitespace-nowrap">
-                            {formatDate(visitor.first_seen_at)}
-                          </td>
-
-                          {/* Last Active (Single Line) */}
-                          <td className="py-4 px-6 text-charcoal dark:text-cream whitespace-nowrap">
-                            {formatDate(visitor.last_seen_at)}
-                          </td>
-
-                          {/* Last Route */}
-                          <td className="py-4 px-6 text-charcoal-muted dark:text-cream-dim font-mono whitespace-nowrap">
-                            {visitor.last_path || '/'}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td colSpan={8} className="py-12 text-center text-charcoal-muted dark:text-cream-dim">
-                        {loading ? 'Loading visitors...' : 'No visitors found.'}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-          </div>
-        )}
-
-        {/* ============================================================ */}
-        {/* TAB 3: LIVE ACTIVITY STREAM */}
-        {/* ============================================================ */}
-        {activeTab === 'feed' && (
-          <div className="rounded-3xl frosted-glass border border-charcoal/[0.08] dark:border-cream/[0.08] overflow-hidden p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-brand font-extrabold text-base tracking-[0.01em] uppercase text-charcoal dark:text-cream">
-                RECENT ACTIVITY
-              </h3>
-              <div className="text-xs font-mono text-charcoal-muted dark:text-cream-dim flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Auto-refreshing</span>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {pageViews.length > 0 ? (
-                pageViews.map((pv, idx) => {
-                  const flag = getCountryFlag(pv.country_code);
-                  const hasGeo = Boolean(pv.city || pv.country);
-
-                  return (
-                    <div
-                      key={pv.id || idx}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-2xl bg-charcoal/[0.02] dark:bg-cream/[0.02] border border-charcoal/[0.04] dark:border-cream/[0.04] text-xs font-mono gap-2 hover:bg-charcoal/[0.04] dark:hover:bg-cream/[0.04] transition-colors"
-                    >
-                      <div className="flex items-center gap-3 flex-wrap">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-                        <span className="font-semibold text-charcoal dark:text-cream">
-                          {pv.path}
-                        </span>
-                        <span className="text-charcoal-muted dark:text-cream-dim">
-                          via {pv.referrer || 'Direct'}
-                        </span>
-
-                        {/* Location Tag on Live Feed */}
-                        {hasGeo && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-charcoal/[0.05] dark:bg-cream/[0.08] text-charcoal dark:text-cream text-[11px] border border-charcoal/[0.06] dark:border-cream/[0.08]">
-                            <span>{flag}</span>
-                            <span>{[pv.city, pv.country_code || pv.country].filter(Boolean).join(', ')}</span>
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-4 text-charcoal-muted dark:text-cream-dim text-[11px] shrink-0">
-                        <span className="px-2 py-0.5 rounded bg-charcoal/5 dark:bg-cream/10">
-                          {pv.visitor_id.slice(0, 8)}...
-                        </span>
-                        <span>{formatDate(pv.created_at)}</span>
-                      </div>
-                    </div>
-                  );
-                })
+                    ))}
+                  </tbody>
+                </table>
               ) : (
-                <div className="py-12 text-center text-charcoal-muted dark:text-cream-dim text-xs font-mono">
-                  {loading ? 'Loading activity...' : 'No recent activity.'}
-                </div>
-              )}
-            </div>
+                <p className="a-empty">{q ? 'Nothing matches that search.' : 'No early-access requests yet.'}</p>
+              )
+            ) : tab === 'visitors' ? (
+              shownVisitors.length ? (
+                <table className="a-table">
+                  <thead>
+                    <tr>
+                      <th>Device</th>
+                      <th>Location</th>
+                      <th>Visits</th>
+                      <th>Last page</th>
+                      <th>From</th>
+                      <th>Last seen</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {shownVisitors.map((v) => (
+                      <tr key={v.visitor_id}>
+                        <td>
+                          <span className="a-device">
+                            <DeviceIcon os={v.os} deviceType={v.device_type} className="a-ico" />
+                            <span>
+                              {v.os || 'Unknown'} · {v.browser || '—'}
+                              <small>{v.screen_res || ''}</small>
+                            </span>
+                          </span>
+                        </td>
+                        <td>
+                          {v.flag_emoji || getCountryFlag(v.country_code)} {[v.city, v.country].filter(Boolean).join(', ') || <span className="a-dim">Unknown</span>}
+                        </td>
+                        <td>
+                          <span className="a-count" data-many={(v.total_visits || 1) > 1 ? '' : undefined}>
+                            {v.total_visits || 1}
+                          </span>
+                        </td>
+                        <td>
+                          <code>{v.last_path || '/'}</code>
+                        </td>
+                        <td className="a-wrap-cell">{v.referrer || 'Direct'}</td>
+                        <td className="a-nowrap" title={when(v.last_seen_at)}>
+                          {ago(v.last_seen_at)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="a-empty">{q || country !== 'ALL' ? 'No visitors match these filters.' : 'No visitors recorded yet.'}</p>
+              )
+            ) : shownFeed.length ? (
+              <ol className="a-feed">
+                {shownFeed.map((p, i) => (
+                  <li key={p.id ?? `${p.visitor_id}-${p.created_at}-${i}`}>
+                    <span className="a-feed__dot" />
+                    <code>{p.path}</code>
+                    <span className="a-feed__where">{[p.city, p.country].filter(Boolean).join(', ') || 'Unknown location'}</span>
+                    <span className="a-dim a-feed__from">{p.referrer && p.referrer !== 'Direct' ? `from ${p.referrer}` : 'direct'}</span>
+                    <time className="a-dim" title={when(p.created_at)}>
+                      {ago(p.created_at)}
+                    </time>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="a-empty">No page views yet.</p>
+            )}
           </div>
-        )}
-
+        </section>
       </main>
     </div>
   );
-};
+}

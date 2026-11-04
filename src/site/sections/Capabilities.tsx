@@ -66,7 +66,7 @@ export function Capabilities() {
   return (
     <section ref={sectionRef} id="capabilities" className="m-section m-wrap" data-section aria-labelledby="cap-title">
       <div className="m-head">
-        <h2 id="cap-title" className="m-h2" data-reveal>
+        <h2 id="cap-title" className="m-h2" data-reveal="words">
           {capabilities.heading[0]} <span className="m-soft">{capabilities.heading[1]}</span>
         </h2>
         <p className="m-lead" data-reveal>
@@ -74,7 +74,7 @@ export function Capabilities() {
         </p>
       </div>
 
-      <div className="m-cap" data-reveal>
+      <div className="m-cap" data-reveal="pop">
         <div className="m-cap__list" role="tablist" aria-label="Capabilities">
           {ITEMS.map((item, i) => (
             <button

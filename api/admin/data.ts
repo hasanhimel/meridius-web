@@ -45,7 +45,7 @@ export default async function handler(
   const config = getAdminDataConfig();
   if (!config) {
     res.statusCode = 503;
-    res.end(JSON.stringify({ error: 'Admin console is not configured' }));
+    res.end(JSON.stringify({ error: 'Supabase is not connected on the server: set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY' }));
     return;
   }
 

@@ -72,7 +72,7 @@ export function OwnDisplay() {
   return (
     <section ref={sectionRef} id="display" className="m-section m-wrap" data-section aria-labelledby="display-title">
       <div className="m-head">
-        <h2 id="display-title" className="m-h2" data-reveal>
+        <h2 id="display-title" className="m-h2" data-reveal="words">
           {display.heading[0]} <span className="m-soft">{display.heading[1]}</span>
         </h2>
         <p className="m-lead" data-reveal>
@@ -80,7 +80,7 @@ export function OwnDisplay() {
         </p>
       </div>
 
-      <div className="m-dual" data-reveal>
+      <div className="m-dual" data-reveal="pop">
         <div className="m-dual__side">
           <span className="m-dual__label">Your screen</span>
           <div className="m-dual__win">

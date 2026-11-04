@@ -5,7 +5,9 @@ import { setupReveals, startSmoothScroll, scrollToId, ScrollTrigger } from './mo
 import { Hero } from './sections/Hero';
 import { Capabilities } from './sections/Capabilities';
 import { OwnDisplay } from './sections/OwnDisplay';
-import { Companion } from './sections/Companion';
+import { Contrast } from './sections/Contrast';
+import { Principles } from './sections/Principles';
+import { AccessDialog, type AccessDialogHandle } from './access/AccessDialog';
 import { Privacy } from './sections/Privacy';
 import { Faq } from './sections/Faq';
 import { Closing } from './sections/Closing';
@@ -20,8 +22,8 @@ const ROUTE_ANCHORS: Record<string, string> = {
   '/comparison': 'faq',
   '/sync': 'faq',
   '/vision': 'faq',
-  '/mcp': 'companion',
-  '/integrations': 'companion',
+  '/mcp': 'principles',
+  '/integrations': 'principles',
   '/privacy': 'privacy',
   '/recall': 'capabilities',
   '/faq': 'faq',
@@ -31,13 +33,11 @@ const ROUTE_ANCHORS: Record<string, string> = {
 export function Landing() {
   const rootRef = useRef<HTMLDivElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<AccessDialogHandle>(null);
   const [solid, setSolid] = useState(false);
 
-  const requestAccess = useCallback(() => {
-    scrollToId('access', -80);
-    // Focus once the scroll settles so the page doesn't jump.
-    window.setTimeout(() => emailRef.current?.focus({ preventScroll: true }), 1000);
-  }, []);
+  // Request access opens the form where the visitor already is.
+  const requestAccess = useCallback(() => dialogRef.current?.open(), []);
 
   useLayoutEffect(() => {
     const stopSmooth = startSmoothScroll();
@@ -88,7 +88,7 @@ export function Landing() {
               scrollToId('top', 0);
             }}
           >
-            <NavMark size={30} ripple />
+            <NavMark size={30} tone={solid ? 'dark' : 'light'} ripple />
             Meridius
           </a>
           <nav aria-label="Sections">
@@ -108,14 +108,16 @@ export function Landing() {
 
       <main id="top">
         <Hero onRequest={requestAccess} />
+        <Contrast />
         <Capabilities />
         <OwnDisplay />
-        <Companion />
+        <Principles />
         <Privacy />
         <Faq />
         <Closing ref={emailRef} />
       </main>
       <Footer onRequest={requestAccess} />
+      <AccessDialog ref={dialogRef} />
     </div>
   );
 }

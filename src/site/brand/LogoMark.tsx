@@ -10,6 +10,13 @@ import { SHADED_DOTS, LOGO_BOX, MAX_DIST } from './logo';
  * can assemble the mark from the centre outward.
  */
 
+/** Per-variant strengths for the deboss filter. */
+const DEBOSS = {
+  key: { lip: 1, shade: '#435a8c', shadeOpacity: 0.95, glint: 0, depth: 3 },
+  light: { lip: 0.35, shade: '#0b2a6b', shadeOpacity: 0.6, glint: 0, depth: 4 },
+  dark: { lip: 0.9, shade: '#000000', shadeOpacity: 0, glint: 0.5, depth: 4 },
+} as const;
+
 interface LogoMarkProps {
   size?: number | string;
   className?: string;
@@ -20,8 +27,13 @@ interface LogoMarkProps {
   title?: string;
   /** No padding around the hexagon (for overlays that must match the dither canvas). */
   tight?: boolean;
-  /** Press the dots into the surface: shadowed top wall, lit lower lip. */
-  deboss?: boolean;
+  /**
+   * Press the dots into the surface, lit from above:
+   *  - 'key':   dots the colour of a pale keycap; shadowed upper wall, white lip.
+   *  - 'light': white dots; a cool shadow falls inside each hole's upper wall.
+   *  - 'dark':  black dots; light catches each hole's lower wall.
+   */
+  deboss?: false | 'key' | 'light' | 'dark';
 }
 
 export const LogoMark = forwardRef<SVGSVGElement, LogoMarkProps>(function LogoMark(
@@ -80,23 +92,30 @@ export const LogoMark = forwardRef<SVGSVGElement, LogoMarkProps>(function LogoMa
       {title ? <title>{title}</title> : null}
       {deboss ? (
         <defs>
-          {/* Lit from above: the hole's upper wall falls into shadow, its lower
-              lip catches the light. Units are the logo's own (dots are r 2–10). */}
+          {/* Units are the logo's own (dots are r 2–10). Three optional layers:
+              an outer lip below each hole, a shadow on its upper inner wall
+              and a glint on its lower inner wall. */}
           <filter id={filterId} x="-10%" y="-10%" width="120%" height="120%" colorInterpolationFilters="sRGB">
             <feOffset in="SourceAlpha" dy="2.2" result="down" />
             <feComposite in="down" in2="SourceAlpha" operator="out" result="lipEdge" />
             <feGaussianBlur in="lipEdge" stdDeviation="0.6" result="lipSoft" />
-            <feFlood floodColor="#ffffff" floodOpacity="1" />
+            <feFlood floodColor="#ffffff" floodOpacity={DEBOSS[deboss].lip} />
             <feComposite in2="lipSoft" operator="in" result="lip" />
-            <feOffset in="SourceAlpha" dy="3" result="drop" />
+            <feOffset in="SourceAlpha" dy={DEBOSS[deboss].depth} result="drop" />
             <feGaussianBlur in="drop" stdDeviation="1.5" result="dropSoft" />
             <feComposite in="SourceAlpha" in2="dropSoft" operator="out" result="wall" />
-            <feFlood floodColor="#435a8c" floodOpacity="0.95" />
+            <feFlood floodColor={DEBOSS[deboss].shade} floodOpacity={DEBOSS[deboss].shadeOpacity} />
             <feComposite in2="wall" operator="in" result="shade" />
+            <feOffset in="SourceAlpha" dy={-DEBOSS[deboss].depth} result="rise" />
+            <feGaussianBlur in="rise" stdDeviation="1.4" result="riseSoft" />
+            <feComposite in="SourceAlpha" in2="riseSoft" operator="out" result="floor" />
+            <feFlood floodColor="#ffffff" floodOpacity={DEBOSS[deboss].glint} />
+            <feComposite in2="floor" operator="in" result="glint" />
             <feMerge>
               <feMergeNode in="lip" />
               <feMergeNode in="SourceGraphic" />
               <feMergeNode in="shade" />
+              <feMergeNode in="glint" />
             </feMerge>
           </filter>
         </defs>

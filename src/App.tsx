@@ -1,5 +1,4 @@
 import { lazy, Suspense } from 'react';
-import { ThemeProvider } from './context/ThemeContext';
 import { Landing } from './site/Landing';
 import { useVisitorTracker } from './hooks/useVisitorTracker';
 
@@ -18,17 +17,9 @@ export function App() {
 
   if (isAdminPath()) {
     return (
-      <ThemeProvider>
-        <Suspense
-          fallback={
-            <div className="min-h-screen bg-cream dark:bg-void flex items-center justify-center">
-              <div className="w-6 h-6 rounded-full border-2 border-charcoal/20 dark:border-cream/20 border-t-charcoal dark:border-t-cream animate-spin" />
-            </div>
-          }
-        >
-          <AdminLayout />
-        </Suspense>
-      </ThemeProvider>
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#f6f7fb' }} />}>
+        <AdminLayout />
+      </Suspense>
     );
   }
 

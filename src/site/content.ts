@@ -9,8 +9,8 @@
  */
 
 export const nav = [
-  { label: 'Capabilities', href: '#capabilities' },
-  { label: 'How it works', href: '#display' },
+  { label: 'Why Meridius', href: '#why' },
+  { label: 'How it works', href: '#capabilities' },
   { label: 'Privacy', href: '#privacy' },
   { label: 'FAQ', href: '#faq' },
 ];
@@ -18,14 +18,33 @@ export const nav = [
 export const hero = {
   title: ['AI that remembers', 'and does the work'],
   sentence:
-    'Meridius is a Mac companion that understands what you see and hear, keeps track of what you promised, and gets it done without taking over your screen.',
+    'Meridius is a Mac companion that notices what you promised, remembers it, and gets it done in a display of its own, while you keep working.',
   primary: 'Request early access',
   secondary: 'Book a call',
 };
 
+/** Chapter one: why a chat box isn't enough. */
+export const contrast = {
+  heading: ['Other AI starts from zero.', 'Meridius starts from your day.'],
+  sentence: 'A chat box only knows what you paste into it. Meridius has already seen the email, the thread and the doc, so it can come to you first.',
+  chat: {
+    name: 'A chat box',
+    prompt:
+      'My professor emailed about Problem Set 4, there’s also a Slack thread in #cs-201 and a course doc… I’ll paste them all. Can you tell me what’s due and when?',
+    pasted: ['Email from Dr. Rahman.txt', 'Slack thread.png', 'Course doc.pdf'],
+    caption: 'You do the remembering. Every time.',
+  },
+  meridius: {
+    name: 'Meridius',
+    title: 'Problem Set 4 is due Friday at 11:59 PM',
+    body: 'Seen in Mail, #cs-201 and the course doc. Your draft is 60% done.',
+    caption: 'It already saw it. It only asks what to do next.',
+  },
+};
+
 export const capabilities = {
-  heading: ['Everything it does,', 'in one loop'],
-  sentence: 'Meridius watches, remembers, prepares, acts and checks its work. Pick a step to see it.',
+  heading: ['From noticing', 'to done'],
+  sentence: 'Follow one assignment from an email to a submitted PDF. It plays on its own, or pick a step.',
   items: [
     { id: 'observe', title: 'Observe', body: 'Sees your screen and hears your calls, with your permission. No API needed.' },
     { id: 'remember', title: 'Remember', body: 'Turns scattered mentions into one commitment, with every source kept.' },
@@ -85,15 +104,26 @@ export const display = {
   ],
 };
 
-export const companion = {
-  heading: ['A companion,', 'not a chat box'],
-  sentence: 'Talk to it, get answers as interfaces, and run it on the model you choose.',
-  cards: [
-    { lead: 'Just say it.', body: 'Speak naturally. It already knows the deadline, the files and who asked.' },
-    { lead: 'Answers as interfaces.', body: 'A plan comes back as a checklist, not 600 words of chat.' },
-    { lead: 'Your model, your call.', body: 'Run a free local model, or a hosted one when a task needs it. Your Claude, ChatGPT and Gemini chats count as context too.' },
-  ],
-  apps: 'Sees any app on your screen. Connects to these for more.',
+/** Chapter four: the small decisions that make it pleasant to live with. */
+export const principles = {
+  heading: ['Helpful,', 'never in the way'],
+  sentence: 'Built to fit the way you already work on your Mac.',
+  apps: {
+    lead: 'Works with every app',
+    body: 'If it’s on your screen, Meridius understands it. Connectors add detail, never limits.',
+  },
+  approve: {
+    lead: 'Asks before it acts',
+    body: 'Anything that sends, submits or pays waits for your yes.',
+  },
+  voice: {
+    lead: 'Just say it',
+    body: 'Speak naturally. It already knows the deadline, the files and who asked.',
+  },
+  models: {
+    lead: 'Your model, your call',
+    body: 'A free local model by default, a hosted one when a task needs it.',
+  },
 };
 
 export const privacy = {
@@ -136,8 +166,8 @@ export const faq = {
 };
 
 export const closing = {
-  title: 'The Mac companion that remembers.',
-  sub: 'Request early access today.',
+  title: 'Let your Mac remember the rest.',
+  sub: 'Meridius is opening to a small group on macOS. Request your seat.',
   placeholder: 'you@email.com',
   button: 'Request access',
   call: 'Prefer to talk first?',

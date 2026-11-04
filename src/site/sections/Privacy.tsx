@@ -65,11 +65,11 @@ export function Privacy() {
   return (
     <section id="privacy" className="m-section m-wrap" data-section aria-labelledby="privacy-title">
       <div className="m-split">
-        <div className="m-split__art" data-reveal>
+        <div className="m-split__art" data-reveal="pop">
           <Settings />
         </div>
         <div>
-          <h2 id="privacy-title" className="m-h2" data-reveal>
+          <h2 id="privacy-title" className="m-h2" data-reveal="words">
             {privacy.heading}
           </h2>
           <div className="m-rows">

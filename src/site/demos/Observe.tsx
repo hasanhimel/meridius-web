@@ -60,7 +60,6 @@ export function ObserveDemo(props: DemoProps) {
         <div className="d-panel__head">
           <LogoMark size={14} />
           Noticed today
-          <span className="d-live">Watching</span>
         </div>
         <div className="d-list">
           {NOTICED.map((n, i) => (
