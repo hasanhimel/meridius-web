@@ -33,12 +33,13 @@ export default {
           border: "rgba(43, 43, 42, 0.1)",
         },
         void: "#0e0e0e",
+        signal: "#ff6a2b",
       },
       fontFamily: {
-        brand: ['"Cabinet Grotesk"', '"Space Grotesk"', '"Syne"', '"Clash Display"', 'sans-serif'],
-        display: ['"Geist"', '"General Sans"', '"Söhne"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', 'sans-serif'],
-        sans: ['"Geist"', '"Inter"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', 'sans-serif'],
-        mono: ['"Geist Mono"', '"JetBrains Mono"', '"IBM Plex Mono"', 'Menlo', 'monospace'],
+        brand: ['"Geist"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        display: ['"Geist"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['"Geist"', '-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', 'sans-serif'],
+        mono: ['ui-monospace', '"SF Mono"', 'Menlo', 'monospace'],
       },
       letterSpacing: {
         tighter: '-0.04em',

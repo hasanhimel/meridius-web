@@ -65,7 +65,7 @@
 body {
   background-color: var(--bg-page);
   color: var(--text-primary);
-  font-family: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -74,17 +74,17 @@ body {
 
 /* Headings */
 h1, h2, h3, h4, h5, h6, .font-display {
-  font-family: 'Geist', 'General Sans', 'Söhne', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
   letter-spacing: -0.035em;
   color: var(--text-primary);
 }
 
 .font-mono {
-  font-family: 'Geist Mono', 'JetBrains Mono', 'IBM Plex Mono', Menlo, monospace;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
 }
 
 .font-brand {
-  font-family: 'Cabinet Grotesk', 'Space Grotesk', 'Syne', 'Clash Display', sans-serif;
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* Subtle background dot pattern */
@@ -207,20 +207,5 @@ h1, h2, h3, h4, h5, h6, .font-display {
   animation: marquee-slow 65s linear infinite;
 }
 
-/* ======================================================= */
-/* MERIDIUS SOFTWARE CURSOR STYLING                       */
-/* ======================================================= */
-@media (hover: hover) and (pointer: fine) {
-  body,
-  a,
-  button,
-  input,
-  textarea,
-  select,
-  [role="button"],
-  .cursor-pointer,
-  .cursor-help {
-    cursor: none !important;
-  }
-}
+
 
