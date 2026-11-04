@@ -393,3 +393,14 @@ describe('Source contains no secret literals', () => {
     }
   });
 });
+
+describe('Vercel functions load as native ES modules', () => {
+  // package.json is "type": "module", so Node resolves api/* imports strictly:
+  // a relative import without its .js extension crashes the function at boot.
+  const apiFiles = sourceFiles(join(REPO_ROOT, 'api'));
+  it.each(apiFiles.map((f) => [relative(REPO_ROOT, f), f]))('%s uses explicit .js extensions on relative imports', (_, file) => {
+    const text = readFileSync(file, 'utf8');
+    const relativeImports = [...text.matchAll(/from\s+['"](\.{1,2}\/[^'"]+)['"]/g)].map((m) => m[1]);
+    for (const spec of relativeImports) expect(spec, spec).toMatch(/\.js$/);
+  });
+});

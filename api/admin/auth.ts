@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import crypto from 'crypto';
-import { getAdminAuthConfig } from './_config';
+import { getAdminAuthConfig } from './_config.js';
 
 // In-memory rate limiting map for brute-force protection (per serverless instance)
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();

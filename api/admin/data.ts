@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { verifyAdminToken } from './auth';
-import { getAdminDataConfig } from './_config';
+import { verifyAdminToken } from './auth.js';
+import { getAdminDataConfig } from './_config.js';
 
 // Cached per serverless instance, keyed by URL + key so a config change is picked up.
 let cachedClient: { cacheKey: string; client: SupabaseClient } | null = null;
