@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import crypto from 'crypto';
+import { getAdminAuthConfig } from './_config';
 
 // In-memory rate limiting map for brute-force protection (per serverless instance)
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
@@ -51,7 +52,7 @@ export function verifyAdminToken(token: string, secretKey: string): boolean {
     const payloadStr = Buffer.from(encodedPayload, 'base64url').toString('utf8');
     const payload = JSON.parse(payloadStr);
 
-    if (payload.role !== 'admin' || Date.now() > payload.expiresAt) {
+    if (payload.role !== 'admin' || typeof payload.expiresAt !== 'number' || Date.now() > payload.expiresAt) {
       return false;
     }
 
@@ -89,6 +90,14 @@ export default async function handler(
     return;
   }
 
+  // Fail closed: never authenticate against a default password or derived secret.
+  const config = getAdminAuthConfig();
+  if (!config) {
+    res.statusCode = 503;
+    res.end(JSON.stringify({ error: 'Admin console is not configured' }));
+    return;
+  }
+
   const clientIp = getClientIp(req);
   if (!checkRateLimit(clientIp)) {
     res.statusCode = 429;
@@ -115,17 +124,12 @@ export default async function handler(
       return;
     }
 
-    const expectedPassword = process.env.ADMIN_PASSWORD || process.env.VITE_ADMIN_PASSWORD || 'meridius2026!';
-    const secretKey = process.env.SESSION_SECRET || expectedPassword + '_secret_salt_2026';
+    const { adminPassword: expectedPassword, sessionSecret: secretKey } = config;
 
-    // Constant-time comparison to prevent timing attacks
-    const passwordBuffer = Buffer.from(password);
-    const expectedBuffer = Buffer.from(expectedPassword);
-
-    let match = false;
-    if (passwordBuffer.length === expectedBuffer.length) {
-      match = crypto.timingSafeEqual(passwordBuffer, expectedBuffer);
-    }
+    // Constant-time comparison of fixed-length digests, so neither the content
+    // nor the length of the expected password leaks through timing.
+    const digest = (value: string) => crypto.createHash('sha256').update(value, 'utf8').digest();
+    const match = crypto.timingSafeEqual(digest(password), digest(expectedPassword));
 
     if (!match) {
       // Artificial delay to mitigate brute force timing
@@ -146,7 +150,7 @@ export default async function handler(
         expiresIn: 86400,
       })
     );
-  } catch (err: any) {
+  } catch {
     res.statusCode = 500;
     res.end(JSON.stringify({ error: 'Internal server error' }));
   }

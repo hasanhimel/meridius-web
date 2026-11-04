@@ -56,6 +56,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, token 
   const fetchData = async () => {
     setRefreshing(true);
     const data = await getAdminData(token);
+    if (data.unauthorized) {
+      onLogout();
+      return;
+    }
     setWaitlist(data.waitlist);
     setVisitors(data.visitors);
     setPageViews(data.pageViews);

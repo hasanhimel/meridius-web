@@ -1,10 +1,19 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { fetchVisitorGeo, GeoLocation } from './geo';
 
-const SUPABASE_URL = (import.meta as any).env?.VITE_SUPABASE_URL || 'https://mthtrnwwauawbhldmshy.supabase.co';
-const SUPABASE_ANON_KEY = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10aHRybnd3YXVhd2JobGRtc2h5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3ODg1MTUsImV4cCI6MjEwMjM2NDUxNX0.NPZVctN_4DyQWMK9hFzapiJ6YjhO5oRP3P3608OudW0';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL?.trim();
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+/**
+ * Public (anon) client. Null when the env vars are missing so the marketing
+ * pages still render; waitlist and tracking calls then fail closed instead of
+ * talking to a hardcoded project. RLS limits this key to INSERT on waitlist and
+ * page_views plus the track_visit RPC; it cannot read any table.
+ */
+export const supabase: SupabaseClient | null =
+  SUPABASE_URL && SUPABASE_ANON_KEY ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+const NOT_CONFIGURED = 'Supabase is not configured (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).';
 
 export interface WaitlistEntry {
   id?: string;
@@ -104,6 +113,11 @@ export function getSessionId(): string {
  * Record a visit and page view in Supabase with Geolocation
  */
 export async function trackPageView(path = window.location.pathname) {
+  if (!supabase) {
+    console.warn(`Telemetry disabled: ${NOT_CONFIGURED}`);
+    return;
+  }
+
   try {
     const visitorId = getVisitorId();
     const sessionId = getSessionId();
@@ -129,79 +143,29 @@ export async function trackPageView(path = window.location.pathname) {
 
     if (isNewSession) {
       sessionStorage.setItem('meridius_session_tracked', 'true');
-
-      // Check if visitor already exists in DB
-      const { data: existingVisitor } = await supabase
-        .from('visitors')
-        .select('total_visits, city, country, country_code, region, ip, flag_emoji')
-        .eq('visitor_id', visitorId)
-        .single();
-
-      if (existingVisitor) {
-        // Increment visit count and update timestamp & location
-        await supabase
-          .from('visitors')
-          .update({
-            total_visits: (existingVisitor.total_visits || 1) + 1,
-            last_seen_at: new Date().toISOString(),
-            last_path: path,
-            referrer,
-            device_type: deviceType,
-            browser,
-            os,
-            screen_res: screenRes,
-            city: geo.city || existingVisitor.city || null,
-            country: geo.country || existingVisitor.country || null,
-            country_code: geo.country_code || existingVisitor.country_code || null,
-            region: geo.region || existingVisitor.region || null,
-            ip: geo.ip || existingVisitor.ip || null,
-            flag_emoji: geo.flag_emoji || existingVisitor.flag_emoji || null,
-          })
-          .eq('visitor_id', visitorId);
-      } else {
-        // Insert new unique visitor
-        await supabase.from('visitors').insert({
-          visitor_id: visitorId,
-          total_visits: 1,
-          first_seen_at: new Date().toISOString(),
-          last_seen_at: new Date().toISOString(),
-          device_type: deviceType,
-          browser,
-          os,
-          screen_res: screenRes,
-          referrer,
-          last_path: path,
-          city: geo.city || null,
-          country: geo.country || null,
-          country_code: geo.country_code || null,
-          region: geo.region || null,
-          ip: geo.ip || null,
-          flag_emoji: geo.flag_emoji || null,
-        });
-      }
-    } else {
-      // Just update last seen and path (and backfill geo if missing)
-      const updatePayload: Record<string, any> = {
-        last_seen_at: new Date().toISOString(),
-        last_path: path,
-      };
-
-      if (geo.city || geo.country) {
-        if (geo.city) updatePayload.city = geo.city;
-        if (geo.country) updatePayload.country = geo.country;
-        if (geo.country_code) updatePayload.country_code = geo.country_code;
-        if (geo.region) updatePayload.region = geo.region;
-        if (geo.flag_emoji) updatePayload.flag_emoji = geo.flag_emoji;
-        if (geo.ip) updatePayload.ip = geo.ip;
-      }
-
-      await supabase
-        .from('visitors')
-        .update(updatePayload)
-        .eq('visitor_id', visitorId);
     }
 
-    // Log the page view event
+    // Upsert the visitor row server-side. The anon role has no SELECT/UPDATE on
+    // `visitors`; the SECURITY DEFINER function only touches this visitor's row.
+    const { error: visitError } = await supabase.rpc('track_visit', {
+      p_visitor_id: visitorId,
+      p_is_new_session: isNewSession,
+      p_path: path,
+      p_referrer: referrer,
+      p_device_type: deviceType,
+      p_browser: browser,
+      p_os: os,
+      p_screen_res: screenRes,
+      p_city: geo.city || null,
+      p_country: geo.country || null,
+      p_country_code: geo.country_code || null,
+      p_region: geo.region || null,
+      p_ip: geo.ip || null,
+      p_flag_emoji: geo.flag_emoji || null,
+    });
+    if (visitError) console.warn('Visitor tracking failed:', visitError.message);
+
+    // Log the page view event (INSERT only; no RETURNING, so no SELECT needed)
     await supabase.from('page_views').insert({
       visitor_id: visitorId,
       path,
@@ -247,6 +211,10 @@ export async function joinWaitlist(entry: {
   role?: string;
   use_case?: string;
 }): Promise<{ success: boolean; error?: string; alreadyJoined?: boolean }> {
+  if (!supabase) {
+    return { success: false, error: 'The waitlist is temporarily unavailable. Please try again later.' };
+  }
+
   try {
     const rawEmail = entry.email ? entry.email.trim().toLowerCase() : '';
     if (!validateEmail(rawEmail)) {
@@ -276,8 +244,9 @@ export async function joinWaitlist(entry: {
           country_code: geo?.country_code || null,
           region: geo?.region || null,
         },
-      })
-      .select();
+      });
+    // No `.select()`: returning the row would need a SELECT policy on waitlist,
+    // which the anon role deliberately does not have.
 
     if (error) {
       if (error.code === '23505') {
@@ -293,46 +262,49 @@ export async function joinWaitlist(entry: {
   }
 }
 
-/**
- * Admin helpers: fetch waitlist, visitors, and analytics
- * Prioritizes secure serverless /api/admin/data with signed session token.
- */
-export async function getAdminData(token?: string | null) {
-  // 1. Try secure backend endpoint first
-  if (token) {
-    try {
-      const res = await fetch('/api/admin/data', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
-        },
-      });
-      if (res.ok) {
-        const json = await res.json();
-        return {
-          waitlist: (json.waitlist || []) as WaitlistEntry[],
-          visitors: (json.visitors || []) as VisitorEntry[],
-          pageViews: (json.pageViews || []) as PageViewEntry[],
-          error: json.error || null,
-        };
-      }
-    } catch {
-      // Backend function unavailable, fallback to direct client query
-    }
-  }
-
-  // 2. Direct Supabase query (fallback)
-  const [waitlistRes, visitorsRes, pageViewsRes] = await Promise.all([
-    supabase.from('waitlist').select('*').order('created_at', { ascending: false }),
-    supabase.from('visitors').select('*').order('last_seen_at', { ascending: false }),
-    supabase.from('page_views').select('*').order('created_at', { ascending: false }).limit(200),
-  ]);
-
-  return {
-    waitlist: (waitlistRes.data || []) as WaitlistEntry[],
-    visitors: (visitorsRes.data || []) as VisitorEntry[],
-    pageViews: (pageViewsRes.data || []) as PageViewEntry[],
-    error: waitlistRes.error || visitorsRes.error || pageViewsRes.error,
-  };
+export interface AdminData {
+  waitlist: WaitlistEntry[];
+  visitors: VisitorEntry[];
+  pageViews: PageViewEntry[];
+  error: string | null;
+  /** True when the session token is missing, invalid or expired. */
+  unauthorized: boolean;
 }
 
+function emptyAdminData(error: string, unauthorized = false): AdminData {
+  return { waitlist: [], visitors: [], pageViews: [], error, unauthorized };
+}
+
+/**
+ * Admin data comes only from the signed /api/admin/data endpoint, which reads
+ * with the service-role key after verifying the HMAC session token. There is
+ * deliberately no direct Supabase fallback: the anon key cannot read these
+ * tables, and must never be able to.
+ */
+export async function getAdminData(token?: string | null): Promise<AdminData> {
+  if (!token) return emptyAdminData('Not signed in', true);
+
+  try {
+    const res = await fetch('/api/admin/data', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+    });
+
+    if (res.status === 401) return emptyAdminData('Session expired', true);
+
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) return emptyAdminData(json.error || `Admin API error (${res.status})`);
+
+    return {
+      waitlist: (json.waitlist || []) as WaitlistEntry[],
+      visitors: (json.visitors || []) as VisitorEntry[],
+      pageViews: (json.pageViews || []) as PageViewEntry[],
+      error: json.error || null,
+      unauthorized: false,
+    };
+  } catch {
+    return emptyAdminData('Could not reach the admin API');
+  }
+}

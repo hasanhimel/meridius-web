@@ -5,10 +5,10 @@ import { NavbarLogoMark } from '../NavbarLogoMark';
 import { AdminDashboard } from './AdminDashboard';
 
 const TOKEN_KEY = 'meridius_admin_token';
-const SESSION_KEY = 'meridius_admin_session_auth';
+// Legacy flag from the removed client-side password check; cleared on load.
+const LEGACY_SESSION_KEY = 'meridius_admin_session_auth';
 
 export const AdminLayout: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [token, setToken] = useState<string | null>(null);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -16,13 +16,14 @@ export const AdminLayout: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
 
+  // The UI unlocks only with a server-issued token. The token is verified by
+  // /api/admin/data on every request, so a forged value just shows nothing and
+  // is cleared on the first 401.
+  const isAuthenticated = token !== null;
+
   useEffect(() => {
-    const savedToken = sessionStorage.getItem(TOKEN_KEY);
-    const savedSession = sessionStorage.getItem(SESSION_KEY);
-    if (savedToken || savedSession === 'valid') {
-      setToken(savedToken);
-      setIsAuthenticated(true);
-    }
+    sessionStorage.removeItem(LEGACY_SESSION_KEY);
+    setToken(sessionStorage.getItem(TOKEN_KEY));
     setChecking(false);
   }, []);
 
@@ -33,7 +34,6 @@ export const AdminLayout: React.FC = () => {
     setLoading(true);
 
     try {
-      // 1. Try serverless backend verification first
       const res = await fetch('/api/admin/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,49 +42,31 @@ export const AdminLayout: React.FC = () => {
 
       if (res.ok) {
         const data = await res.json();
-        if (data.token) {
+        if (typeof data.token === 'string' && data.token) {
           sessionStorage.setItem(TOKEN_KEY, data.token);
-          sessionStorage.setItem(SESSION_KEY, 'valid');
           setToken(data.token);
-          setIsAuthenticated(true);
-          setLoading(false);
           return;
         }
-      }
-
-      if (res.status === 429) {
-        setError('Too many attempts. Please wait 1 minute.');
-        setLoading(false);
-        return;
-      }
-
-      // If backend returns 401
-      if (res.status === 401) {
+        setError('Unexpected response from server');
+      } else if (res.status === 401) {
         setError('Incorrect password');
         setPassword('');
-        setLoading(false);
-        return;
+      } else if (res.status === 429) {
+        setError('Too many attempts. Please wait 1 minute.');
+      } else if (res.status === 503) {
+        setError('Admin console is not configured on the server');
+      } else {
+        setError(`Sign-in failed (${res.status})`);
       }
     } catch {
-      // Network/Vite dev fallback
+      setError('Could not reach the admin API');
+    } finally {
+      setLoading(false);
     }
-
-    // 2. Dev mode fallback if /api/admin/auth is not running locally
-    const fallbackPassword = (import.meta as any).env?.VITE_ADMIN_PASSWORD || 'meridius2026!';
-    if (password === fallbackPassword) {
-      sessionStorage.setItem(SESSION_KEY, 'valid');
-      setIsAuthenticated(true);
-    } else {
-      setError('Incorrect password');
-      setPassword('');
-    }
-    setLoading(false);
   };
 
   const handleLogout = () => {
     sessionStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(SESSION_KEY);
-    setIsAuthenticated(false);
     setToken(null);
     setPassword('');
   };

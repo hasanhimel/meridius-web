@@ -1,11 +1,23 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { verifyAdminToken } from './auth';
+import { getAdminDataConfig } from './_config';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://mthtrnwwauawbhldmshy.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im10aHRybnd3YXVhd2JobGRtc2h5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3ODg1MTUsImV4cCI6MjEwMjM2NDUxNX0.NPZVctN_4DyQWMK9hFzapiJ6YjhO5oRP3P3608OudW0';
+// Cached per serverless instance, keyed by URL + key so a config change is picked up.
+let cachedClient: { cacheKey: string; client: SupabaseClient } | null = null;
 
-const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_KEY);
+function getServiceClient(url: string, serviceRoleKey: string): SupabaseClient {
+  const cacheKey = `${url}\n${serviceRoleKey}`;
+  if (!cachedClient || cachedClient.cacheKey !== cacheKey) {
+    cachedClient = {
+      cacheKey,
+      client: createClient(url, serviceRoleKey, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      }),
+    };
+  }
+  return cachedClient.client;
+}
 
 export default async function handler(
   req: IncomingMessage & { headers: Record<string, string | string[] | undefined> },
@@ -13,6 +25,7 @@ export default async function handler(
 ) {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Cache-Control', 'no-store');
 
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -28,21 +41,26 @@ export default async function handler(
     return;
   }
 
-  // Check authorization header
+  // Fail closed: no default password, derived secret or anon-key fallback.
+  const config = getAdminDataConfig();
+  if (!config) {
+    res.statusCode = 503;
+    res.end(JSON.stringify({ error: 'Admin console is not configured' }));
+    return;
+  }
+
   const authHeader = req.headers['authorization'];
   const token = Array.isArray(authHeader) ? authHeader[0] : authHeader;
   const bearerToken = token?.startsWith('Bearer ') ? token.slice(7) : null;
 
-  const expectedPassword = process.env.ADMIN_PASSWORD || process.env.VITE_ADMIN_PASSWORD || 'meridius2026!';
-  const secretKey = process.env.SESSION_SECRET || expectedPassword + '_secret_salt_2026';
-
-  if (!bearerToken || !verifyAdminToken(bearerToken, secretKey)) {
+  if (!bearerToken || !verifyAdminToken(bearerToken, config.sessionSecret)) {
     res.statusCode = 401;
     res.end(JSON.stringify({ error: 'Unauthorized: Invalid or expired admin session token' }));
     return;
   }
 
   try {
+    const supabaseAdmin = getServiceClient(config.supabaseUrl, config.supabaseServiceRoleKey);
     const [waitlistRes, visitorsRes, pageViewsRes] = await Promise.all([
       supabaseAdmin.from('waitlist').select('*').order('created_at', { ascending: false }),
       supabaseAdmin.from('visitors').select('*').order('last_seen_at', { ascending: false }),
@@ -58,8 +76,8 @@ export default async function handler(
         error: waitlistRes.error?.message || visitorsRes.error?.message || pageViewsRes.error?.message || null,
       })
     );
-  } catch (err: any) {
+  } catch {
     res.statusCode = 500;
-    res.end(JSON.stringify({ error: err.message || 'Failed to fetch admin data' }));
+    res.end(JSON.stringify({ error: 'Failed to fetch admin data' }));
   }
 }
