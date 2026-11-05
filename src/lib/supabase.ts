@@ -112,7 +112,36 @@ export function getSessionId(): string {
 /**
  * Record a visit and page view in Supabase with Geolocation
  */
+/**
+ * Visits that are not a person: local development (your own machine and the
+ * test browser write to the same database), browsers driven by automation
+ * (navigator.webdriver), known crawlers, and headless Chrome. Vercel loads
+ * every new deployment in headless Chrome at 800x600 on Linux from AWS
+ * us-west-1, which showed up as a pair of "San Jose" visitors per deploy;
+ * no real visitor browses at that exact size on Linux.
+ */
+export function isNonHumanVisit(
+  env: { hostname: string; userAgent: string; webdriver?: boolean; screenW: number; screenH: number } = {
+    hostname: window.location.hostname,
+    userAgent: navigator.userAgent,
+    webdriver: navigator.webdriver,
+    screenW: window.screen.width,
+    screenH: window.screen.height,
+  },
+): boolean {
+  const host = env.hostname;
+  if (host === 'localhost' || host === '127.0.0.1' || host === '[::1]' || host.endsWith('.local') || host.endsWith('.localhost')) {
+    return true;
+  }
+  if (env.webdriver) return true;
+  if (/HeadlessChrome|bot\b|crawler|spider|slurp|Lighthouse|PageSpeed|vercel|screenshot|preview/i.test(env.userAgent)) {
+    return true;
+  }
+  return /Linux/.test(env.userAgent) && !/Android/.test(env.userAgent) && env.screenW === 800 && env.screenH === 600;
+}
+
 export async function trackPageView(path = window.location.pathname) {
+  if (isNonHumanVisit()) return;
   if (!supabase) {
     console.warn(`Telemetry disabled: ${NOT_CONFIGURED}`);
     return;
