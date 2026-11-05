@@ -44,16 +44,23 @@ const I = 'M0,4.61h56.07v269.62H0Z';
 /* Left edge of each letter, with Cursor's ~46-unit spacing. Widths: M 330,
    E 230, R 239, I 56, D 238, U 238, S 231. */
 const X = { M: 0, E: 376, R: 651.67, I1: 936.94, D: 1039.01, I2: 1323.01, U: 1425.08, S: 1709.2 };
-const WIDTH = 1940.41; // the S's lower bowl reaches 1940.41
+const INK_RIGHT = 1940.41; // the S's lower bowl reaches 1940.41
+/* Safari rounds the SVG's box to whole pixels and clips at the viewBox, so
+   ink that ends exactly on the edge loses a sliver. A small margin on both
+   sides (about 0.2px at nav size) keeps the S and the M whole; letters and
+   spacing are unchanged. */
+const PAD = 12;
+const WIDTH = INK_RIGHT + PAD * 2;
 const HEIGHT = 278.84;
 
 export function Wordmark({ height = 16, className, title }: { height?: number; className?: string; title?: string }) {
   return (
     <svg
       className={className}
-      viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+      viewBox={`${-PAD} 0 ${WIDTH} ${HEIGHT}`}
       height={height}
       width={(height * WIDTH) / HEIGHT}
+      overflow="visible"
       fill="currentColor"
       role={title ? 'img' : undefined}
       aria-hidden={title ? undefined : true}
