@@ -86,7 +86,15 @@ export function Contrast() {
         {/* A chat box: you do the remembering. */}
         <article className="x-card x-card--plain" data-reveal="pop">
           <header className="x-card__head">
-            <span className="x-dot" />
+            <svg className="x-chat-icon" viewBox="0 0 16 16" aria-hidden="true">
+              <path
+                d="M3.2 2.5h9.6a1.7 1.7 0 0 1 1.7 1.7v5.6a1.7 1.7 0 0 1-1.7 1.7H7.4l-3 2.4v-2.4H3.2a1.7 1.7 0 0 1-1.7-1.7V4.2a1.7 1.7 0 0 1 1.7-1.7Z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinejoin="round"
+              />
+            </svg>
             {contrast.chat.name}
           </header>
           <div className="x-chat" aria-hidden="true">

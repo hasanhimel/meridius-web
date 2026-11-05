@@ -1134,9 +1134,6 @@ html:has(.m-site) body {
 }
 
 @media (max-width: 560px) {
-  .m-hero__actions .m-btn {
-    flex: 1 1 100%;
-  }
   .m-form {
     flex-direction: column;
   }
@@ -3132,11 +3129,11 @@ html:has(.m-site) body {
   color: rgba(255, 255, 255, 0.9);
 }
 
-.x-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
-  background: #d5d9e3;
+.x-chat-icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  color: #9ca3af;
 }
 
 .x-card__caption {
