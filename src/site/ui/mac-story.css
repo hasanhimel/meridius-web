@@ -1,0 +1,1925 @@
+/* =============================================================================
+   MacStory: the hero's MacBook and the motion piece played on it.
+   Every size inside the screen is in em on a 72 x 45 em stage; the stage's
+   font-size comes from the container width, so the picture scales as one.
+   Elements moved in em by script (camera, windows, pointer, dock, Slack's
+   list, the drifting copies, the island) keep the stage's font-size; only
+   leaf text sets its own size.
+   ============================================================================= */
+
+.ms {
+  container-type: inline-size;
+  width: 100%;
+}
+
+.ms-mac {
+  width: 80em;
+  margin: 0 auto;
+  font-size: calc(100cqw / 80);
+  text-align: left;
+  color: #1f2430;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ms-ico {
+  display: block;
+  flex: none;
+  width: 1.2em;
+  height: 1.2em;
+}
+
+.ms-fg {
+  display: block;
+  flex: none;
+  width: 1em;
+  height: 1.25em;
+  overflow: visible;
+}
+
+.ms-eye {
+  display: block;
+  flex: none;
+  width: 1.2em;
+  height: auto;
+  transform-origin: 50% 50%;
+}
+
+/* ------------------------------------------------------------- hardware */
+
+.ms-lid {
+  position: relative;
+  width: 73.4em;
+  margin: 0 auto;
+  padding: 0.7em 0.7em 1.05em;
+  border-radius: 1.75em 1.75em 0.7em 0.7em;
+  background: #0b0b0d;
+  box-shadow:
+    inset 0 0 0 0.12em #26272c,
+    0 0 0 0.09em #a4a8b1,
+    0 0 0 0.16em #6b6f78,
+    0 2.6em 5em -2em rgba(20, 30, 70, 0.55);
+}
+
+.ms-screen {
+  position: relative;
+  width: 72em;
+  height: 45em;
+  overflow: hidden;
+  border-radius: 1.05em 1.05em 0.25em 0.25em;
+  background: #000;
+  isolation: isolate;
+}
+
+.ms-cam {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 72em;
+  height: 45em;
+  transform-origin: 0 0;
+}
+
+.ms-base {
+  position: relative;
+  width: 80em;
+  height: 1.25em;
+  margin: -0.02em auto 0;
+  border-radius: 0.15em 0.15em 2.6em 2.6em / 0.15em 0.15em 1.25em 1.25em;
+  background: linear-gradient(180deg, #e3e5ea 0%, #cdd0d7 40%, #a2a7b1 100%);
+  box-shadow:
+    inset 0 0.08em 0 rgba(255, 255, 255, 0.9),
+    0 1.6em 2.6em -1.2em rgba(20, 30, 70, 0.5);
+}
+
+.ms-base::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 11em;
+  height: 0.45em;
+  translate: -50% 0;
+  border-radius: 0 0 0.55em 0.55em;
+  background: linear-gradient(180deg, #a3a8b2, #c6c9d1);
+}
+
+/* ------------------------------------------------- notch / Dynamic Island */
+
+.ms-island {
+  position: absolute;
+  left: 36em;
+  top: 0;
+  z-index: 60;
+  width: 0;
+  height: 0;
+}
+
+.ms-island__body {
+  position: absolute;
+  left: 0;
+  top: -2em;
+  width: 8.6em;
+  height: 3.7em;
+  translate: -50% 0;
+  border-radius: 0 0 0.8em 0.8em;
+  background: #000;
+}
+
+/* Curved shoulders: the island flows into the top bezel instead of meeting
+   it at a right angle. */
+.ms-island__body::before,
+.ms-island__body::after {
+  content: '';
+  position: absolute;
+  top: 2em;
+  width: 0.75em;
+  height: 0.75em;
+}
+
+.ms-island__body::before {
+  right: 100%;
+  background: radial-gradient(circle at 0 100%, transparent 0.75em, #000 calc(0.75em + 0.5px));
+}
+
+.ms-island__body::after {
+  left: 100%;
+  background: radial-gradient(circle at 100% 100%, transparent 0.75em, #000 calc(0.75em + 0.5px));
+}
+
+.ms-island__cam {
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.5em;
+  height: 0.5em;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #2a3550, #0e1220 70%);
+}
+
+.ms-island__content {
+  position: absolute;
+  transform-origin: 50% 0;
+  left: 0;
+  top: 0.35em;
+  width: 22.6em;
+  height: 4.4em;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.3em 0 0.75em;
+  color: #fff;
+}
+
+.ms-island__content img {
+  width: 3.4em;
+  height: 3.4em;
+  flex: none;
+}
+
+.ms-island__content > span {
+  display: flex;
+  flex-direction: column;
+  margin-right: auto;
+  margin-left: 0.45em;
+  line-height: 1.3;
+}
+
+.ms-island__content b {
+  font-size: 0.92em;
+  font-weight: 600;
+}
+
+.ms-island__content small {
+  font-size: 0.68em;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.ms-island__content .ms-eye {
+  width: 1.9em;
+  color: #fff;
+}
+
+/* ------------------------------------------------------------- desktop */
+
+.ms-wall {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 80% at 85% 100%, #ff9a5a 0%, rgba(255, 154, 90, 0) 70%),
+    radial-gradient(60% 70% at 70% 60%, #ffc59a 0%, rgba(255, 197, 154, 0) 70%),
+    radial-gradient(70% 90% at 10% 10%, #2e63e0 0%, rgba(46, 99, 224, 0) 70%),
+    linear-gradient(140deg, #3f7be8 0%, #8db8f4 38%, #f6c9a6 66%, #f59a63 100%);
+}
+
+.ms-lights {
+  display: inline-flex;
+  gap: 0.42em;
+  flex: none;
+}
+
+.ms-lights i {
+  width: 0.74em;
+  height: 0.74em;
+  border-radius: 50%;
+  background: #ff5f57;
+  box-shadow: inset 0 0 0 0.04em rgba(0, 0, 0, 0.12);
+}
+
+.ms-lights i:nth-child(2) {
+  background: #febc2e;
+}
+
+.ms-lights i:nth-child(3) {
+  background: #28c840;
+}
+
+.ms-lights--dim i {
+  width: 0.6em;
+  height: 0.6em;
+  background: rgba(0, 0, 0, 0.14) !important;
+}
+
+/* Menu bar (font-size 0.7: lengths below are in that unit). */
+.ms-menubar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 45;
+  height: 2.43em;
+  display: flex;
+  align-items: center;
+  gap: 1.35em;
+  padding: 0 1.5em;
+  font-size: 0.7em;
+  font-weight: 500;
+  color: #fff;
+  background: rgba(30, 60, 140, 0.16);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  text-shadow: 0 0 0.6em rgba(0, 20, 80, 0.2);
+  white-space: nowrap;
+}
+
+.ms-menubar svg {
+  display: block;
+  height: 1.1em;
+  width: auto;
+}
+
+.ms-menubar__apple svg {
+  height: 1.3em;
+}
+
+.ms-menus {
+  display: none;
+  gap: 1.35em;
+}
+
+.ms-menus b {
+  font-weight: 700;
+}
+
+.ms-menubar[data-app='finder'] .ms-menus--finder,
+.ms-menubar[data-app='meridius'] .ms-menus--meridius,
+.ms-menubar[data-app='gmail'] .ms-menus--gmail,
+.ms-menubar[data-app='slack'] .ms-menus--slack {
+  display: inline-flex;
+}
+
+.ms-menubar__right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1.25em;
+}
+
+.ms-menubar__right svg {
+  height: 1em;
+}
+
+/* The status item: logo and a smaller open eye, side by side, no box. */
+.ms-mb-meridius {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  filter: drop-shadow(0 0 0.25em rgba(10, 30, 100, 0.35));
+}
+
+.ms-menubar .ms-mb-meridius > svg:first-child {
+  height: 1.45em;
+  width: auto;
+}
+
+.ms-menubar .ms-mb-meridius .ms-eye {
+  width: 1.2em;
+  height: auto;
+}
+
+.ms-clock {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Window frame. */
+.ms-win {
+  position: absolute;
+  z-index: 10;
+  overflow: hidden;
+  border-radius: 0.9em;
+  background: #fff;
+  box-shadow:
+    0 0 0 0.05em rgba(0, 0, 0, 0.2),
+    0 2.2em 4.4em -1.2em rgba(15, 23, 60, 0.45),
+    0 0.4em 1.2em rgba(15, 23, 60, 0.12);
+  visibility: hidden;
+}
+
+/* ---------------------------------------------------------------- Gmail */
+
+.ms-gmail {
+  left: 4.2em;
+  top: 3.3em;
+  width: 45em;
+  height: 30em;
+  display: grid;
+  grid-template-rows: 3.5em 1fr;
+  background: #f6f8fc;
+}
+
+.ms-gmail__top {
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  padding: 0 1em;
+  color: #444746;
+}
+
+.ms-gmail__top .ms-lights {
+  margin-right: 0.3em;
+}
+
+.ms-gmail__burger {
+  width: 1.3em;
+  height: 1.3em;
+}
+
+.ms-gmail__logo {
+  width: 1.6em;
+  height: auto;
+  margin-right: -0.4em;
+}
+
+.ms-gmail__brand {
+  font-size: 1.05em;
+  color: #444746;
+}
+
+.ms-gmail__search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  height: 2.35em;
+  margin-left: 1.6em;
+  padding: 0 1em;
+  border-radius: 99em;
+  background: #e9eef6;
+  color: #444746;
+}
+
+.ms-gmail__search span {
+  flex: 1;
+  font-size: 0.8em;
+}
+
+.ms-gmail__search .ms-ico {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.ms-gmail__tools {
+  display: flex;
+  align-items: center;
+  gap: 0.95em;
+}
+
+.ms-gmail__tools .ms-ico {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.ms-avatar {
+  width: 1.9em;
+  height: 1.9em;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(140deg, #7aa7f5, #2f5fdc);
+  color: #fff;
+  font-size: 0.72em;
+  font-weight: 600;
+}
+
+.ms-gmail__body {
+  display: grid;
+  grid-template-columns: 10.6em 1fr;
+  min-height: 0;
+}
+
+.ms-gmail__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05em;
+  padding: 0.35em 0.7em 0 0;
+}
+
+.ms-gmail__nav > span {
+  display: flex;
+  align-items: center;
+  gap: 1.05em;
+  padding: 0.5em 1em 0.5em 1.4em;
+  border-radius: 0 99em 99em 0;
+  font-size: 0.8em;
+  color: #202124;
+}
+
+.ms-gmail__nav > span .ms-ico {
+  width: 1.3em;
+  height: 1.3em;
+  color: #444746;
+}
+
+.ms-gmail__nav > span[data-on] {
+  background: #d3e3fd;
+  color: #001d35;
+  font-weight: 700;
+}
+
+.ms-gmail__nav em {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 0.92em;
+}
+
+.ms-gmail__nav .ms-gmail__compose {
+  width: fit-content;
+  margin: 0 0 0.7em 0.7em;
+  padding: 1.1em 1.6em 1.1em 1.3em;
+  border-radius: 1.2em;
+  background: #c2e7ff;
+  color: #001d35;
+  font-weight: 600;
+}
+
+.ms-gmail__main {
+  position: relative;
+  margin-right: 0.7em;
+  border-radius: 1em 1em 0 0;
+  background: #fff;
+  overflow: hidden;
+}
+
+.ms-gmail__bar {
+  display: flex;
+  align-items: center;
+  gap: 1.3em;
+  height: 2.75em;
+  padding: 0 1.3em;
+  color: #444746;
+}
+
+.ms-gmail__bar .ms-ico {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.ms-gmail__count {
+  margin-left: auto;
+  font-size: 0.7em;
+  color: #5f6368;
+}
+
+.ms-gmail__tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-bottom: 0.05em solid #eceff1;
+}
+
+.ms-gmail__tabs span {
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  padding: 0.8em 1.3em;
+  font-size: 0.78em;
+  color: #444746;
+}
+
+.ms-gmail__tabs span .ms-ico {
+  width: 1.3em;
+  height: 1.3em;
+}
+
+.ms-gmail__tabs span[data-on] {
+  color: #0b57d0;
+  font-weight: 600;
+  box-shadow: inset 0 -0.2em 0 #0b57d0;
+}
+
+.ms-gmail__row {
+  display: grid;
+  grid-template-columns: 1.05em 1.05em 9.2em 1fr auto;
+  gap: 0.85em;
+  align-items: center;
+  height: 2.65em;
+  padding: 0 1.3em;
+  border-bottom: 0.05em solid #f1f3f4;
+  background: #f2f6fc;
+  color: #5f6368;
+}
+
+.ms-gmail__row[data-unread] {
+  background: #fff;
+}
+
+.ms-gmail__row .ms-ico {
+  width: 1.05em;
+  height: 1.05em;
+  color: #c0c4c9;
+}
+
+.ms-gmail__row > b,
+.ms-gmail__line,
+.ms-gmail__row time {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.82em;
+}
+
+.ms-gmail__row > b,
+.ms-gmail__row strong {
+  font-weight: 500;
+  color: #202124;
+}
+
+.ms-gmail__row time {
+  font-size: 0.72em;
+}
+
+.ms-gmail__row[data-unread] > b,
+.ms-gmail__row[data-unread] strong,
+.ms-gmail__row[data-unread] time {
+  font-weight: 700;
+  color: #202124;
+}
+
+.ms-gmail__mail {
+  position: absolute;
+  inset: 0;
+  padding: 0 1.8em 0 1.4em;
+  color: #202124;
+}
+
+.ms-gmail__mail .ms-gmail__bar {
+  padding: 0 0.2em;
+}
+
+.ms-gmail__mail h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  margin: 0.5em 0 0.9em 2.2em;
+  font-size: 1.4em;
+  font-weight: 400;
+  color: #1f1f1f;
+}
+
+.ms-label {
+  padding: 0.12em 0.5em;
+  border-radius: 0.3em;
+  background: #e8eaed;
+  font-size: 0.5em;
+  color: #444746;
+}
+
+.ms-gmail__from {
+  display: flex;
+  align-items: center;
+  gap: 0.85em;
+}
+
+.ms-gmail__from > span:nth-child(2) {
+  flex: 1;
+  font-size: 0.86em;
+  line-height: 1.35;
+}
+
+.ms-gmail__from b {
+  font-weight: 700;
+}
+
+.ms-dim {
+  color: #5f6368;
+  font-size: 0.9em;
+}
+
+.ms-gmail__from small {
+  display: block;
+  font-size: 0.86em;
+  color: #5f6368;
+}
+
+.ms-gmail__from time {
+  font-size: 0.72em;
+  color: #5f6368;
+}
+
+.ms-gmail__av {
+  width: 2.6em;
+  height: 2.6em;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #7e57c2;
+  color: #fff;
+  font-size: 0.78em;
+  font-weight: 600;
+}
+
+.ms-gmail__text {
+  padding: 1em 0 0 2.95em;
+}
+
+.ms-gmail__text p {
+  max-width: 34em;
+  margin: 0 0 0.8em;
+  font-size: 0.96em;
+  line-height: 1.6;
+  color: #222;
+}
+
+.ms-gmail__hl {
+  padding: 0 0.1em;
+  border-radius: 0.2em;
+  color: #111827;
+  background-image: linear-gradient(rgba(28, 92, 234, 0.16), rgba(28, 92, 234, 0.16));
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.ms-gmail__actions {
+  display: flex;
+  gap: 0.8em;
+  padding: 0.6em 0 0 2.95em;
+}
+
+.ms-gmail__actions span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.6em 1.5em 0.6em 1.2em;
+  border-radius: 99em;
+  box-shadow: inset 0 0 0 0.07em #747775;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: #444746;
+}
+
+/* ---------------------------------------------------------- Slack, light */
+
+.ms-slack {
+  left: 24em;
+  top: 6.2em;
+  width: 46em;
+  height: 30em;
+  z-index: 11;
+  display: grid;
+  grid-template-rows: 2.6em 1fr;
+  background: #f3eef4;
+}
+
+.ms-slack__top {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  padding: 0 1em;
+  color: #5e4a62;
+}
+
+.ms-slack__nav {
+  display: flex;
+  gap: 0.7em;
+  margin-left: 0.6em;
+}
+
+.ms-slack__nav .ms-ico,
+.ms-slack__help {
+  width: 1.05em;
+  height: 1.05em;
+}
+
+.ms-slack__help {
+  margin-left: auto;
+}
+
+.ms-slack__search {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  width: 24em;
+  height: 1.85em;
+  margin-left: 4em;
+  padding: 0 0.8em;
+  border-radius: 0.5em;
+  background: rgba(74, 21, 75, 0.08);
+  font-size: 0.76em;
+  color: #6e5a72;
+}
+
+.ms-slack__search .ms-ico {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.ms-slack__body {
+  display: grid;
+  grid-template-columns: 3.7em 12em 1fr;
+  min-height: 0;
+}
+
+.ms-slack__rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8em;
+  padding-top: 0.5em;
+  color: #4a154b;
+}
+
+.ms-slack__rail > span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2em;
+}
+
+.ms-slack__rail .ms-ico {
+  width: 2.1em;
+  height: 2.1em;
+  padding: 0.45em;
+  border-radius: 0.55em;
+}
+
+.ms-slack__rail span[data-on] .ms-ico {
+  background: rgba(74, 21, 75, 0.12);
+}
+
+.ms-slack__rail small {
+  font-size: 0.52em;
+  font-weight: 600;
+}
+
+.ms-slack__rail .ms-slack__ws {
+  width: 2.2em;
+  height: 2.2em;
+  display: grid;
+  place-items: center;
+  border-radius: 0.55em;
+  background: #4a154b;
+  color: #fff;
+  font-size: 0.85em;
+  font-weight: 800;
+}
+
+.ms-slack__side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05em;
+  padding: 0.7em 0.6em;
+  border-radius: 0.6em 0 0 0;
+  background: #faf7fb;
+  box-shadow: inset -0.05em 0 0 #e8e1ea;
+  color: #4b3b4f;
+}
+
+.ms-slack__side > span {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.38em 0.75em;
+  border-radius: 0.45em;
+  font-size: 0.8em;
+}
+
+.ms-slack__side > span .ms-ico {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.ms-slack__side .ms-slack__wsname {
+  margin: 0 0 0.45em 0.6em;
+  font-size: 1em;
+  color: #1d1c1d;
+}
+
+.ms-slack__side small {
+  margin: 0.75em 0 0.15em 0.85em;
+  font-size: 0.68em;
+  font-weight: 600;
+  color: #7b6a7f;
+}
+
+.ms-slack__side span[data-on] {
+  background: #1164a3;
+  color: #fff;
+  font-weight: 700;
+}
+
+.ms-slack__mini {
+  width: 1.1em;
+  height: 1.1em;
+  border-radius: 0.3em;
+}
+
+.ms-slack__chan {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #fff;
+}
+
+.ms-slack__chan header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 2.6em;
+  padding: 0 1.2em;
+}
+
+.ms-slack__chan header b {
+  font-size: 0.95em;
+  color: #1d1c1d;
+}
+
+.ms-slack__members {
+  display: flex;
+  align-items: center;
+  font-size: 0.72em;
+  color: #616061;
+}
+
+.ms-slack__members i {
+  width: 1.6em;
+  height: 1.6em;
+  margin-right: -0.45em;
+  border-radius: 0.4em;
+  box-shadow: 0 0 0 0.15em #fff;
+}
+
+.ms-slack__members i:last-of-type {
+  margin-right: 0.6em;
+}
+
+.ms-slack__tabs {
+  display: flex;
+  gap: 1.4em;
+  padding: 0 1.4em;
+  border-bottom: 0.05em solid #ebebeb;
+}
+
+.ms-slack__tabs span {
+  padding: 0.55em 0 0.65em;
+  font-size: 0.74em;
+  color: #616061;
+}
+
+.ms-slack__tabs span[data-on] {
+  color: #1d1c1d;
+  font-weight: 600;
+  box-shadow: inset 0 -0.18em 0 #1164a3;
+}
+
+.ms-slack__view {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ms-slack__msgs {
+  position: relative;
+  padding: 0.5em 0;
+}
+
+.ms-slack__msg {
+  display: flex;
+  gap: 0.8em;
+  padding: 0.55em 1.25em;
+}
+
+.ms-slack__av {
+  width: 2.45em;
+  height: 2.45em;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 0.55em;
+  color: #fff;
+  font-size: 0.86em;
+  font-weight: 700;
+}
+
+.ms-slack__msg b {
+  font-size: 0.86em;
+  color: #1d1c1d;
+}
+
+.ms-slack__msg time {
+  margin-left: 0.6em;
+  font-size: 0.66em;
+  color: #616061;
+}
+
+.ms-slack__msg p {
+  margin: 0.15em 0 0;
+  font-size: 0.88em;
+  line-height: 1.45;
+  color: #1d1c1d;
+}
+
+.ms-slack__files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin-top: 0.55em;
+}
+
+.ms-slack__file {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.5em 1em 0.5em 0.65em;
+  border-radius: 0.65em;
+  box-shadow: inset 0 0 0 0.06em #dddddd;
+  background: #fff;
+}
+
+.ms-slack__file .ms-fg {
+  width: 1.7em;
+  height: 2.1em;
+}
+
+.ms-slack__file > span {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.78em;
+  font-weight: 600;
+  color: #1d1c1d;
+}
+
+.ms-slack__file small {
+  font-weight: 400;
+  color: #616061;
+}
+
+.ms-slack__due {
+  display: inline-block;
+  margin-top: 0.6em;
+  padding: 0.4em 0.75em;
+  border-radius: 0.5em;
+  background: rgba(29, 28, 29, 0.05);
+  color: #1d1c1d;
+  font-size: 0.88em;
+  transform-origin: 50% 50%;
+}
+
+.ms-slack__composer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.4em 1.25em 1em;
+  padding: 0.75em 0.9em;
+  border-radius: 0.65em;
+  box-shadow: inset 0 0 0 0.07em #c9c9c9;
+  color: #868686;
+}
+
+.ms-slack__composer > span:first-child {
+  font-size: 0.82em;
+}
+
+.ms-slack__tools {
+  display: flex;
+  gap: 0.75em;
+  color: #616061;
+}
+
+.ms-slack__tools .ms-ico {
+  width: 1.05em;
+  height: 1.05em;
+}
+
+.ms-slack__tools .ms-slack__send {
+  color: #007a5a;
+}
+
+/* ------------------------------------------------- Meridius notifications */
+
+.ms-note {
+  position: absolute;
+  right: 0.8em;
+  top: 2.35em;
+  z-index: 35;
+  width: 24em;
+  overflow: hidden;
+  border-radius: 1.3em;
+  background: rgba(250, 250, 252, 0.46);
+  backdrop-filter: blur(32px) saturate(1.9);
+  -webkit-backdrop-filter: blur(32px) saturate(1.9);
+  box-shadow:
+    inset 0 0 0 0.06em rgba(255, 255, 255, 0.65),
+    inset 0 0.06em 0 rgba(255, 255, 255, 0.8),
+    0 0 0 0.05em rgba(0, 0, 0, 0.06),
+    0 0.9em 2.6em -0.6em rgba(10, 20, 60, 0.38);
+}
+
+.ms-note__inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  padding: 0.9em 1.05em 0.95em 0.8em;
+}
+
+.ms-note__icon {
+  width: 3.2em;
+  height: 3.2em;
+  flex: none;
+}
+
+.ms-note__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.ms-note__app {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68em;
+  font-weight: 600;
+  color: rgba(20, 20, 30, 0.55);
+}
+
+.ms-note__app time {
+  font-weight: 500;
+}
+
+.ms-note b {
+  display: block;
+  margin-top: 0.2em;
+  font-size: 0.98em;
+  font-weight: 650;
+  line-height: 1.3;
+  color: #111;
+}
+
+.ms-note p {
+  margin: 0.3em 0 0;
+  font-size: 0.84em;
+  line-height: 1.4;
+  color: rgba(20, 20, 30, 0.82);
+}
+
+.ms-note .ms-note__ask {
+  color: #111;
+  font-weight: 500;
+}
+
+.ms-note__actions {
+  display: flex;
+  gap: 0.45em;
+  margin-top: 0.75em;
+}
+
+.ms-note__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.4em;
+  padding: 0 1.4em;
+  border-radius: 0.75em;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 0 0 0.06em rgba(0, 0, 0, 0.06);
+  font-size: 0.8em;
+  font-weight: 600;
+  color: #222;
+}
+
+.ms-note__btn--primary {
+  color: #fff;
+  background:
+    radial-gradient(102% 102% at 66% 82%, rgba(255, 255, 255, 0.4) 0, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(115% 115% at 10% 17%, #1e82e0 0, #1c38ea 100%);
+  box-shadow: 0 0.4em 0.9em -0.3em rgba(28, 56, 234, 0.6);
+}
+
+/* ------------------------------------- Meridius's own display (top right) */
+
+.ms-vd {
+  position: absolute;
+  overflow: hidden;
+  right: 0.8em;
+  top: 2.35em;
+  z-index: 34;
+  width: 24em;
+  padding: 0 0.4em 0.4em;
+  border-radius: 1em;
+  background: rgba(250, 250, 252, 0.6);
+  backdrop-filter: blur(28px) saturate(1.8);
+  -webkit-backdrop-filter: blur(28px) saturate(1.8);
+  box-shadow:
+    inset 0 0 0 0.05em rgba(255, 255, 255, 0.7),
+    0 0 0 0.05em rgba(0, 0, 0, 0.08),
+    0 1.4em 3em -1em rgba(10, 20, 60, 0.45);
+}
+
+.ms-vd__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  height: 1.75em;
+  padding: 0 0.35em;
+  color: #1d1d1f;
+}
+
+.ms-vd__title {
+  font-size: 0.6em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ms-vd__states {
+  position: relative;
+  margin-left: auto;
+  display: grid;
+  font-size: 0.56em;
+}
+
+.ms-vd__state {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45em;
+  font-weight: 500;
+  color: #5b6170;
+  white-space: nowrap;
+}
+
+.ms-vd__state--done {
+  color: #15803d;
+}
+
+.ms-vd__state svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.ms-vd__pulse {
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 50%;
+  background: #1c5cea;
+  box-shadow: 0 0 0 0.25em rgba(28, 92, 234, 0.2);
+  animation: ms-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes ms-pulse {
+  50% {
+    box-shadow: 0 0 0 0.55em rgba(28, 92, 234, 0);
+  }
+}
+
+.ms-vd__screen {
+  position: relative;
+  width: 23.2em;
+  height: 14.5em;
+  overflow: hidden;
+  border-radius: 0.6em;
+  background: #eef2f8;
+  box-shadow: inset 0 0 0 0.05em rgba(0, 0, 0, 0.08);
+}
+
+.ms-vd__scene {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 72em;
+  height: 45em;
+  transform-origin: 0 0;
+}
+
+.ms-vd__wall {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 60% at 85% 100%, rgba(255, 200, 160, 0.55) 0%, rgba(255, 200, 160, 0) 70%),
+    radial-gradient(60% 70% at 10% 0%, rgba(150, 185, 245, 0.6) 0%, rgba(150, 185, 245, 0) 70%),
+    linear-gradient(160deg, #e6eefb 0%, #f4f1ee 100%);
+}
+
+.ms-vd__menubar {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2.43em;
+  display: flex;
+  align-items: center;
+  gap: 1.35em;
+  padding: 0 1.5em;
+  font-size: 0.7em;
+  font-weight: 500;
+  color: #1d1d1f;
+  background: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+}
+
+.ms-vd__menubar svg {
+  display: block;
+  height: 1.3em;
+  width: auto;
+}
+
+/* VS Code, Light Modern. */
+.ms-vs {
+  position: absolute;
+  left: 3em;
+  top: 3.3em;
+  width: 66em;
+  height: 39.4em;
+  display: grid;
+  grid-template-rows: 2.4em 1fr 1.55em;
+  overflow: hidden;
+  border-radius: 0.85em;
+  background: #fff;
+  color: #3b3b3b;
+  box-shadow:
+    0 0 0 0.05em rgba(0, 0, 0, 0.14),
+    0 2em 4em -1em rgba(20, 30, 70, 0.35);
+}
+
+.ms-vs__title {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+  background: #f8f8f8;
+  border-bottom: 0.05em solid #e5e5e5;
+  color: #616161;
+}
+
+.ms-vs__title .ms-lights {
+  position: absolute;
+  left: 0.9em;
+}
+
+.ms-vs__navarrows .ms-ico {
+  width: 1.05em;
+  height: 1.05em;
+}
+
+.ms-vs__cmdbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  width: 28em;
+  height: 1.8em;
+  border-radius: 0.45em;
+  background: #fff;
+  box-shadow: inset 0 0 0 0.06em #cecece;
+  font-size: 0.76em;
+  color: #616161;
+}
+
+.ms-vs__cmdbar .ms-ico {
+  width: 1.05em;
+  height: 1.05em;
+}
+
+.ms-vs__body {
+  display: grid;
+  grid-template-columns: 3em 14em 1fr;
+  min-height: 0;
+}
+
+.ms-vs__activity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1em;
+  padding-top: 0.9em;
+  background: #f8f8f8;
+  border-right: 0.05em solid #e5e5e5;
+  color: #868686;
+}
+
+.ms-vs__activity .ms-ico {
+  width: 1.45em;
+  height: 1.45em;
+}
+
+.ms-vs__activity .is-on {
+  color: #1f1f1f;
+}
+
+.ms-vs__side {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75em 0;
+  background: #f8f8f8;
+  border-right: 0.05em solid #e5e5e5;
+}
+
+.ms-vs__side small {
+  padding: 0 1.3em 0.8em;
+  font-size: 0.64em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #616161;
+}
+
+.ms-vs__side b {
+  padding: 0.3em 1.3em;
+  font-size: 0.68em;
+  color: #3b3b3b;
+}
+
+.ms-vs__file {
+  display: flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.32em 1em 0.32em 1.6em;
+  font-size: 0.8em;
+  color: #3b3b3b;
+}
+
+.ms-vs__file .ms-fg {
+  width: 0.95em;
+  height: 1.2em;
+}
+
+.ms-vs__file[data-kind='dir'] .ms-ico {
+  width: 0.95em;
+  height: 0.95em;
+  color: #616161;
+}
+
+.ms-vs__file[data-on='true'] {
+  background: #e4e6f1;
+  box-shadow: inset 0 0 0 0.06em #005fb8;
+  color: #1f1f1f;
+}
+
+.ms-vs__main {
+  display: grid;
+  grid-template-rows: 2.3em 1.55em 1fr 10.5em;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ms-vs__tabs {
+  position: relative;
+  background: #f8f8f8;
+  border-bottom: 0.05em solid #e5e5e5;
+}
+
+.ms-vs__tab {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: -0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0 1.3em;
+  background: #fff;
+  box-shadow:
+    inset 0 0.12em 0 #005fb8,
+    0.05em 0 0 #e5e5e5;
+  font-size: 0.76em;
+  color: #1f1f1f;
+}
+
+.ms-vs__tab .ms-fg {
+  width: 0.95em;
+  height: 1.2em;
+}
+
+.ms-vs__crumbs {
+  display: flex;
+  align-items: center;
+  padding: 0 1.5em;
+  font-size: 0.7em;
+  color: #616161;
+}
+
+.ms-vs__pane {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.ms-vs__welcome {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2em;
+}
+
+.ms-vs__welcome img {
+  width: 8em;
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+
+.ms-vs__welcome span {
+  font-size: 0.74em;
+  color: #8b8b8b;
+}
+
+.ms-vs__editor {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 3.6em 1fr;
+  padding-top: 0.2em;
+  font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+
+.ms-code__gutter,
+.ms-code__text {
+  font-size: 0.95em;
+  line-height: 1.65;
+}
+
+.ms-code__gutter {
+  padding-right: 1.3em;
+  text-align: right;
+  color: #237893;
+}
+
+.ms-code__text {
+  white-space: pre;
+}
+
+.ms-code__text div {
+  min-height: 1.65em;
+}
+
+.ms-caret {
+  display: inline-block;
+  width: 0.1em;
+  height: 1.15em;
+  margin-left: 0.05em;
+  vertical-align: -0.2em;
+  background: #000;
+  animation: ms-blink 1s steps(1) infinite;
+}
+
+@keyframes ms-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.t-kw {
+  color: #af00db;
+}
+.t-kw2 {
+  color: #0000ff;
+}
+.t-fn {
+  color: #795e26;
+}
+.t-var {
+  color: #001080;
+}
+.t-ty {
+  color: #267f99;
+}
+.t-str {
+  color: #a31515;
+}
+.t-num {
+  color: #098658;
+}
+.t-tx {
+  color: #3b3b3b;
+}
+.t-ok {
+  color: #008000;
+  font-weight: 600;
+}
+
+.ms-vs__terminal {
+  padding: 0 1.4em;
+  border-top: 0.05em solid #e5e5e5;
+  background: #f8f8f8;
+  font-family: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+
+.ms-vs__ptabs {
+  display: flex;
+  gap: 1.7em;
+  padding: 0.75em 0 0.6em;
+  font-family: var(--sans, sans-serif);
+}
+
+.ms-vs__ptabs span {
+  font-size: 0.62em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #616161;
+}
+
+.ms-vs__ptabs span[data-on] {
+  color: #1f1f1f;
+  box-shadow: 0 0.18em 0 #005fb8;
+}
+
+.ms-vs__terminal p {
+  margin: 0.35em 0 0;
+  font-size: 0.86em;
+  color: #3b3b3b;
+}
+
+.ms-vs__prompt {
+  color: #008000;
+}
+
+.ms-vs__dim {
+  color: #8b8b8b;
+}
+
+.ms-vs__status {
+  display: flex;
+  align-items: center;
+  gap: 1.1em;
+  padding-right: 1em;
+  background: #f8f8f8;
+  border-top: 0.05em solid #e5e5e5;
+  color: #3b3b3b;
+}
+
+.ms-vs__status span {
+  font-size: 0.66em;
+}
+
+.ms-vs__status .ms-vs__remote {
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  padding: 0 1.2em;
+  background: #005fb8;
+  color: #fff;
+  font-size: 0.85em;
+}
+
+.ms-vs__status-r {
+  margin-left: auto;
+}
+
+.ms-vs__toast {
+  position: absolute;
+  right: 1.2em;
+  bottom: 2.5em;
+  width: 24em;
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  padding: 0.8em 1em 0.8em 0.7em;
+  border-radius: 0.6em;
+  background: #fff;
+  box-shadow:
+    0 0 0 0.06em #e5e5e5,
+    0 1em 2em -0.6em rgba(20, 30, 70, 0.3);
+  color: #3b3b3b;
+}
+
+.ms-vs__toast img {
+  width: 2.1em;
+  height: 2.1em;
+  flex: none;
+}
+
+.ms-vs__toast span {
+  font-size: 0.8em;
+  line-height: 1.45;
+}
+
+.ms-vs__toast b {
+  color: #1f1f1f;
+}
+
+/* ------------------------------------------ what Meridius takes in, faintly */
+
+.ms-soul {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.45em 0.9em 0.45em 0.7em;
+  border-radius: 99em;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 0 0 0.06em rgba(255, 255, 255, 0.9),
+    0 0 1.6em 0.5em rgba(120, 165, 255, 0.6);
+  color: #1c2a55;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  filter: blur(0.03em);
+}
+
+.ms-soul[data-layer='1'],
+.ms-soul[data-layer='2'] {
+  filter: blur(0.15em);
+}
+
+.ms-soul img {
+  width: 1em;
+  height: 1em;
+  object-fit: contain;
+}
+
+.ms-soul .ms-fg {
+  width: 1.05em;
+  height: 1.3em;
+}
+
+/* ----------------------------------------------------------------- dock */
+
+.ms-dock {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  height: 7.6em;
+}
+
+.ms-dock__shelf {
+  position: absolute;
+  bottom: 0.45em;
+  height: 3.78em;
+  border-radius: 1.55em;
+  background: rgba(255, 255, 255, 0.26);
+  box-shadow:
+    inset 0 0 0 0.05em rgba(255, 255, 255, 0.55),
+    0 0.6em 1.6em -0.6em rgba(20, 30, 80, 0.3);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  transition:
+    left 0.12s ease-out,
+    width 0.12s ease-out;
+}
+
+.ms-dock__icon {
+  position: absolute;
+  bottom: 0.69em;
+  transition:
+    left 0.12s ease-out,
+    width 0.12s ease-out,
+    height 0.12s ease-out;
+}
+
+.ms-dock__sep {
+  position: absolute;
+  bottom: 1em;
+  width: 0.9em;
+  height: 2.6em;
+  transition: left 0.12s ease-out;
+}
+
+.ms-dock__sep::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 0.06em;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.ms-dock__tile {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.ms-dock__dot {
+  position: absolute;
+  left: 50%;
+  bottom: -0.2em;
+  width: 0.22em;
+  height: 0.22em;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: rgba(20, 24, 40, 0.7);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.ms-dock__icon[data-running='true'] .ms-dock__dot {
+  opacity: 1;
+}
+
+.ms-dock__label {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.25em);
+  translate: -50% 0;
+  padding: 0.3em 0.75em;
+  border-radius: 0.5em;
+  background: rgba(40, 42, 52, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  font-size: 0.62em;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.12s;
+  pointer-events: none;
+}
+
+.ms-dock__icon[data-hover] .ms-dock__label {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------- Mac pointer */
+
+.ms-ptr {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 70;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.ms-ptr__in {
+  position: absolute;
+  left: -0.065em;
+  top: -0.065em;
+  transform-origin: 0.065em 0.065em;
+}
+
+.ms-ptr__in svg {
+  display: block;
+  width: 0.82em;
+  height: 1.2em;
+  overflow: visible;
+  filter: drop-shadow(0 0.08em 0.14em rgba(0, 0, 0, 0.38));
+}
+
+.ms-ptr__ripple {
+  position: absolute;
+  left: -0.9em;
+  top: -0.9em;
+  width: 1.8em;
+  height: 1.8em;
+  border-radius: 50%;
+  border: 0.1em solid rgba(20, 24, 40, 0.45);
+  opacity: 0;
+}
+
+/* Pieces that enter later start hidden, before script takes over. */
+.ms-note,
+.ms-vd,
+.ms-mb-meridius,
+.ms-island__content,
+.ms-gmail__mail {
+  opacity: 0;
+}
+
+/* -------------------------------------------------- chapters + control */
+
+.ms-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.ms-steps {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ms-steps li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #9aa1ae;
+  transition:
+    color 0.3s,
+    background 0.3s,
+    box-shadow 0.3s;
+}
+
+.ms-steps li i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+  transition: background 0.3s;
+}
+
+.ms-steps[data-step='0'] li:nth-child(1),
+.ms-steps[data-step='1'] li:nth-child(2),
+.ms-steps[data-step='2'] li:nth-child(3),
+.ms-steps[data-step='3'] li:nth-child(4),
+.ms-steps[data-step='4'] li:nth-child(5),
+.ms-steps[data-step='5'] li:nth-child(6) {
+  color: #1f2430;
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgba(20, 30, 60, 0.08),
+    0 0 0 1px #e6e9f0;
+}
+
+.ms-steps[data-step='0'] li:nth-child(1) i,
+.ms-steps[data-step='1'] li:nth-child(2) i,
+.ms-steps[data-step='2'] li:nth-child(3) i,
+.ms-steps[data-step='3'] li:nth-child(4) i,
+.ms-steps[data-step='4'] li:nth-child(5) i,
+.ms-steps[data-step='5'] li:nth-child(6) i {
+  background: #1c5cea;
+  opacity: 1;
+  box-shadow: 0 0 0 3px rgba(28, 92, 234, 0.18);
+}
+
+.ms-pause {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #263043 !important;
+  background: #fff !important;
+  box-shadow:
+    0 1px 2px rgba(20, 30, 60, 0.08),
+    0 0 0 1px #e6e9f0;
+}
+
+.ms-pause svg {
+  width: 14px;
+  height: 14px;
+}
+
+@media (max-width: 960px) {
+  .ms-steps li {
+    display: none;
+  }
+  .ms-steps[data-step='0'] li:nth-child(1),
+  .ms-steps[data-step='1'] li:nth-child(2),
+  .ms-steps[data-step='2'] li:nth-child(3),
+  .ms-steps[data-step='3'] li:nth-child(4),
+  .ms-steps[data-step='4'] li:nth-child(5),
+  .ms-steps[data-step='5'] li:nth-child(6) {
+    display: inline-flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-vd__pulse,
+  .ms-caret {
+    animation: none;
+  }
+}

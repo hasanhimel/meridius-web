@@ -29,7 +29,7 @@ function Apps() {
             <b>{APPS[hover].name}</b> · read from your screen, confirmed by its connector
           </>
         ) : (
-          'Hover an app. Anything else on screen counts too.'
+          'Hover or tap an app. Anything else on screen counts too.'
         )}
       </p>
       <span className="p-apps__scan" aria-hidden="true" />

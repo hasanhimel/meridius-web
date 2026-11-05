@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
 import { hero } from '../content';
 import { BOOK_CALL_URL } from '../../config';
-import { Desktop } from '../ui/Desktop';
+import { MacStory } from '../ui/MacStory';
 import { gsap, MOTION_OK } from '../motion';
 
 /**
@@ -52,13 +52,8 @@ export function Hero({ onRequest }: { onRequest: () => void }) {
     const mm = gsap.matchMedia();
     mm.add(MOTION_OK, () => {
       const lines = root.querySelectorAll('.m-hero__title span, .m-hero__sentence, .m-hero__actions');
-      const pops = shot.querySelectorAll('[data-pop]');
-      const hl = shot.querySelector('[data-hl]');
       const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
-      tl.from(lines, { y: 26, opacity: 0, filter: 'blur(8px)', duration: 1.1, stagger: 0.09 })
-        .from(shot, { y: 70, opacity: 0, duration: 1.4 }, 0.35)
-        .from(hl, { backgroundColor: 'rgba(28,92,234,0)', boxShadow: 'inset 0 0 0 rgba(28,92,234,0)', duration: 0.6, ease: 'power2.out' }, 1.25)
-        .from(pops, { y: 14, scale: 0.96, opacity: 0, duration: 0.8, stagger: 0.18 }, 1.45);
+      tl.from(lines, { y: 26, opacity: 0, filter: 'blur(8px)', duration: 1.1, stagger: 0.09 }).from(shot, { y: 70, opacity: 0, duration: 1.4 }, 0.35);
       // A light lift as the shot scrolls by.
       gsap.fromTo(
         shot,
@@ -89,7 +84,7 @@ export function Hero({ onRequest }: { onRequest: () => void }) {
           </a>
         </div>
         <div className="m-hero__shot">
-          <Desktop ref={shotRef} />
+          <MacStory ref={shotRef} />
         </div>
       </div>
     </section>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { NavMark } from './brand/NavMark';
+import { Wordmark } from './brand/Wordmark';
 import { nav } from './content';
 import { setupReveals, startSmoothScroll, scrollToId, ScrollTrigger } from './motion';
 import { Hero } from './sections/Hero';
@@ -35,9 +36,27 @@ export function Landing() {
   const emailRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<AccessDialogHandle>(null);
   const [solid, setSolid] = useState(false);
+  const [menu, setMenu] = useState(false);
 
   // Request access opens the form where the visitor already is.
-  const requestAccess = useCallback(() => dialogRef.current?.open(), []);
+  const requestAccess = useCallback(() => {
+    setMenu(false);
+    dialogRef.current?.open();
+  }, []);
+
+  // The phone menu closes on Escape and on a wider screen.
+  useEffect(() => {
+    if (!menu) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenu(false);
+    const mq = window.matchMedia('(min-width: 761px)');
+    const onWide = () => mq.matches && setMenu(false);
+    window.addEventListener('keydown', onKey);
+    mq.addEventListener('change', onWide);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      mq.removeEventListener('change', onWide);
+    };
+  }, [menu]);
 
   useLayoutEffect(() => {
     const stopSmooth = startSmoothScroll();
@@ -77,7 +96,7 @@ export function Landing() {
 
   return (
     <div ref={rootRef} className="m-site">
-      <header className="m-nav" data-solid={solid}>
+      <header className="m-nav" data-solid={solid || menu} data-menu={menu}>
         <div className="m-wrap m-nav__inner">
           <a
             href="#top"
@@ -88,8 +107,8 @@ export function Landing() {
               scrollToId('top', 0);
             }}
           >
-            <NavMark size={30} tone={solid ? 'dark' : 'light'} ripple />
-            Meridius
+            <NavMark size={30} tone={solid || menu ? 'dark' : 'light'} ripple />
+            <Wordmark height={15} className="m-wordmark" />
           </a>
           <nav aria-label="Sections">
             <ul className="m-nav__links">
@@ -103,6 +122,28 @@ export function Landing() {
           <button type="button" className="m-btn m-btn--blue m-btn--sm m-nav__cta" onClick={requestAccess}>
             Request access
           </button>
+          <button
+            type="button"
+            className="m-nav__menu"
+            aria-expanded={menu}
+            aria-controls="m-nav-sheet"
+            aria-label={menu ? 'Close menu' : 'Open menu'}
+            onClick={() => setMenu((m) => !m)}
+          >
+            <span />
+            <span />
+          </button>
+        </div>
+        <div id="m-nav-sheet" className="m-nav__sheet" hidden={!menu}>
+          <ul>
+            {nav.map((n) => (
+              <li key={n.href}>
+                <a href={n.href} onClick={() => setMenu(false)}>
+                  {n.label}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </header>
 

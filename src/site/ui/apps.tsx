@@ -13,6 +13,7 @@ export const APPS = {
   drive: { name: 'Google Drive', src: '/logos/drive.svg', full: false },
   figma: { name: 'Figma', src: '/logos/figma.svg', full: false },
   chrome: { name: 'Google Chrome', src: '/logos/chrome.svg', full: false },
+  vscode: { name: 'Visual Studio Code', src: '/logos/vscode.svg', full: false },
   finder: { name: 'Finder', src: '/logos/finder.png', full: true },
 } as const;
 

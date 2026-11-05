@@ -223,7 +223,7 @@ html:has(.m-site) body {
 .m-nav__brand {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 11px;
   font-size: 18px;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -256,9 +256,98 @@ html:has(.m-site) body {
   margin-left: auto;
 }
 
+/* Phone menu: a two-line button that becomes a cross, and a frosted sheet. */
+.m-nav__menu {
+  display: none;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  margin-right: -8px;
+  border-radius: 12px;
+}
+
+.m-nav__menu span {
+  position: absolute;
+  left: 11px;
+  right: 11px;
+  height: 1.6px;
+  border-radius: 2px;
+  background: currentColor;
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    top 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.m-nav__menu span:first-child {
+  top: 16px;
+}
+
+.m-nav__menu span:last-child {
+  top: 23px;
+}
+
+.m-nav[data-menu='true'] .m-nav__menu span:first-child {
+  top: 19.5px;
+  transform: rotate(45deg);
+}
+
+.m-nav[data-menu='true'] .m-nav__menu span:last-child {
+  top: 19.5px;
+  transform: rotate(-45deg);
+}
+
+.m-nav__sheet {
+  padding: 8px var(--gutter) 22px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  box-shadow: 0 18px 40px -24px rgba(20, 30, 70, 0.35);
+  animation: m-sheet-in 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.m-nav__sheet[hidden] {
+  display: none;
+}
+
+.m-nav__sheet ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.m-nav__sheet li + li {
+  border-top: 1px solid var(--line);
+}
+
+.m-nav__sheet a {
+  display: block;
+  padding: 14px 2px;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.m-nav__sheet .m-btn {
+  width: 100%;
+}
+
+@keyframes m-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
 @media (max-width: 760px) {
   .m-nav__links {
     display: none;
+  }
+  .m-nav__inner {
+    gap: 10px;
+  }
+  .m-nav__menu {
+    display: block;
   }
 }
 
@@ -352,41 +441,6 @@ html:has(.m-site) body {
 
 .m-hero__shot {
   margin-top: clamp(56px, 7vw, 88px);
-}
-
-/* --------------------------------------------- the product shot (desktop) */
-
-/*
- * Every size inside the desktop is in em, and the stage's font-size is a
- * fraction of its width, so the whole scene scales as one picture. On small
- * screens it keeps a readable minimum and crops at the sides instead.
- */
-.m-desk {
-  position: relative;
-  container-type: inline-size;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow:
-    0 40px 80px -30px rgba(23, 47, 105, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.5);
-}
-
-.m-desk__stage {
-  --u: max(calc(100cqw / 72), 8.6px);
-  position: relative;
-  /* Centred when it fits; on narrow screens, cropped so the Meridius panel stays whole. */
-  left: min(calc(50cqw - 36 * var(--u)), calc(100cqw - 63.8 * var(--u)));
-  width: calc(var(--u) * 72);
-  height: calc(var(--u) * 42);
-  font-size: var(--u);
-  background:
-    radial-gradient(60% 80% at 85% 100%, #ff9a5a 0%, rgba(255, 154, 90, 0) 70%),
-    radial-gradient(60% 70% at 70% 60%, #ffc59a 0%, rgba(255, 197, 154, 0) 70%),
-    radial-gradient(70% 90% at 10% 10%, #2e63e0 0%, rgba(46, 99, 224, 0) 70%),
-    linear-gradient(140deg, #3f7be8 0%, #8db8f4 38%, #f6c9a6 66%, #f59a63 100%);
-  font-family: var(--sans);
-  color: var(--ink);
-  text-align: left;
 }
 
 /* A generic app window. */
@@ -487,14 +541,6 @@ html:has(.m-site) body {
   margin-top: 0.8em;
 }
 
-.m-mark-hl {
-  background: rgba(28, 92, 234, 0.12);
-  box-shadow: inset 0 -0.14em 0 rgba(28, 92, 234, 0.55);
-  border-radius: 0.2em;
-  padding: 0 0.15em;
-  color: #111827;
-}
-
 .m-pill__live {
   display: inline-flex;
   align-items: center;
@@ -528,176 +574,6 @@ html:has(.m-site) body {
   height: 0.6em;
   border-radius: 0.12em;
   background: var(--panel-ink);
-}
-
-.m-panel {
-  position: absolute;
-  border-radius: 1em;
-  background: rgba(31, 33, 40, 0.94);
-  color: var(--panel-ink);
-  padding: 1.1em 1.2em 1em;
-  box-shadow: 0 1.8em 4em -1em rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(16px);
-}
-
-.m-panel__tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4em;
-  font-size: 0.72em;
-  font-weight: 500;
-  color: var(--panel-muted);
-}
-
-.m-panel__tag svg {
-  width: 1.1em;
-  height: 1.1em;
-  color: #fff;
-}
-
-.m-panel__title {
-  margin-top: 0.5em !important;
-  font-size: 1.05em;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1.35;
-  color: #fff;
-}
-
-.m-panel__text {
-  margin-top: 0.4em !important;
-  font-size: 0.82em;
-  line-height: 1.55;
-  color: #c7cad3;
-}
-
-.m-panel__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4em;
-  margin-top: 0.8em;
-}
-
-.m-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35em;
-  padding: 0.3em 0.6em;
-  border-radius: 0.45em;
-  background: rgba(255, 255, 255, 0.07);
-  font-size: 0.72em;
-  color: #d5d8df;
-}
-
-.m-chip svg {
-  width: 1.15em;
-  height: 1.15em;
-}
-
-.m-panel__actions {
-  display: flex;
-  gap: 0.5em;
-  margin-top: 1em;
-  padding-top: 0.9em;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.m-mini-btn {
-  display: inline-flex;
-  align-items: center;
-  height: 2.2em;
-  padding: 0 0.9em;
-  border-radius: 0.55em;
-  font-size: 0.8em;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.09);
-  color: var(--panel-ink);
-}
-
-.m-mini-btn--blue {
-  color: #fff;
-  background: linear-gradient(160deg, var(--blue-a), var(--blue-b));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
-}
-
-.m-kbd {
-  margin-left: auto;
-  align-self: center;
-  font-size: 0.7em;
-  color: var(--panel-muted);
-}
-
-/* The virtual display mirror in the hero shot. */
-.m-mirror {
-  position: absolute;
-  width: 15em;
-  border-radius: 0.8em;
-  overflow: hidden;
-  background: rgba(31, 33, 40, 0.94);
-  box-shadow: 0 1.4em 3em -1em rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-}
-
-.m-mirror__head {
-  display: flex;
-  align-items: center;
-  gap: 0.45em;
-  padding: 0.55em 0.75em;
-  font-size: 0.7em;
-  font-weight: 500;
-  color: var(--panel-muted);
-}
-
-.m-mirror__head b {
-  color: var(--panel-ink);
-  font-weight: 500;
-}
-
-.m-mirror__screen {
-  position: relative;
-  margin: 0 0.5em 0.5em;
-  height: 8em;
-  display: grid;
-  grid-template-rows: repeat(3, 1fr);
-  gap: 0.3em;
-  padding: 0.45em;
-  border-radius: 0.45em;
-  background: linear-gradient(150deg, #dbe6fb, #f3e3d6);
-}
-
-.m-mirror__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 0.5em 0 0.7em;
-  border-radius: 0.35em;
-  background: #fff;
-  font-size: 0.72em;
-  color: #374151;
-  transition: background-color 0.3s ease;
-}
-
-.m-mirror__row[data-on='true'] {
-  background: #f0fdf4;
-}
-
-.m-mirror__row i {
-  width: 1.5em;
-  height: 1.5em;
-  border-radius: 0.35em;
-  display: grid;
-  place-items: center;
-  box-shadow: inset 0 0 0 1.5px #d1d5db;
-}
-
-.m-mirror__row[data-on='true'] i {
-  background: #16a34a;
-  box-shadow: none;
-  color: #fff;
-}
-
-.m-mirror__row i svg {
-  width: 0.95em;
-  height: 0.95em;
 }
 
 /* ------------------------------------------------------------ trio tiles */
@@ -1150,7 +1026,7 @@ html:has(.m-site) body {
 .m-footer__brand {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   font-size: 18px;
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -1249,10 +1125,6 @@ html:has(.m-site) body {
     animation: none !important;
     transition: none !important;
   }
-}
-.m-mirror__head svg {
-  width: 1.1em;
-  height: auto;
 }
 
 /* The nav mark: no tile, white over the sky, black on the white bar. */
@@ -3123,460 +2995,6 @@ html:has(.m-site) body {
 }
 
 /* =========================================================================
-   The Mac, in detail: menu bar, Chrome window with Gmail, dock
-   All sizes in em: the stage's font-size scales the whole scene.
-   ========================================================================= */
-
-.mac-menubar {
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: 3;
-  height: 1.9em;
-  display: flex;
-  align-items: center;
-  gap: 1.35em;
-  padding: 0 1.2em;
-  font-size: 0.74em;
-  font-weight: 500;
-  color: #fff;
-  background: rgba(30, 60, 140, 0.16);
-  backdrop-filter: blur(24px) saturate(1.6);
-  -webkit-backdrop-filter: blur(24px) saturate(1.6);
-  text-shadow: 0 0 0.6em rgba(0, 20, 80, 0.2);
-}
-
-.mac-menubar b {
-  font-weight: 700;
-}
-
-.mac-menubar svg {
-  height: 1.05em;
-  width: auto;
-  display: block;
-}
-
-.mac-menubar__apple svg {
-  height: 1.2em;
-}
-
-.mac-menubar__right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 1.15em;
-}
-
-.mac-menubar__right svg {
-  height: 0.95em;
-}
-
-.mac-menubar__meridius {
-  display: grid;
-  place-items: center;
-  padding: 0.15em 0.4em;
-  margin-right: -0.2em;
-  border-radius: 0.35em;
-  background: rgba(255, 255, 255, 0.22);
-}
-
-.mac-menubar__meridius svg {
-  height: 1.15em;
-}
-
-/* Window frame shared by the scene's windows. */
-.mac-win {
-  position: absolute;
-  overflow: hidden;
-  border-radius: 0.85em;
-  background: #fff;
-  box-shadow:
-    0 0 0 0.5px rgba(0, 0, 0, 0.22),
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.6),
-    0 2.2em 4.4em -1.2em rgba(15, 23, 60, 0.45),
-    0 0.4em 1.2em rgba(15, 23, 60, 0.12);
-}
-
-.mac-lights {
-  display: inline-flex;
-  gap: 0.42em;
-  margin-right: 0.6em;
-}
-
-.mac-lights i {
-  width: 0.74em;
-  height: 0.74em;
-  border-radius: 50%;
-  background: #ff5f57;
-  box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.12);
-}
-
-.mac-lights i:nth-child(2) {
-  background: #febc2e;
-}
-
-.mac-lights i:nth-child(3) {
-  background: #28c840;
-}
-
-.mac-lights--dim i {
-  background: rgba(255, 255, 255, 0.22) !important;
-  width: 0.6em;
-  height: 0.6em;
-}
-
-.mac-chrome {
-  left: 7.5em;
-  top: 3.9em;
-  width: 47em;
-  height: 31.4em;
-  display: grid;
-  grid-template-rows: auto auto 1fr;
-}
-
-.mac-chrome__tabs {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.15em;
-  height: 2.5em;
-  padding: 0 0.9em;
-  background: #dfe5ee;
-}
-
-.mac-chrome__tabs .mac-lights {
-  align-self: center;
-  margin-right: 1.1em;
-}
-
-.mac-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5em;
-  height: 2em;
-  max-width: 13em;
-  padding: 0 1.1em 0 0.85em;
-  border-radius: 0.6em 0.6em 0 0;
-  font-size: 0.72em;
-  color: #4b5565;
-  white-space: nowrap;
-}
-
-.mac-tab[data-on] {
-  background: #fff;
-  color: #1f2430;
-  box-shadow: 0 -0.5px 0 rgba(0, 0, 0, 0.06);
-}
-
-.mac-tab img {
-  width: 1.15em !important;
-  height: 1.15em !important;
-}
-
-.mac-tab--new {
-  padding: 0 0.7em;
-  font-size: 0.95em;
-  color: #6b7383;
-}
-
-.mac-chrome__bar {
-  display: flex;
-  align-items: center;
-  gap: 0.9em;
-  height: 2.5em;
-  padding: 0 0.9em;
-  background: #fff;
-  border-bottom: 1px solid #eceff4;
-}
-
-.mac-nav {
-  display: inline-flex;
-  gap: 0.75em;
-  color: #5f6673;
-}
-
-.mac-nav svg {
-  width: 0.95em;
-  height: 0.95em;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.mac-omni {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6em;
-  height: 1.9em;
-  padding: 0 0.9em;
-  border-radius: 99em;
-  background: #f1f3f6;
-  font-size: 0.72em;
-  color: #3c4250;
-}
-
-.mac-omni svg {
-  width: 0.75em;
-  height: 0.9em;
-  fill: #8a909c;
-  stroke: #8a909c;
-  stroke-width: 1.3;
-}
-
-.mac-avatar {
-  width: 1.6em;
-  height: 1.6em;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: linear-gradient(140deg, #7aa7f5, #2f5fdc);
-  color: #fff;
-  font-size: 0.68em;
-  font-weight: 600;
-}
-
-/* Gmail, simplified to what the scene needs. */
-.mac-gmail {
-  display: grid;
-  grid-template-columns: 16.5em 1fr;
-  min-height: 0;
-  background: #f6f8fc;
-}
-
-.mac-gmail__list {
-  padding: 0.5em;
-  border-right: 1px solid #e8ebf1;
-}
-
-.mac-gmail__row {
-  position: relative;
-  display: grid;
-  gap: 0.1em;
-  padding: 0.62em 0.75em 0.62em 1.25em;
-  border-radius: 0.6em;
-  font-size: 0.74em;
-  line-height: 1.32;
-  color: #5f6673;
-}
-
-.mac-gmail__row[data-unread]::before {
-  content: '';
-  position: absolute;
-  left: 0.45em;
-  top: 1.05em;
-  width: 0.45em;
-  height: 0.45em;
-  border-radius: 50%;
-  background: #1a73e8;
-}
-
-.mac-gmail__row[data-on] {
-  background: #d9e6fc;
-}
-
-.mac-gmail__from {
-  display: flex;
-  justify-content: space-between;
-  color: #1f2430;
-  font-weight: 600;
-}
-
-.mac-gmail__from time {
-  font-weight: 500;
-  font-size: 0.9em;
-  color: #7a8090;
-}
-
-.mac-gmail__row:not([data-unread]) .mac-gmail__from {
-  font-weight: 500;
-}
-
-.mac-gmail__subject {
-  color: #2b303b;
-}
-
-.mac-gmail__snippet {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  color: #8a909c;
-}
-
-.mac-gmail__read {
-  margin: 0.5em 0.5em 0 0;
-  padding: 1.5em 1.8em;
-  border-radius: 0.9em 0.9em 0 0;
-  background: #fff;
-  font-size: 0.92em;
-  line-height: 1.6;
-  color: #3a404c;
-}
-
-.mac-gmail__read h4 {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-  margin: 0 0 0.9em;
-  font-size: 1.32em;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  color: #1f2430;
-}
-
-.mac-label {
-  padding: 0.1em 0.45em;
-  border-radius: 0.3em;
-  background: #e8eaed;
-  font-size: 0.5em;
-  font-weight: 500;
-  color: #4b5160;
-}
-
-.mac-gmail__sender {
-  display: flex;
-  align-items: center;
-  gap: 0.7em;
-  margin-bottom: 1.1em;
-  font-size: 0.82em;
-  line-height: 1.35;
-  color: #6b7280;
-}
-
-.mac-gmail__sender b {
-  color: #1f2430;
-  font-weight: 600;
-}
-
-.mac-gmail__sender small {
-  display: block;
-  font-size: 0.92em;
-  color: #8a909c;
-}
-
-.mac-gmail__avatar {
-  width: 2.5em;
-  height: 2.5em;
-  flex: none;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #f4b183;
-  color: #fff;
-  font-weight: 600;
-}
-
-.mac-gmail__read p + p {
-  margin-top: 0.75em;
-}
-
-/* Meridius's notice: a dark glass card, like a system HUD. */
-.m-panel {
-  background: rgba(28, 30, 38, 0.82) !important;
-  backdrop-filter: blur(28px) saturate(1.4);
-  -webkit-backdrop-filter: blur(28px) saturate(1.4);
-  box-shadow:
-    0 2em 4.4em -1em rgba(10, 14, 40, 0.55),
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.18),
-    inset 0 0.06em 0 rgba(255, 255, 255, 0.12) !important;
-}
-
-.m-panel__when {
-  margin-left: 0.4em;
-  font-weight: 400;
-  opacity: 0.7;
-}
-
-/* The mirror: its own display, as a small floating window. */
-.m-mirror {
-  width: 17em !important;
-  background: rgba(28, 30, 38, 0.86) !important;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-}
-
-.m-mirror__head {
-  gap: 0.2em !important;
-}
-
-.m-mirror__foot {
-  padding: 0 0.85em 0.6em;
-  font-size: 0.66em;
-  color: var(--panel-muted);
-}
-
-/* Dock: frosted shelf, real icons, a dot under running apps. */
-.mac-dock {
-  position: absolute;
-  left: 50%;
-  bottom: 0.7em;
-  translate: -50% 0;
-  display: flex;
-  align-items: center;
-  gap: 0.45em;
-  padding: 0.42em 0.5em;
-  border-radius: 1.35em;
-  background: rgba(255, 255, 255, 0.24);
-  box-shadow:
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.55),
-    0 0.6em 1.6em -0.6em rgba(20, 30, 80, 0.3);
-  backdrop-filter: blur(24px) saturate(1.5);
-  -webkit-backdrop-filter: blur(24px) saturate(1.5);
-}
-
-.mac-dock__app {
-  position: relative;
-  width: 2.9em;
-  height: 2.9em;
-  display: grid;
-  place-items: center;
-  border-radius: 0.68em;
-  background: linear-gradient(180deg, #ffffff, #f2f4f8);
-  box-shadow: 0 0.12em 0.3em rgba(20, 30, 70, 0.18), inset 0 0 0 0.5px rgba(0, 0, 0, 0.06);
-}
-
-.mac-dock__app img {
-  width: 1.75em !important;
-  height: 1.75em !important;
-}
-
-.mac-dock__app[data-full] {
-  background: none;
-  box-shadow: none;
-}
-
-.mac-dock__app[data-full] img {
-  width: 2.9em !important;
-  height: 2.9em !important;
-  filter: drop-shadow(0 0.12em 0.25em rgba(20, 30, 70, 0.25));
-}
-
-.mac-dock__app[data-running]::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: -0.36em;
-  width: 0.22em;
-  height: 0.22em;
-  translate: -50% 0;
-  border-radius: 50%;
-  background: rgba(20, 24, 40, 0.65);
-}
-
-.mac-dock__sep {
-  width: 1px;
-  height: 2.3em;
-  margin: 0 0.15em;
-  background: rgba(255, 255, 255, 0.55);
-}
-
-@container (max-width: 760px) {
-  .mac-menubar__more {
-    display: none;
-  }
-}
-
-/* =========================================================================
    Chapter one: a chat box and Meridius, side by side
    ========================================================================= */
 
@@ -4224,19 +3642,23 @@ html.m-locked {
 
 /* ------------------------------------------------------------ responsive */
 
+/* Tablet: two columns where they fit. */
 @media (max-width: 960px) {
-  .x-duo {
-    grid-template-columns: 1fr;
-  }
   .x-card {
     min-height: 0;
   }
   .p-bento {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
-  .p-card,
+  .p-card {
+    grid-column: span 1;
+  }
   .p-card--wide {
-    grid-column: auto;
+    grid-column: span 2;
+  }
+  .p-card__art {
+    height: 240px;
   }
   .p-apps__grid {
     grid-template-columns: repeat(5, 48px);
@@ -4247,9 +3669,54 @@ html.m-locked {
   }
 }
 
+/* Phone: one column. */
+@media (max-width: 699px) {
+  .x-duo {
+    grid-template-columns: 1fr;
+  }
+  .p-bento {
+    grid-template-columns: 1fr;
+  }
+  .p-card,
+  .p-card--wide {
+    grid-column: auto;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .p-apps__scan,
   .x-chat__wait i {
     animation: none;
   }
+}
+
+/* =========================================================================
+   Meridius's cursor for the whole site. A native CSS cursor, so it moves
+   exactly like the system pointer (no lag, no smoothing); only the look
+   changes. Text fields keep the I-beam. Touch devices never see it.
+   ========================================================================= */
+
+@media (pointer: fine) {
+  .m-site,
+  .m-site *,
+  .m-site a,
+  .m-site button,
+  .m-site [role='button'],
+  .m-site label,
+  .m-site summary,
+  .m-site :disabled {
+    cursor: url('/cursors/meridius.svg') 3 1, auto;
+  }
+
+  .m-site input:not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='button']),
+  .m-site textarea {
+    cursor: text;
+  }
+}
+
+/* The wordmark sits on the logo's optical centre, like Cursor's lockup. */
+.m-wordmark {
+  display: block;
+  flex: none;
+  transition: color 0.35s ease;
 }

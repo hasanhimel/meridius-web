@@ -1,4 +1,5 @@
 import { NavMark } from '../brand/NavMark';
+import { Wordmark } from '../brand/Wordmark';
 import { BOOK_CALL_URL, CONTACT_EMAIL } from '../../config';
 
 export function Footer({ onRequest }: { onRequest: () => void }) {
@@ -10,7 +11,7 @@ export function Footer({ onRequest }: { onRequest: () => void }) {
           <div>
             <span className="m-footer__brand">
               <NavMark size={26} tone="dark" />
-              Meridius
+              <Wordmark height={13} className="m-wordmark" title="Meridius" />
             </span>
             <p className="m-footer__about">The Mac companion that remembers what matters and does the work.</p>
           </div>
