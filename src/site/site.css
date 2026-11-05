@@ -195,28 +195,39 @@ html:has(.m-site) body {
   color: #fff;
 }
 
-/* The bar is a blur, not a panel: a light frosted layer reaching 48px below
-   the nav, masked so its blur and tint thin out to nothing. No bottom edge. */
-.m-nav::before {
+/* The bar is a blur, not a panel: a frosted layer reaching 48px below the
+   nav, masked so it thins out to nothing (no bottom edge). It is always on,
+   white logo or black. Over the blue sky it carries a faint blue tint, so the
+   white mark and links stay crisp; over white sections a white tint (::after)
+   fades in for the dark ink. */
+.m-nav::before,
+.m-nav::after {
   content: '';
   position: absolute;
   inset: 0 0 -48px;
   z-index: -1;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.28) 55%, rgba(255, 255, 255, 0) 100%);
-  backdrop-filter: blur(24px) saturate(170%);
-  -webkit-backdrop-filter: blur(24px) saturate(170%);
   -webkit-mask-image: linear-gradient(180deg, #000 0, #000 40%, rgba(0, 0, 0, 0.55) 70%, transparent 100%);
   mask-image: linear-gradient(180deg, #000 0, #000 40%, rgba(0, 0, 0, 0.55) 70%, transparent 100%);
+  pointer-events: none;
+}
+
+.m-nav::before {
+  background: linear-gradient(180deg, rgba(28, 72, 190, 0.16) 0%, rgba(28, 72, 190, 0.08) 55%, rgba(28, 72, 190, 0) 100%);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+}
+
+.m-nav::after {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.34) 55%, rgba(255, 255, 255, 0) 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
-  pointer-events: none;
 }
 
 .m-nav[data-solid='true'] {
   color: var(--ink);
 }
 
-.m-nav[data-solid='true']::before {
+.m-nav[data-solid='true']::after {
   opacity: 1;
 }
 
@@ -3826,7 +3837,7 @@ html.m-locked {
   .m-site label,
   .m-site summary,
   .m-site :disabled {
-    cursor: url('/cursors/meridius.svg') 3 1, auto;
+    cursor: url('/cursors/meridius.svg') 17 6, auto;
   }
 
   .m-site input:not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='button']),

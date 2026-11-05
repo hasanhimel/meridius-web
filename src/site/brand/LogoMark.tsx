@@ -11,10 +11,14 @@ import { SHADED_DOTS, LOGO_BOX, MAX_DIST } from './logo';
  */
 
 /** Per-variant strengths for the deboss filter. */
+/* 'light' is the mirror of 'dark': the dark mark's lip is white on a white
+   bar (so it never shows) and a white glint lights each dot's lower wall.
+   On the blue sky the white mark gets no visible lip either, and the same
+   glint in the sky's blue, so both read equally crisp. */
 const DEBOSS = {
-  key: { lip: 1, shade: '#435a8c', shadeOpacity: 0.95, glint: 0, depth: 3 },
-  light: { lip: 0.35, shade: '#0b2a6b', shadeOpacity: 0.6, glint: 0, depth: 4 },
-  dark: { lip: 0.9, shade: '#000000', shadeOpacity: 0, glint: 0.5, depth: 4 },
+  key: { lip: 1, shade: '#435a8c', shadeOpacity: 0.95, glint: 0, glintColor: '#ffffff', depth: 3 },
+  light: { lip: 0, shade: '#000000', shadeOpacity: 0, glint: 0.5, glintColor: '#2a5bd7', depth: 4 },
+  dark: { lip: 0.9, shade: '#000000', shadeOpacity: 0, glint: 0.5, glintColor: '#ffffff', depth: 4 },
 } as const;
 
 interface LogoMarkProps {
@@ -112,7 +116,7 @@ export const LogoMark = forwardRef<SVGSVGElement, LogoMarkProps>(function LogoMa
             <feOffset in="SourceAlpha" dy={-DEBOSS[deboss].depth} result="rise" />
             <feGaussianBlur in="rise" stdDeviation="1.4" result="riseSoft" />
             <feComposite in="SourceAlpha" in2="riseSoft" operator="out" result="floor" />
-            <feFlood floodColor="#ffffff" floodOpacity={DEBOSS[deboss].glint} />
+            <feFlood floodColor={DEBOSS[deboss].glintColor} floodOpacity={DEBOSS[deboss].glint} />
             <feComposite in2="floor" operator="in" result="glint" />
             <feMerge>
               <feMergeNode in="lip" />

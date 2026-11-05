@@ -1,5 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="26" viewBox="0 -20 460 500">
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+  <!-- The same cursor the animated UI draws (src/site/ui/Cursor.tsx and
+       .m-cur in site.css): the traced arrow in its own leaning pose, 17px tall, the button's blue with a pale sheen, a white 1.4pt
+       outline, the two blue drop shadows, and the soft blue fog behind it.
+       The tip is at (17, 6), the CSS hotspot. -->
   <defs>
+    <radialGradient id="fog" cx="22" cy="15" r="19.8" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="rgb(30,110,234)" stop-opacity="0.11"/>
+      <stop offset="0.5" stop-color="rgb(30,110,234)" stop-opacity="0.04"/>
+      <stop offset="0.75" stop-color="rgb(30,110,234)" stop-opacity="0"/>
+    </radialGradient>
     <radialGradient id="b" cx="0.1" cy="0.17" r="1.15">
       <stop offset="0" stop-color="#1e82e0"/>
       <stop offset="1" stop-color="#1c38ea"/>
@@ -8,12 +17,16 @@
       <stop offset="0" stop-color="#fff" stop-opacity="0.45"/>
       <stop offset="1" stop-color="#fff" stop-opacity="0"/>
     </radialGradient>
-    <filter id="f" x="-10%" y="-10%" width="130%" height="130%">
-      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#1c38ea" flood-opacity="0.45"/>
+    <filter id="sh" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="rgb(28,56,234)" flood-opacity="0.28" result="a"/>
+      <feDropShadow in="a" dx="0" dy="1" stdDeviation="0.75" flood-color="rgb(19,26,120)" flood-opacity="0.16"/>
     </filter>
   </defs>
-  <g filter="url(#f)">
-    <path d="M65.5 0.9C55 3.6 46.5 10.6 42.2 19.8L39.5 421.5L42.8 428.2C51 445 70.9 451.5 87.6 443L94.4 439.5L129.2 395.5C148.4 371.3 171.2 342.4 180 331.4C191 317.5 197.4 310.3 200.7 308.1C210.1 301.8 207.5 302 295.6 302C378.2 302 382.4 301.8 390.1 298C402.2 291.8 409.9 275.5 407.1 261.9C404.3 248.7 414.6 257.4 245.5 125.8C160.8 59.9 89.2 4.8 86.5 3.5C81 0.8 70.7 -0.5 65.5 0.9Z" fill="url(#b)" stroke="#fff" stroke-width="30" stroke-linejoin="round"/>
-    <path d="M65.5 0.9C55 3.6 46.5 10.6 42.2 19.8L39.5 421.5L42.8 428.2C51 445 70.9 451.5 87.6 443L94.4 439.5L129.2 395.5C148.4 371.3 171.2 342.4 180 331.4C191 317.5 197.4 310.3 200.7 308.1C210.1 301.8 207.5 302 295.6 302C378.2 302 382.4 301.8 390.1 298C402.2 291.8 409.9 275.5 407.1 261.9C404.3 248.7 414.6 257.4 245.5 125.8C160.8 59.9 89.2 4.8 86.5 3.5C81 0.8 70.7 -0.5 65.5 0.9Z" fill="url(#s)"/>
+  <circle cx="22" cy="15" r="14" fill="url(#fog)"/>
+  <g filter="url(#sh)">
+    <g transform="translate(17 6) scale(0.037611) translate(-65.5 -0.9)">
+      <path d="M65.5 0.9C55 3.6 46.5 10.6 42.2 19.8L39.5 421.5L42.8 428.2C51 445 70.9 451.5 87.6 443L94.4 439.5L129.2 395.5C148.4 371.3 171.2 342.4 180 331.4C191 317.5 197.4 310.3 200.7 308.1C210.1 301.8 207.5 302 295.6 302C378.2 302 382.4 301.8 390.1 298C402.2 291.8 409.9 275.5 407.1 261.9C404.3 248.7 414.6 257.4 245.5 125.8C160.8 59.9 89.2 4.8 86.5 3.5C81 0.8 70.7 -0.5 65.5 0.9Z" fill="url(#b)" stroke="#fff" stroke-width="30.72" stroke-linejoin="round"/>
+      <path d="M65.5 0.9C55 3.6 46.5 10.6 42.2 19.8L39.5 421.5L42.8 428.2C51 445 70.9 451.5 87.6 443L94.4 439.5L129.2 395.5C148.4 371.3 171.2 342.4 180 331.4C191 317.5 197.4 310.3 200.7 308.1C210.1 301.8 207.5 302 295.6 302C378.2 302 382.4 301.8 390.1 298C402.2 291.8 409.9 275.5 407.1 261.9C404.3 248.7 414.6 257.4 245.5 125.8C160.8 59.9 89.2 4.8 86.5 3.5C81 0.8 70.7 -0.5 65.5 0.9Z" fill="url(#s)"/>
+    </g>
   </g>
 </svg>

@@ -86,12 +86,46 @@ export function Landing() {
     return () => document.removeEventListener('click', onClick);
   }, []);
 
-  // Transparent over the sky; a frosted white bar once the page scrolls.
+  // The bar takes its colour from what is under it: white and clear over a
+  // blue sky (the hero above the Mac, the closing sky and the footer glass),
+  // a frosted bar with dark ink over the white sections.
   useEffect(() => {
-    const onScroll = () => setSolid(window.scrollY > 24);
-    onScroll();
+    const NAV_LINE = 32; // the bar's vertical middle
+    const blueBands = (): [number, number][] => {
+      const bands: [number, number][] = [];
+      const hero = document.querySelector('.m-hero');
+      const shot = document.querySelector('.m-hero__shot');
+      if (hero && shot) bands.push([hero.getBoundingClientRect().top, shot.getBoundingClientRect().top]);
+      const closing = document.querySelector('.m-closing');
+      if (closing) {
+        const r = closing.getBoundingClientRect();
+        // Its sky starts white and is blue from about a sixth of the way down.
+        bands.push([r.top + r.height * 0.16, r.bottom]);
+      }
+      const footer = document.querySelector('.m-footer');
+      if (footer) {
+        const r = footer.getBoundingClientRect();
+        bands.push([r.top, r.bottom]);
+      }
+      return bands;
+    };
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const overBlue = blueBands().some(([top, bottom]) => top <= NAV_LINE && NAV_LINE < bottom);
+      setSolid(!overBlue);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
   }, []);
 
   return (
