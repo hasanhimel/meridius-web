@@ -205,12 +205,29 @@ html:has(.m-site) body {
   color: #fff;
 }
 
+/* The bar is a blur, not a panel: a light frosted layer reaching 48px below
+   the nav, masked so its blur and tint thin out to nothing. No bottom edge. */
+.m-nav::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -48px;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.28) 55%, rgba(255, 255, 255, 0) 100%);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0, #000 40%, rgba(0, 0, 0, 0.55) 70%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0, #000 40%, rgba(0, 0, 0, 0.55) 70%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
 .m-nav[data-solid='true'] {
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: saturate(180%) blur(14px);
-  -webkit-backdrop-filter: saturate(180%) blur(14px);
-  box-shadow: 0 1px 0 var(--line);
+}
+
+.m-nav[data-solid='true']::before {
+  opacity: 1;
 }
 
 .m-nav__inner {
@@ -867,7 +884,7 @@ html:has(.m-site) body {
 .m-closing__sun {
   position: absolute;
   left: 50%;
-  bottom: -150px;
+  bottom: 40px; /* centred on the glass footer's top edge */
   width: 300px;
   height: 300px;
   translate: -50% 0;
@@ -1010,45 +1027,84 @@ html:has(.m-site) body {
 
 /* ---------------------------------------------------------------- footer */
 
+/* The footer is a pane of frosted glass resting on the bottom of the dusk
+   sky: it overlaps the closing section, so the setting sun glows through it,
+   and the sky keeps deepening beneath it. */
 .m-footer {
-  background: #e6eaf4;
+  --overlap: 190px;
+  position: relative;
+  z-index: 1;
+  margin-top: calc(var(--overlap) * -1);
+  background: linear-gradient(180deg, rgba(126, 120, 207, 0) var(--overlap), #7e78cf var(--overlap), #4d4aa6 100%);
+  color: #fff;
+}
+
+/* Full-bleed frosted pane from edge to edge; the content keeps the page's
+   1152px column through the inline padding. The footer's own ground is
+   transparent where it overlaps the sky, so the sun shows through. */
+.m-footer__glass {
+  position: relative;
+  isolation: isolate;
+  max-width: none;
+  margin: 0;
+  border-radius: 0;
+  padding-inline: max(var(--gutter), calc((100% - 1152px) / 2));
+  text-shadow: 0 1px 12px rgba(40, 36, 120, 0.35);
+}
+
+/* The frosted pane lives on a layer that starts 90px above the footer and
+   fades in through a mask, so its top edge is a blur rather than a line. */
+.m-footer__glass::before {
+  content: '';
+  position: absolute;
+  inset: -90px 0 0;
+  z-index: -1;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.12)),
+    rgba(52, 50, 132, 0.2);
+  backdrop-filter: blur(48px) saturate(160%);
+  -webkit-backdrop-filter: blur(48px) saturate(160%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.6) 90px, #000 180px);
+  mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.6) 90px, #000 180px);
+  pointer-events: none;
+}
+
+.m-closing__inner {
+  padding-bottom: calc(clamp(140px, 16vw, 220px) + 190px) !important;
 }
 
 .m-footer__top {
   display: grid;
   grid-template-columns: 1.4fr repeat(3, 1fr);
   gap: 32px;
-  padding-top: 48px;
+  padding-top: 56px;
   padding-bottom: 48px;
-  border-top: 1px solid rgba(38, 48, 67, 0.08);
 }
 
 .m-footer__brand {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  color: #fff;
 }
 
 .m-footer__about {
-  margin-top: 12px !important;
+  margin-top: 14px !important;
   max-width: 260px;
   font-size: 14px;
   line-height: 1.55;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .m-footer h3 {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: -0.01em !important;
-  color: var(--ink);
+  color: #fff;
 }
 
 .m-footer ul {
-  margin: 14px 0 0;
+  margin: 16px 0 0;
   padding: 0;
   list-style: none;
   display: grid;
@@ -1058,15 +1114,17 @@ html:has(.m-site) body {
 .m-footer li a,
 .m-footer li button {
   font-size: 14px;
-  color: #5b6170;
+  color: rgba(255, 255, 255, 0.86);
   transition: color 0.2s ease;
   padding: 0;
   text-align: left;
 }
 
 .m-footer li a:hover,
-.m-footer li button:hover {
-  color: var(--ink);
+.m-footer li button:hover,
+.m-footer li a:focus-visible,
+.m-footer li button:focus-visible {
+  color: #fff;
 }
 
 .m-footer__base {
@@ -1075,8 +1133,9 @@ html:has(.m-site) body {
   gap: 16px;
   padding-top: 20px;
   padding-bottom: 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
   font-size: 13px;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* ------------------------------------------------------------ responsive */
@@ -1511,21 +1570,45 @@ html:has(.m-site) body {
 .d-wave {
   display: flex;
   align-items: center;
-  gap: 0.22em;
-  height: 1.6em;
+  justify-content: space-between;
+  width: 100%;
+  height: 1.8em;
 }
 
+/* Idle: a quiet dotted line. Live: each bar rises to its share of the
+   envelope and breathes, the delays rolling across so the voice travels. */
 .d-wave i {
-  width: 0.22em;
-  height: 25%;
+  width: 0.14em;
+  height: calc(var(--h) * 100%);
+  min-height: 0.14em;
   border-radius: 1em;
-  background: #60a5fa;
-  opacity: 0.45;
+  background: rgba(237, 238, 242, 0.28);
+  transform: scaleY(0.12);
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.4s ease;
 }
 
 .d-wave[data-live='true'] i {
-  opacity: 1;
-  animation: d-wave 0.9s ease-in-out infinite;
+  background: #8fb4ff;
+  transform: scaleY(1);
+  animation: d-voice 1.4s ease-in-out infinite;
+}
+
+@keyframes d-voice {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .d-wave[data-live='true'] i {
+    animation: none;
+  }
 }
 
 .d-panel {
@@ -1585,12 +1668,8 @@ html:has(.m-site) body {
 
 .d-noticed__icon {
   flex: none;
-  width: 2.1em;
-  height: 2.1em;
-  border-radius: 0.55em;
-  display: grid;
-  place-items: center;
-  background: #fff;
+  width: 2.5em;
+  height: 2.5em;
 }
 
 .d-noticed__icon svg {
@@ -1608,14 +1687,6 @@ html:has(.m-site) body {
   margin-top: 0.15em;
   font-size: 0.82em;
   color: #9aa0ad;
-}
-
-.d-mic {
-  width: 0.8em;
-  height: 0.8em;
-  border-radius: 50%;
-  background: #ef4444;
-  box-shadow: 0 0 0 0.25em rgba(239, 68, 68, 0.2);
 }
 
 .d-panel__foot {
@@ -1645,19 +1716,23 @@ html:has(.m-site) body {
   opacity: 1;
 }
 
+.d-src {
+  transition:
+    opacity 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
 .d-src[data-active='true'] {
-  transform: translateX(0.6em);
-  box-shadow: 0 0 0 0.16em rgba(28, 92, 234, 0.5), 0 0.8em 2em -1em rgba(23, 37, 84, 0.25);
+  box-shadow:
+    0 0 0 0.16em rgba(28, 92, 234, 0.45),
+    0 0 1.6em 0.2em rgba(28, 92, 234, 0.18),
+    0 0.8em 2em -1em rgba(23, 37, 84, 0.25);
 }
 
 .d-src__icon {
   flex: none;
   width: 2.6em;
   height: 2.6em;
-  border-radius: 0.7em;
-  display: grid;
-  place-items: center;
-  background: #f4f6fa;
 }
 
 .d-src__icon svg {
@@ -1684,19 +1759,105 @@ html:has(.m-site) body {
   pointer-events: none;
 }
 
+/* Waiting: a faint dashed guide. Merged: a solid line. Merging: a pulse
+   runs along the line into the commitment. Widths are in stage ems (the
+   SVG's viewBox matches the 56x36em stage), so they scale with the demo. */
 .d-links path {
   fill: none;
-  stroke: #1c5cea;
-  stroke-width: 0.12;
   stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  opacity: 0.55;
-  transition: stroke-dashoffset 0.8s ease;
 }
 
-.d-links path[data-on='true'] {
+.d-links__guide {
+  stroke: rgba(28, 92, 234, 0.28);
+  stroke-width: 0.12;
+  stroke-dasharray: 0.3 0.45;
+  transition: opacity 0.4s ease;
+}
+
+.d-links g[data-on='true'] .d-links__guide {
+  opacity: 0;
+}
+
+.d-links__line {
+  stroke: #1c5cea;
+  stroke-width: 0.17;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0.7;
+  transition: stroke-dashoffset 0.75s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.d-links g[data-on='true'] .d-links__line {
   stroke-dashoffset: 0;
+}
+
+.d-links__pulse {
+  stroke: #8fb4ff;
+  stroke-width: 0.34;
+  stroke-dasharray: 0.14 1;
+  stroke-dashoffset: 0.14;
+  opacity: 0;
+  filter: drop-shadow(0 0 0.3px rgba(28, 92, 234, 0.9));
+}
+
+.d-links g[data-active='true'] .d-links__pulse {
+  animation: d-pulse 0.9s cubic-bezier(0.45, 0, 0.25, 1) forwards;
+}
+
+@keyframes d-pulse {
+  0% {
+    stroke-dashoffset: 0.14;
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -1;
+    opacity: 0;
+  }
+}
+
+.d-links__dot,
+.d-links__port {
+  fill: #fff;
+  stroke: rgba(28, 92, 234, 0.35);
+  stroke-width: 0.12;
+  transition:
+    fill 0.3s ease,
+    stroke 0.3s ease;
+}
+
+.d-links g[data-on='true'] .d-links__dot,
+.d-links__port[data-on='true'] {
+  fill: #1c5cea;
+  stroke: #fff;
+}
+
+/* The commitment glows as it takes each source in. */
+.d-node__glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 0 0.16em rgba(28, 92, 234, 0.5), 0 0 2.4em rgba(28, 92, 234, 0.35);
+  opacity: 0;
+}
+
+.d-node:not([data-merged='0']) .d-node__glow {
+  animation: d-absorb 0.9s ease 0.75s;
+}
+
+@keyframes d-absorb {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .d-node {
@@ -2307,54 +2468,10 @@ html:has(.m-site) body {
 
 .d-thumb {
   flex: none;
-  width: 3.4em;
-  height: 2.7em;
-  border-radius: 0.5em;
-  display: grid;
-  place-items: center;
+  width: 2.6em;
+  height: 2.6em;
 }
 
-.d-thumb--file {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.15em;
-  background: #fee2e2;
-  color: #b91c1c;
-  font-size: 0.8em;
-  font-weight: 600;
-}
-
-.d-thumb--file svg {
-  width: 1.1em;
-  height: 1.1em;
-}
-
-.d-thumb--term {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.3em;
-  padding: 0 0.5em;
-  background: #16171c;
-}
-
-.d-thumb--term i {
-  display: block;
-  height: 0.3em;
-  border-radius: 1em;
-  background: #4b5563;
-}
-
-.d-thumb--receipt {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-.d-thumb--receipt svg {
-  width: 1.3em;
-  height: 1.3em;
-}
 
 .d-closed {
   position: absolute;
@@ -3160,13 +3277,24 @@ html:has(.m-site) body {
 .x-send {
   width: 30px;
   height: 30px;
+  display: grid;
+  place-items: center;
   border-radius: 50%;
   background: #e3e6ed;
-  transition: background 0.3s;
+  color: #9aa1ae;
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+
+.x-send svg {
+  width: 15px;
+  height: 15px;
 }
 
 .x-send[data-on='true'] {
   background: #1f2430;
+  color: #fff;
 }
 
 /* Meridius's note on the blue card. */
@@ -3388,17 +3516,24 @@ html:has(.m-site) body {
   height: 52px;
   display: grid;
   place-items: center;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #fff, #f3f5f9);
-  box-shadow: 0 2px 4px rgba(30, 40, 80, 0.08), 0 12px 24px -12px rgba(30, 40, 80, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.8);
-  transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3), box-shadow 0.3s;
+  border-radius: 30%;
+  transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3), filter 0.3s;
   outline: none;
+}
+
+/* The "+" tile, drawn to match the macOS icons beside it. */
+.p-apps__grid li.p-apps__more {
+  background: linear-gradient(180deg, #fdfdfe, #eef1f7);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+    0 1px 2px rgba(20, 30, 70, 0.1),
+    0 6px 14px -8px rgba(20, 30, 70, 0.35);
 }
 
 .p-apps__grid li:hover,
 .p-apps__grid li:focus-visible {
   transform: translateY(-6px) scale(1.06);
-  box-shadow: 0 2px 4px rgba(30, 40, 80, 0.08), 0 18px 30px -12px rgba(28, 56, 234, 0.45), inset 0 0 0 1px #fff;
+  filter: drop-shadow(0 10px 12px rgba(28, 56, 234, 0.28));
 }
 
 .p-apps__more {
@@ -3661,11 +3796,8 @@ html.m-locked {
     height: 240px;
   }
   .p-apps__grid {
-    grid-template-columns: repeat(5, 48px);
-  }
-  .p-apps__grid li {
-    width: 48px;
-    height: 48px;
+    grid-template-columns: repeat(5, 52px);
+    gap: 8px;
   }
 }
 

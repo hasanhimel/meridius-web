@@ -108,7 +108,11 @@ export function Contrast() {
                 <i />
                 <i />
               </span>
-              <span className="x-send" data-on={typed >= PROMPT.length} />
+              <span className="x-send" data-on={typed >= PROMPT.length} aria-hidden="true">
+                <svg viewBox="0 0 16 16">
+                  <path d="M8 12.5V3.8M4.2 7.4 8 3.6l3.8 3.8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
             </div>
           </div>
           <p className="x-card__caption">{contrast.chat.caption}</p>

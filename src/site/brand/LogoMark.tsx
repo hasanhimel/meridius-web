@@ -41,6 +41,9 @@ export const LogoMark = forwardRef<SVGSVGElement, LogoMarkProps>(function LogoMa
   ref,
 ) {
   const innerRef = useRef<SVGSVGElement | null>(null);
+  // Below ~20px the finest dots fall under a device pixel; grow them more so
+  // small marks keep the navbar's gradient (still under the next tier, 5.3).
+  const fineBoost = typeof size === 'number' && size < 20 ? 1.45 : 1;
   const rafRef = useRef(0);
 
   const setRefs = useCallback(
@@ -121,18 +124,21 @@ export const LogoMark = forwardRef<SVGSVGElement, LogoMarkProps>(function LogoMa
         </defs>
       ) : null}
       <g filter={deboss ? `url(#${filterId})` : undefined}>
-        {SHADED_DOTS.map((d, i) => (
+        {SHADED_DOTS.map((d, i) => {
+          const r = d.fine ? +(d.r * fineBoost).toFixed(2) : d.r;
+          return (
           <circle
             key={i}
             cx={d.cx}
             cy={d.cy}
-            r={d.r}
-            data-r={d.r}
+            r={r}
+            data-r={r}
             data-d={(d.dist / MAX_DIST).toFixed(3)}
             data-m={d.isM ? '1' : undefined}
             fill={d.isM && accentM ? 'var(--accent)' : 'currentColor'}
           />
-        ))}
+          );
+        })}
       </g>
     </svg>
   );

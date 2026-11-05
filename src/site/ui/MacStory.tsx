@@ -1603,23 +1603,23 @@ export const MacStory = forwardRef<HTMLDivElement>(function MacStory(_, ref) {
               {/* Everything Meridius read, as faint copies, each with two echoes */}
               {[
                 <>
-                  <img src="/logos/gmail.svg" alt="" />
+                  <img src="/icons/apps/gmail.png" alt="" />
                   Assignment 3 is out
                 </>,
                 <>
-                  <img src="/logos/gmail.svg" alt="" />
+                  <img src="/icons/apps/gmail.png" alt="" />
                   Build a URL shortener in Python
                 </>,
                 <>
-                  <img src="/logos/gmail.svg" alt="" />
+                  <img src="/icons/apps/gmail.png" alt="" />
                   Prof. Rahman · CS 201
                 </>,
                 <>
-                  <img src="/logos/gmail.svg" alt="" />
+                  <img src="/icons/apps/gmail.png" alt="" />
                   Push with every test passing
                 </>,
                 <>
-                  <img src="/logos/slack.svg" alt="" />
+                  <img src="/icons/apps/slack.png" alt="" />
                   All tests in test_shortener.py must pass
                 </>,
                 ...FILES.map(([n, , k]) => (
@@ -1629,7 +1629,7 @@ export const MacStory = forwardRef<HTMLDivElement>(function MacStory(_, ref) {
                   </>
                 )),
                 <>
-                  <img src="/logos/slack.svg" alt="" />
+                  <img src="/icons/apps/slack.png" alt="" />
                   Due <span data-due-when>{due.when}</span> at <span data-due-time>{due.time}</span>
                 </>,
               ].flatMap((content, i) =>

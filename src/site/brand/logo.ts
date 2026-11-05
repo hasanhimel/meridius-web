@@ -12,6 +12,8 @@ export type Face = 'top' | 'left' | 'right';
 export interface ShadedDot extends LogoDot {
   face: Face;
   isM: boolean;
+  /** One of the finest dots (the outer gradient). */
+  fine: boolean;
   /** Distance from the cube apex, used to stagger assemble/ripple effects. */
   dist: number;
 }
@@ -22,7 +24,13 @@ export const APEX = { x: 259.0, y: 258.14 } as const;
 /** Bounding box of the hexagon in logo units. Height/width ≈ 2/√3. */
 export const LOGO_BOX = { x: 102, y: 77, w: 314, h: 360 } as const;
 
-export const SHADED_DOTS: ShadedDot[] = LOGO_DOTS.map((dot) => {
+/* The finest dots (r ≈ 2.1) vanish at nav sizes; lift them 1.4x (≈ 2.95),
+   still well under the next tier (≈ 5.3), so the gradient keeps its steps. */
+const FINE_DOT = 3;
+const FINE_SCALE = 1.4;
+
+export const SHADED_DOTS: ShadedDot[] = LOGO_DOTS.map((raw) => {
+  const dot = raw.r < FINE_DOT ? { ...raw, r: +(raw.r * FINE_SCALE).toFixed(2) } : raw;
   const dx = dot.cx - APEX.x;
   const dy = dot.cy - APEX.y;
   const lineLeft = APEX.y + 0.57735 * dx;
@@ -30,7 +38,7 @@ export const SHADED_DOTS: ShadedDot[] = LOGO_DOTS.map((dot) => {
   let face: Face;
   if (dot.cy < lineLeft - 2 && dot.cy < lineRight - 2) face = 'top';
   else face = dot.cx <= APEX.x ? 'left' : 'right';
-  return { ...dot, face, isM: dot.r >= 3.5, dist: Math.hypot(dx, dy) };
+  return { ...dot, face, isM: dot.r >= 3.5, fine: raw.r < FINE_DOT, dist: Math.hypot(dx, dy) };
 });
 
 export const MAX_DIST = Math.max(...SHADED_DOTS.map((d) => d.dist));

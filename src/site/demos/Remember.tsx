@@ -1,5 +1,6 @@
 import { LogoMark } from '../brand/LogoMark';
 import { AppMark, type AppId } from '../ui/apps';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useDemo, useStep, type DemoProps } from './useDemo';
 
 const SOURCES: { app: AppId; where: string; text: string; y: number }[] = [
@@ -21,16 +22,56 @@ export function RememberDemo(props: DemoProps) {
   const [merged, go] = useStep();
   useDemo((tl) => {
     tl.call(() => go(0), [], 0);
-    [1, 2, 3].forEach((n, i) => tl.call(() => go(n), [], 0.8 + i * 1.4));
-    tl.to({}, { duration: 2 });
+    [1, 2, 3].forEach((n, i) => tl.call(() => go(n), [], 0.9 + i * 1.6));
+    tl.to({}, { duration: 2.2 });
   }, props);
+
+  // Links are measured from the real card edges, in the stage's em units, so
+  // every line starts on its card and ends on the commitment's port.
+  const srcRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const nodeRef = useRef<HTMLDivElement>(null);
+  const [links, setLinks] = useState<{ d: string; a: [number, number] }[]>([]);
+  const [port, setPort] = useState<[number, number]>([31.5, 10]);
+  useLayoutEffect(() => {
+    const node = nodeRef.current;
+    if (!node) return;
+    const measure = () => {
+      const em = parseFloat(getComputedStyle(node).fontSize);
+      const px = node.offsetLeft / em;
+      const py = node.offsetTop / em + 4.1;
+      setPort([px, py]);
+      setLinks(
+        srcRefs.current.map((el) => {
+          if (!el) return { d: '', a: [0, 0] as [number, number] };
+          const x = (el.offsetLeft + el.offsetWidth) / em;
+          const y = (el.offsetTop + el.offsetHeight / 2) / em;
+          const mid = x + (px - x) * 0.5;
+          return { d: `M${x} ${y} C ${mid} ${y}, ${mid} ${py}, ${px} ${py}`, a: [x, y] as [number, number] };
+        })
+      );
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(node);
+    document.fonts?.ready.then(measure);
+    return () => ro.disconnect();
+  }, []);
 
   return (
     <>
       {SOURCES.map((s, i) => (
-        <div key={s.app} className="d-src" data-on={merged > i} data-active={merged === i + 1} style={{ left: '2.5em', top: `${s.y}em` }}>
+        <div
+          key={s.app}
+          ref={(el) => {
+            srcRefs.current[i] = el;
+          }}
+          className="d-src"
+          data-on={merged > i}
+          data-active={merged === i + 1}
+          style={{ left: '2.5em', top: `${s.y}em` }}
+        >
           <span className="d-src__icon">
-            <AppMark id={s.app} size={16} />
+            <AppMark id={s.app} />
           </span>
           <span>
             <small>{s.where}</small>
@@ -39,24 +80,26 @@ export function RememberDemo(props: DemoProps) {
         </div>
       ))}
 
-      <svg className="d-links" viewBox="0 0 56 36" preserveAspectRatio="none" aria-hidden="true">
-        {SOURCES.map((s, i) => (
-          <path
-            key={s.app}
-            d={`M24.5 ${s.y + 3.4} C 28 ${s.y + 3.4}, 28 18, 31.5 18`}
-            pathLength={1}
-            data-on={merged > i}
-          />
+      <svg className="d-links" viewBox="0 0 56 36" aria-hidden="true">
+        {links.map((l, i) => (
+          <g key={i} data-on={merged > i} data-active={merged === i + 1}>
+            <path className="d-links__guide" d={l.d} />
+            <path className="d-links__line" d={l.d} pathLength={1} />
+            <path className="d-links__pulse" d={l.d} pathLength={1} />
+            <circle className="d-links__dot" cx={l.a[0]} cy={l.a[1]} r="0.32" />
+          </g>
         ))}
+        <circle className="d-links__port" data-on={merged > 0} cx={port[0]} cy={port[1]} r="0.42" />
       </svg>
 
-      <div className="d-node" style={{ left: '31.5em', top: '6em', width: '22em' }}>
+      <div ref={nodeRef} className="d-node" data-merged={merged} style={{ left: '31.5em', top: '6em', width: '22em' }}>
         <div className="d-node__head">
           <LogoMark size={13} />
           One commitment
           <span>{merged} of 3 sources</span>
         </div>
         <h4>Problem Set 4</h4>
+        <span className="d-node__glow" key={merged} aria-hidden="true" />
         <dl>
           {FIELDS.map((f) => (
             <div key={f.label} data-filled={f.values[merged] !== '—'}>

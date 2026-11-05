@@ -1,36 +1,15 @@
 import { LogoMark } from '../brand/LogoMark';
-import { CheckIcon, DocIcon } from '../ui/icons';
+import { CheckIcon } from '../ui/icons';
+import { AppMark } from '../ui/apps';
 import { Appear, Status } from './parts';
 import { useDemo, useStep, type DemoProps } from './useDemo';
 
+/** Each check, with the app that proves it. */
 const EVIDENCE = [
-  { title: 'The file exists', detail: '~/School/CS201/ps4.pdf · 412 KB', kind: 'file' },
-  { title: 'The answers check out', detail: 'check_answers.py · 3 of 3 pass', kind: 'term' },
-  { title: 'The submission went through', detail: 'Receipt #A-20418 · 8:14 PM', kind: 'receipt' },
+  { title: 'The file exists', detail: '~/School/CS201/ps4.pdf · 412 KB', app: 'finder' },
+  { title: 'The answers check out', detail: 'check_answers.py · 3 of 3 pass', app: 'terminal' },
+  { title: 'The submission went through', detail: 'Course site · receipt #A-20418', app: 'chrome' },
 ] as const;
-
-function Thumb({ kind }: { kind: (typeof EVIDENCE)[number]['kind'] }) {
-  if (kind === 'file')
-    return (
-      <span className="d-thumb d-thumb--file">
-        <DocIcon />
-        PDF
-      </span>
-    );
-  if (kind === 'term')
-    return (
-      <span className="d-thumb d-thumb--term">
-        <i />
-        <i style={{ width: '60%' }} />
-        <i style={{ width: '80%', background: '#4ade80' }} />
-      </span>
-    );
-  return (
-    <span className="d-thumb d-thumb--receipt">
-      <CheckIcon />
-    </span>
-  );
-}
 
 /** Verify: every task ends with evidence, then the commitment is closed. */
 export function VerifyDemo(props: DemoProps) {
@@ -51,7 +30,9 @@ export function VerifyDemo(props: DemoProps) {
         </div>
         {EVIDENCE.map((e, i) => (
           <Appear key={e.title} on={step >= i * 2 + 1} className="d-evidence">
-            <Thumb kind={e.kind} />
+            <span className="d-thumb">
+              <AppMark id={e.app} />
+            </span>
             <span>
               <b>{e.title}</b>
               <small>{e.detail}</small>

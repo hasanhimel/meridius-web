@@ -15,7 +15,7 @@ function Apps() {
       <ul className="p-apps__grid">
         {GRID.map((id) => (
           <li key={id} onPointerEnter={() => setHover(id)} onPointerLeave={() => setHover(null)} onFocus={() => setHover(id)} tabIndex={0}>
-            <AppMark id={id} size={26} />
+            <AppMark id={id} size={52} />
             <span className="m-sr">{APPS[id].name}</span>
           </li>
         ))}

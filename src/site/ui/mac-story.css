@@ -1658,8 +1658,9 @@
 }
 
 .ms-soul img {
-  width: 1em;
-  height: 1em;
+  width: 1.3em;
+  height: 1.3em;
+  margin: -0.15em -0.1em;
   object-fit: contain;
 }
 

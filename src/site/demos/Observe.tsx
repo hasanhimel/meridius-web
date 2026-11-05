@@ -1,12 +1,22 @@
+import type React from 'react';
 import { LogoMark } from '../brand/LogoMark';
 import { AppMark } from '../ui/apps';
 import { Appear, Win } from './parts';
 import { useDemo, useStep, type DemoProps } from './useDemo';
 
+/* A speech-like envelope: a fixed pattern of syllables, tapered at both ends
+   so the line fades in and out instead of stopping at a hard edge. */
+const WAVE = Array.from({ length: 48 }, (_, i) => {
+  const t = i / 47;
+  const taper = Math.sin(Math.PI * t) ** 0.8;
+  const syllable = 0.55 + 0.45 * Math.abs(Math.sin(i * 0.9) * Math.cos(i * 0.37));
+  return +(0.12 + 0.88 * taper * syllable).toFixed(3);
+});
+
 const NOTICED = [
   { app: 'slack' as const, title: 'Problem Set 4 is due Friday', from: 'Slack · #cs-201' },
   { app: 'gmail' as const, title: 'Submit one PDF by 11:59 PM', from: 'Mail · Dr. Rahman' },
-  { app: null, title: 'Ayaan sends the logo files Monday', from: 'Zoom · weekly sync audio' },
+  { app: 'zoom' as const, title: 'Ayaan sends the logo files Monday', from: 'Zoom · weekly sync audio' },
 ];
 
 /** Observe: three apps, no connectors; each commitment is spotted and listed. */
@@ -45,9 +55,9 @@ export function ObserveDemo(props: DemoProps) {
       </Win>
       <Win title="Weekly sync" dark scan={scanning(3)} style={{ left: '3em', top: '24.8em', width: '25em', height: '8.6em' }}>
         <div className="d-call">
-          <span className="d-wave" data-live={scanning(3) || found(3)}>
-            {Array.from({ length: 22 }, (_, i) => (
-              <i key={i} style={{ animationDelay: `${(i % 7) * 0.09}s` }} />
+          <span className="d-wave" data-live={scanning(3) || found(3)} aria-hidden="true">
+            {WAVE.map((h, i) => (
+              <i key={i} style={{ '--h': h, animationDelay: `${-i * 0.07}s` } as React.CSSProperties} />
             ))}
           </span>
           <p>
@@ -64,7 +74,9 @@ export function ObserveDemo(props: DemoProps) {
         <div className="d-list">
           {NOTICED.map((n, i) => (
             <Appear key={n.title} on={found(i + 1)} className="d-noticed">
-              <span className="d-noticed__icon">{n.app ? <AppMark id={n.app} size={15} /> : <span className="d-mic" />}</span>
+              <span className="d-noticed__icon">
+                <AppMark id={n.app} />
+              </span>
               <span>
                 <b>{n.title}</b>
                 <small>{n.from}</small>

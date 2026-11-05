@@ -6,12 +6,12 @@ export function Footer({ onRequest }: { onRequest: () => void }) {
   const year = new Date().getFullYear();
   return (
     <footer className="m-footer">
-      <div className="m-wrap">
+      <div className="m-wrap m-footer__glass">
         <div className="m-footer__top">
           <div>
             <span className="m-footer__brand">
-              <NavMark size={26} tone="dark" />
-              <Wordmark height={13} className="m-wordmark" title="Meridius" />
+              <NavMark size={30} tone="light" flat />
+              <Wordmark height={15} className="m-wordmark" title="Meridius" />
             </span>
             <p className="m-footer__about">The Mac companion that remembers what matters and does the work.</p>
           </div>

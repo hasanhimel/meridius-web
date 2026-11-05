@@ -6,10 +6,21 @@ import { LogoMark } from './LogoMark';
  * shadow sits inside each dot's upper edge; in black, light catches each
  * dot's lower edge.
  */
-export function NavMark({ size = 30, tone = 'dark', ripple = false }: { size?: number; tone?: 'light' | 'dark'; ripple?: boolean }) {
+export function NavMark({
+  size = 30,
+  tone = 'dark',
+  ripple = false,
+  flat = false,
+}: {
+  size?: number;
+  tone?: 'light' | 'dark';
+  ripple?: boolean;
+  /** Crisp dots with no pressed-in shading, for busy or blurred grounds. */
+  flat?: boolean;
+}) {
   return (
     <span className="m-navmark" data-tone={tone} aria-hidden="true">
-      <LogoMark size={size} ripple={ripple} deboss={tone} />
+      <LogoMark size={size} ripple={ripple} deboss={flat ? false : tone} />
     </span>
   );
 }
