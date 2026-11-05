@@ -71,6 +71,19 @@
   isolation: isolate;
 }
 
+/* A 1px black rim inside the glass, above every layer: zoomed and blurred
+   layers can bleed a sub-pixel of colour past the rounded clip, and a real
+   display has a black edge there anyway. */
+.ms-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px #000;
+  pointer-events: none;
+}
+
 .ms-cam {
   position: absolute;
   left: 0;
@@ -132,9 +145,12 @@
 .ms-island__body::after {
   content: '';
   position: absolute;
-  top: 2em;
+  /* Start 0.4em above the screen's top edge (the curve still sits at the
+     bottom 0.75em) so the shoulders' top row is solid black and never
+     anti-aliases against the clip, which let a hairline of wallpaper show. */
+  top: 1.6em;
   width: 0.75em;
-  height: 0.75em;
+  height: 1.15em;
 }
 
 .ms-island__body::before {

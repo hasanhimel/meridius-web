@@ -1176,12 +1176,26 @@ html:has(.m-site) body {
    The element sits at the tip; the glyph is centred on it.
    ========================================================================= */
 
+/* Every length here is in em of .m-cur's own font-size (16px by default:
+   the arrow is 17px tall at that size). A scene that scales with its
+   container sets the font-size in its own em, so the cursor scales with it. */
 .m-cur {
   position: absolute;
   width: 0;
   height: 0;
   z-index: 6;
+  font-size: 16px;
   pointer-events: none;
+}
+
+/* The Mac story (em = 1/80 of the Mac) and the demo stages (em = 1/56 of
+   the stage): these keep the desktop look and shrink with the picture. */
+.ms-mac .m-cur {
+  font-size: 1.11em;
+}
+
+.m-canvas__stage .m-cur {
+  font-size: 1.2em;
 }
 
 .m-cur__body {
@@ -1195,46 +1209,49 @@ html:has(.m-site) body {
 .m-cur__body::before {
   content: '';
   position: absolute;
-  left: -14px;
-  top: -5px;
-  width: 28px;
-  height: 28px;
+  left: -0.875em;
+  top: -0.3125em;
+  width: 1.75em;
+  height: 1.75em;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(30, 110, 234, 0.16) 0%, rgba(30, 110, 234, 0.06) 50%, rgba(30, 110, 234, 0) 75%);
 }
 
 .m-cur__body svg {
   position: absolute;
-  left: -18.05px;
-  top: -18.05px;
+  left: -1.128em;
+  top: -1.128em;
+  width: 2.256em;
+  height: 2.256em;
   display: block;
   overflow: visible;
-  filter: drop-shadow(0 3px 6px rgba(28, 56, 234, 0.42)) drop-shadow(0 1px 1.5px rgba(19, 26, 120, 0.25));
+  filter: drop-shadow(0 0.1875em 0.375em rgba(28, 56, 234, 0.42)) drop-shadow(0 0.0625em 0.094em rgba(19, 26, 120, 0.25));
 }
 
 .m-cur__ring {
   position: absolute;
-  left: -15px;
-  top: -15px;
-  width: 30px;
-  height: 30px;
+  left: -0.9375em;
+  top: -0.9375em;
+  width: 1.875em;
+  height: 1.875em;
   border-radius: 50%;
-  border: 2px solid rgba(28, 92, 234, 0.55);
+  border: 0.125em solid rgba(28, 92, 234, 0.55);
   opacity: 0;
 }
 
 .m-cur__label {
   position: absolute;
-  left: 9px;
-  top: 13px;
-  padding: 2px 8px;
+  /* In the label's own em (11px at the default size). */
+  left: 0.818em;
+  top: 1.18em;
+  padding: 0.18em 0.73em;
   border-radius: 99px;
   background: radial-gradient(115% 115% at 10% 17%, #1e82e0 0, #1c38ea 100%);
   color: #fff;
-  font-size: 11px;
+  font-size: 0.6875em;
   font-weight: 500;
   white-space: nowrap;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0.18em 0.55em rgba(0, 0, 0, 0.2);
 }
 
 /* =========================================================================

@@ -798,6 +798,14 @@ export const MacStory = forwardRef<HTMLDivElement>(function MacStory(_, ref) {
 
         const reset = () => {
           updateTimes();
+          // Sizes the morphs below write inline go back to the stylesheet's.
+          for (const el of [notif, vd, islandBody]) {
+            el.style.removeProperty('height');
+            el.style.removeProperty('width');
+            el.style.removeProperty('border-radius');
+            el.style.removeProperty('border-bottom-left-radius');
+            el.style.removeProperty('border-bottom-right-radius');
+          }
           Object.assign(P, { x: 40, y: 27 });
           drawPtr();
           Object.assign(C, { s: 1, x: 0, y: 0 });
@@ -833,6 +841,24 @@ export const MacStory = forwardRef<HTMLDivElement>(function MacStory(_, ref) {
         };
         const zoomOut = (d = 1, at: gsap.Position = '>') => zoom(1, W / 2, H / 2, d, at);
         const hold = (d: number) => tl.to({}, { duration: d });
+        /**
+         * Tween CSS lengths in em by driving a plain number and writing the em
+         * values ourselves. Tweening them directly lets GSAP record the start
+         * in px on the first play and restore that px size on every loop, which
+         * after a resize leaves the shape at its old size.
+         */
+        const emTween = (
+          el: HTMLElement,
+          props: Record<string, [number, number]>,
+          vars: { duration: number; ease: string },
+          at: gsap.Position = '>',
+        ) => {
+          const p = { v: 0 };
+          const write = () => {
+            for (const [k, [a, b]] of Object.entries(props)) el.style.setProperty(k, `${lerp(a, b, p.v)}em`);
+          };
+          tl.fromTo(p, { v: 0 }, { v: 1, duration: vars.duration, ease: vars.ease, onStart: write, onUpdate: write, immediateRender: false }, at);
+        };
         const step = (i: number, at: gsap.Position = '>') => tl.set(steps, { attr: { 'data-step': i } }, at);
         const launch = (key: string, times = 2, at: gsap.Position = '>') => {
           const img = iconOf(key).querySelector('.ms-dock__tile')!;
@@ -849,7 +875,7 @@ export const MacStory = forwardRef<HTMLDivElement>(function MacStory(_, ref) {
         // Starting looks for things that tween in.
         gsap.set(mbItem, { opacity: 0, scale: 0.5 });
         gsap.set(islandContent, { opacity: 0 });
-        gsap.set(notif, { scale: 0.94, opacity: 0, filter: 'blur(14px)', transformOrigin: '50% 30%' });
+        gsap.set(notif, { scale: 0.6, opacity: 0, filter: 'blur(20px)', transformOrigin: '50% 30%' });
         gsap.set(notif2, { opacity: 0, filter: 'blur(10px)' });
         gsap.set(vd, { opacity: 0, filter: 'blur(12px)' });
         gsap.set(gMail, { opacity: 0 });
@@ -868,11 +894,16 @@ export const MacStory = forwardRef<HTMLDivElement>(function MacStory(_, ref) {
         tl.set(menubar, { attr: { 'data-app': 'meridius' } }, '<');
         zoom(2.0, 36, 5, 1.0, '<0.15');
         // A breath, then the spring open, as the island does on iPhone.
-        tl.to(islandBody, { width: '9.6em', duration: 0.18, ease: 'power2.out' }, '>-0.2');
-        tl.to(
+        emTween(islandBody, { width: [8.6, 9.6] }, { duration: 0.18, ease: 'power2.out' }, '>-0.2');
+        emTween(
           islandBody,
-          { width: '24em', height: '7em', borderBottomLeftRadius: '2.3em', borderBottomRightRadius: '2.3em', duration: 0.75, ease: 'back.out(1.25)' },
-          '>',
+          {
+            width: [9.6, 24],
+            height: [3.7, 7],
+            'border-bottom-left-radius': [0.8, 2.3],
+            'border-bottom-right-radius': [0.8, 2.3],
+          },
+          { duration: 0.75, ease: 'back.out(1.25)' },
         );
         tl.fromTo(
           islandContent,
@@ -882,9 +913,15 @@ export const MacStory = forwardRef<HTMLDivElement>(function MacStory(_, ref) {
         );
         hold(1.5);
         // Closing: the content shrinks with the island and is the last to go.
-        tl.to(
+        emTween(
           islandBody,
-          { width: '8.6em', height: '3.7em', borderBottomLeftRadius: '0.8em', borderBottomRightRadius: '0.8em', duration: 0.6, ease: 'power3.inOut' },
+          {
+            width: [24, 8.6],
+            height: [7, 3.7],
+            'border-bottom-left-radius': [2.3, 0.8],
+            'border-bottom-right-radius': [2.3, 0.8],
+          },
+          { duration: 0.6, ease: 'power3.inOut' },
         );
         tl.to(islandContent, { scale: 0.36, duration: 0.6, ease: 'power3.inOut' }, '<');
         tl.to(islandContent, { opacity: 0, filter: 'blur(3px)', duration: 0.24, ease: 'power2.in' }, '<0.36');
@@ -945,9 +982,17 @@ export const MacStory = forwardRef<HTMLDivElement>(function MacStory(_, ref) {
 
         // 4. Meridius asks: only once the whole screen is back in view ----------
         step(3, '>0.15');
-        tl.to(notif, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.85, ease: 'power3.out' }, '>0.25');
-        blink('<0.2');
-        tl.set(notif, { filter: 'none' }, '>');
+        // The arrival has three beats: it drifts in slowly, still out of focus;
+        // then it pops, overshooting into focus all at once; then it eases
+        // back to its resting size.
+        tl.to(notif, { opacity: 0.55, scale: 0.72, filter: 'blur(10px)', duration: 0.9, ease: 'sine.inOut' }, '>0.25');
+        tl.addLabel('pop');
+        // One spring carries the pop, the overshoot and the settle, so the
+        // motion never changes hands mid-flight.
+        tl.to(notif, { scale: 1, duration: 1.1, ease: 'elastic.out(1, 0.55)' }, 'pop');
+        tl.to(notif, { opacity: 1, filter: 'blur(0px)', duration: 0.22, ease: 'power2.out' }, 'pop');
+        blink('pop+=0.1');
+        tl.set(notif, { filter: 'none' }, 'pop+=1.1');
         zoom(2.1, notifAt.x, notifAt.y, 1.0, '>0.15');
         hold(2.0);
         zoomOut(0.9);
@@ -959,7 +1004,7 @@ export const MacStory = forwardRef<HTMLDivElement>(function MacStory(_, ref) {
         // 5. The card becomes a display, in place -------------------------------
         step(4, '>0.1');
         tl.to(notifInner, { opacity: 0, filter: 'blur(6px)', duration: 0.35, ease: 'power2.in' }, '<0.1');
-        tl.to(notif, { height: `${VR.h}em`, borderRadius: '1em', duration: 0.75, ease: 'power3.inOut' }, '<0.1');
+        emTween(notif, { height: [NR.h, VR.h], 'border-radius': [1.3, 1] }, { duration: 0.75, ease: 'power3.inOut' }, '<0.1');
         tl.to(vd, { opacity: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, '<0.35');
         tl.to(notif, { opacity: 0, duration: 0.25 }, '>-0.2');
         tl.set(vd, { filter: 'none' });
@@ -1045,7 +1090,7 @@ export const MacStory = forwardRef<HTMLDivElement>(function MacStory(_, ref) {
         step(5, '<0.6');
         const N2 = pos(notif2);
         tl.to([vdBar, vdScreen], { opacity: 0, filter: 'blur(6px)', duration: 0.4, ease: 'power2.in' }, '>0.6');
-        tl.to(vd, { height: `${N2.h}em`, borderRadius: '1.3em', duration: 0.75, ease: 'power3.inOut' }, '<0.15');
+        emTween(vd, { height: [VR.h, N2.h], 'border-radius': [1, 1.3] }, { duration: 0.75, ease: 'power3.inOut' }, '<0.15');
         tl.to(notif2, { opacity: 1, filter: 'blur(0px)', duration: 0.6, ease: 'power2.out' }, '<0.35');
         tl.to(vd, { opacity: 0, duration: 0.25 }, '>-0.2');
         tl.set(notif2, { filter: 'none' });
@@ -1158,7 +1203,7 @@ export const MacStory = forwardRef<HTMLDivElement>(function MacStory(_, ref) {
                 <div className="ms-gmail__top">
                   <Lights />
                   <Ico name="menu" className="ms-gmail__burger" />
-                  <img src="/logos/gmail.svg" alt="" className="ms-gmail__logo" />
+                  <img src="/logos/gmail-m.png" alt="" className="ms-gmail__logo" />
                   <span className="ms-gmail__brand">Gmail</span>
                   <span className="ms-gmail__search">
                     <Ico name="search" />
