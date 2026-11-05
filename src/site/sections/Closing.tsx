@@ -1,6 +1,5 @@
 import { forwardRef } from 'react';
 import { closing } from '../content';
-import { BOOK_CALL_URL } from '../../config';
 import { AccessForm } from '../access/AccessForm';
 
 /**
@@ -23,9 +22,6 @@ export const Closing = forwardRef<HTMLInputElement>(function Closing(_, inputRef
         <div className="m-closing__form" data-reveal>
           <AccessForm ref={inputRef} />
         </div>
-        <p className="m-call" data-reveal>
-          {closing.call} <a href={BOOK_CALL_URL}>{closing.callLink}</a>
-        </p>
       </div>
     </section>
   );

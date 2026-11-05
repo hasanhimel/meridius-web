@@ -1,6 +1,6 @@
 import { NavMark } from '../brand/NavMark';
 import { Wordmark } from '../brand/Wordmark';
-import { BOOK_CALL_URL, CONTACT_EMAIL } from '../../config';
+import { CONTACT_EMAIL } from '../../config';
 
 export function Footer({ onRequest }: { onRequest: () => void }) {
   const year = new Date().getFullYear();
@@ -28,7 +28,6 @@ export function Footer({ onRequest }: { onRequest: () => void }) {
           <nav aria-label="Company">
             <h3>Company</h3>
             <ul>
-              <li><a href={BOOK_CALL_URL}>Book a call</a></li>
               <li><a href={`mailto:${CONTACT_EMAIL}`}>Contact</a></li>
             </ul>
           </nav>

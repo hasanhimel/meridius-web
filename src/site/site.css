@@ -170,17 +170,7 @@ html:has(.m-site) body {
     inset 4px 4px 4px rgba(19, 26, 228, 0.1);
 }
 
-.m-btn--glass {
-  color: #fff !important;
-  background: rgba(255, 255, 255, 0.16);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
 
-.m-btn--glass:hover {
-  background: rgba(255, 255, 255, 0.26);
-}
 
 .m-btn--sm {
   height: 36px;
@@ -952,14 +942,7 @@ html:has(.m-site) body {
   color: #e7ffe9;
 }
 
-.m-closing .m-call {
-  color: rgba(255, 255, 255, 0.75);
-}
 
-.m-closing .m-call a {
-  color: #fff;
-  text-decoration-color: rgba(255, 255, 255, 0.5) !important;
-}
 
 .m-form {
   display: flex;
@@ -1006,19 +989,7 @@ html:has(.m-site) body {
   color: #15803d;
 }
 
-.m-call {
-  margin-top: 4px !important;
-  font-size: 14px;
-  color: var(--muted);
-}
 
-.m-call a {
-  font-weight: 500;
-  color: var(--ink-2);
-  text-decoration: underline !important;
-  text-underline-offset: 3px;
-  text-decoration-color: rgba(38, 48, 67, 0.3) !important;
-}
 
 .m-trap {
   position: absolute;
@@ -1052,20 +1023,21 @@ html:has(.m-site) body {
   text-shadow: 0 1px 12px rgba(40, 36, 120, 0.35);
 }
 
-/* The frosted pane lives on a layer that starts 90px above the footer and
-   fades in through a mask, so its top edge is a blur rather than a line. */
+/* The frosted pane lives on a layer that starts 120px above the footer and
+   fades in through a long mask, so its top is all blur and no edge: the sky
+   grows hazier until it is the footer. */
 .m-footer__glass::before {
   content: '';
   position: absolute;
-  inset: -90px 0 0;
+  inset: -120px 0 0;
   z-index: -1;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.12)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.14) 300px, rgba(255, 255, 255, 0.12)),
     rgba(52, 50, 132, 0.2);
-  backdrop-filter: blur(48px) saturate(160%);
-  -webkit-backdrop-filter: blur(48px) saturate(160%);
-  -webkit-mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.6) 90px, #000 180px);
-  mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.6) 90px, #000 180px);
+  backdrop-filter: blur(56px) saturate(160%);
+  -webkit-backdrop-filter: blur(56px) saturate(160%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.5) 110px, #000 220px);
+  mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.5) 110px, #000 220px);
   pointer-events: none;
 }
 

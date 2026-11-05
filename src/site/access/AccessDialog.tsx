@@ -1,5 +1,4 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
-import { BOOK_CALL_URL } from '../../config';
 import { getLenis } from '../motion';
 import { NavMark } from '../brand/NavMark';
 import { AccessForm } from './AccessForm';
@@ -61,9 +60,6 @@ export const AccessDialog = forwardRef<AccessDialogHandle>(function AccessDialog
         <h2 id="access-dialog-title">Request early access</h2>
         <p className="m-dialog__lead">Meridius is opening to a small group on macOS first. Leave your email and we’ll write when your seat is ready.</p>
         <AccessForm ref={input} compact />
-        <p className="m-call">
-          Prefer to talk first? <a href={BOOK_CALL_URL}>Book a call</a>
-        </p>
       </div>
     </dialog>
   );

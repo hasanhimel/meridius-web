@@ -20,7 +20,6 @@ export const hero = {
   sentence:
     'Meridius is a Mac companion that notices what you promised, remembers it, and gets it done in a display of its own, while you keep working.',
   primary: 'Request early access',
-  secondary: 'Book a call',
 };
 
 /** Chapter one: why a chat box isn't enough. */
@@ -170,6 +169,4 @@ export const closing = {
   sub: 'Meridius is opening to a small group on macOS. Request your seat.',
   placeholder: 'you@email.com',
   button: 'Request access',
-  call: 'Prefer to talk first?',
-  callLink: 'Book a call',
 };

@@ -1,6 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
 import { hero } from '../content';
-import { BOOK_CALL_URL } from '../../config';
 import { MacStory } from '../ui/MacStory';
 import { gsap, MOTION_OK } from '../motion';
 
@@ -79,9 +78,6 @@ export function Hero({ onRequest }: { onRequest: () => void }) {
           <button type="button" className="m-btn m-btn--blue" onClick={onRequest}>
             {hero.primary}
           </button>
-          <a className="m-btn m-btn--glass" href={BOOK_CALL_URL}>
-            {hero.secondary}
-          </a>
         </div>
         <div className="m-hero__shot">
           <MacStory ref={shotRef} />
