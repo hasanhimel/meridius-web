@@ -132,7 +132,7 @@ export function OwnDisplay() {
             <span className="m-dual__status" data-paused={paused}>
               {paused ? 'Paused' : `Filing receipts · ${Math.min(filled, ROWS.length)} of ${ROWS.length}`}
             </span>
-            <button type="button" className="m-btn m-btn--sm m-btn--ghost" onClick={() => setPaused((p) => !p)}>
+            <button type="button" className="m-btn m-btn--sm m-btn--blue" onClick={() => setPaused((p) => !p)}>
               {paused ? 'Resume' : 'Pause Meridius'}
             </button>
           </div>

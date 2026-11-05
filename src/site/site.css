@@ -2528,8 +2528,9 @@ html:has(.m-site) body {
 }
 
 .m-dual__label--it {
-  color: var(--panel-ink);
-  background: var(--panel);
+  color: #fff;
+  background: radial-gradient(115% 115% at 10% 17%, var(--blue-a) 0, var(--blue-b) 100%);
+  box-shadow: 0 6px 14px -6px rgba(28, 56, 234, 0.45);
 }
 
 .m-dual__win {
@@ -2543,13 +2544,14 @@ html:has(.m-site) body {
   box-shadow: 0 24px 48px -24px rgba(38, 48, 67, 0.35), 0 0 0 1px rgba(38, 48, 67, 0.06);
 }
 
+/* Meridius's window: a blue ring drawn outside the window, and the window
+   clips its own rows so the bottom corners stay round. */
 .m-dual__win--it {
-  overflow: visible;
-  box-shadow: 0 0 0 4px var(--panel), 0 24px 48px -24px rgba(38, 48, 67, 0.45);
-}
-
-.m-dual__win--it .d-win__bar {
-  border-radius: 14px 14px 0 0;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 3px var(--blue),
+    0 0 0 7px rgba(28, 92, 234, 0.14),
+    0 24px 48px -24px rgba(28, 56, 234, 0.4);
 }
 
 .m-dual__note {
@@ -2592,7 +2594,8 @@ html:has(.m-site) body {
   transition: background-color 0.3s ease;
 }
 
-.m-sheet__row:last-of-type {
+.m-sheet__row:last-of-type,
+.m-sheet__row:nth-last-child(2) {
   border-bottom: 0;
 }
 
