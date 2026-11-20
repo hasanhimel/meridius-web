@@ -1112,12 +1112,14 @@ export const MacStory = forwardRef<HTMLDivElement>(function MacStory(_, ref) {
 
         if (reducedMotion()) {
           // A still frame: both windows open, Meridius's question on screen.
-          tl.seek('poster').pause();
-          drawPtr();
-          drawCam();
-          drawScroll();
-          genieDraw(gmail, GR, 'gmail', 1);
-          genieDraw(slack, SR, 'slack', 1);
+          // Seek with events on. Most tweens here draw a proxy in onUpdate, and
+          // a seek that suppresses events still runs each skipped tween's
+          // onUpdate once, at its start value, and never at its end. That left
+          // every em morph at its starting size: the island, last tweened by
+          // its close, stayed 24em wide. With events on, each tween ends on its
+          // final draw, so the pointer, camera, scroll and windows need no
+          // redraw here either.
+          tl.seek('poster', false).pause();
         }
       }, root);
       syncRef.current();
