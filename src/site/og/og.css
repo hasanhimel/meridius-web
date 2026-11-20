@@ -1,0 +1,55 @@
+/* The link-preview card: a fixed 1200 x 630 frame. Text stays well inside
+   the edges because LinkedIn and others crop a little. */
+
+html:has(.og),
+html:has(.og) body {
+  margin: 0;
+  overflow: hidden;
+}
+
+.og-card {
+  width: 1200px;
+  height: 630px;
+  overflow: hidden;
+  padding-top: 48px;
+}
+
+/* The hero's sky at the page's proportions, so the MacBook sits in the pale
+   band. Only the sun's arc is raised, so the sun clears the MacBook and sits
+   beside the headline as it does on the page. */
+.og-card .m-sky {
+  height: 900px;
+}
+
+.og-card .m-sky__arc {
+  top: -200px;
+}
+
+.og-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #fff;
+}
+
+.og-title {
+  margin-top: 34px !important;
+  font-size: 70px;
+}
+
+.og-sentence {
+  max-width: 600px;
+  margin-top: 18px !important;
+  font-size: 21px;
+}
+
+.og-shot {
+  width: 940px;
+  margin: 34px auto 0;
+}
+
+/* The step list under the MacBook is cropped away anyway; hide it outright. */
+.og-shot .ms-foot {
+  display: none;
+}

@@ -7,7 +7,7 @@ import { gsap, MOTION_OK } from '../motion';
  * A noon sky. "Meridius" comes from the meridian, the line the sun crosses at
  * its highest point; the dotted arc is that path, with the sun on it.
  */
-function Sky() {
+export function Sky() {
   return (
     <div className="m-sky" aria-hidden="true">
       <svg className="m-sky__arc" viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice">
